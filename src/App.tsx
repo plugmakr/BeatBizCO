@@ -18,6 +18,7 @@ import ProducerSupport from "./pages/producer/Support";
 import ProducerWebsite from "./pages/producer/Website";
 import ProducerSoundLibrary from "./pages/producer/SoundLibrary";
 import ProducerFunnels from "./pages/producer/Funnels";
+import HowItWorks from "./pages/HowItWorks";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/auth" element={<Auth />} />
           <Route
             path="/dashboard"

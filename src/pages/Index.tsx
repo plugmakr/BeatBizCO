@@ -125,17 +125,17 @@ const Index = () => {
               <NavigationMenuItem>
                 <NavigationMenuLink 
                   className="text-white hover:text-white/80 cursor-pointer"
-                  onClick={() => scrollToSection('pricing')}
+                  onClick={() => navigate('/how-it-works')}
                 >
-                  Pricing
+                  How it Works
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink 
                   className="text-white hover:text-white/80 cursor-pointer"
-                  onClick={() => scrollToSection('how-it-works')}
+                  onClick={() => scrollToSection('pricing')}
                 >
-                  How it Works
+                  Pricing
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
