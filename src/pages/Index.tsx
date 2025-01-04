@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { 
   Music2, 
-  ShoppingCart, 
   Mic2, 
   HeadphonesIcon, 
   AudioWaveform,
@@ -18,6 +17,10 @@ import {
 const Index = () => {
   const navigate = useNavigate();
 
+  const handleAuthNavigation = () => {
+    navigate("/auth");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation Bar */}
@@ -30,12 +33,12 @@ const Index = () => {
           <div className="space-x-4">
             <Button
               variant="ghost"
-              onClick={() => navigate("/auth")}
+              onClick={handleAuthNavigation}
             >
               Login
             </Button>
             <Button
-              onClick={() => navigate("/auth")}
+              onClick={handleAuthNavigation}
             >
               Register
             </Button>
@@ -53,7 +56,7 @@ const Index = () => {
         </p>
         <Button
           size="lg"
-          onClick={() => navigate("/auth")}
+          onClick={handleAuthNavigation}
           className="px-8"
         >
           Get Started
@@ -182,7 +185,7 @@ const Index = () => {
                 and build lasting collaborations.
               </p>
               <Button
-                onClick={() => navigate("/auth")}
+                onClick={handleAuthNavigation}
                 variant="secondary"
               >
                 Join as Artist
@@ -198,7 +201,7 @@ const Index = () => {
                 collaborate with artists worldwide.
               </p>
               <Button
-                onClick={() => navigate("/auth")}
+                onClick={handleAuthNavigation}
                 variant="secondary"
               >
                 Join as Producer
