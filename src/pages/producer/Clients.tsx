@@ -263,11 +263,19 @@ const ProducerClients = () => {
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
+                              <Button 
+                                variant="ghost" 
+                                className="h-8 w-8 p-0"
+                                onClick={(e) => {
+                                  // Prevent the cell from becoming editable
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                              >
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="end" className="bg-background">
                               <DropdownMenuItem
                                 onClick={() => {
                                   setSelectedClient(client);
