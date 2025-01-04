@@ -6,10 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+type UserRole = "producer" | "artist" | "buyer";
+
 const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [role, setRole] = useState<"producer" | "artist" | "buyer">("buyer");
+  const [role, setRole] = useState<UserRole>("buyer");
 
   useEffect(() => {
     // Check if user is already logged in
@@ -25,12 +27,13 @@ const AuthForm = () => {
         try {
           const { error } = await supabase
             .from("profiles")
-            .insert([
-              {
-                id: session.user.id,
-                role: role,
-              },
-            ]);
+            .upsert({
+              id: session.user.id,
+              role: role,
+              updated_at: new Date().toISOString(),
+            }, {
+              onConflict: 'id'
+            });
 
           if (error) throw error;
 
