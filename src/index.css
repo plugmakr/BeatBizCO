@@ -96,6 +96,13 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-[#9b87f5] to-[#D3E4FD] min-h-screen text-foreground;
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .feature-card {
+    @apply border border-white/20 backdrop-blur-sm bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-white/20;
   }
 }
