@@ -25,10 +25,10 @@ const WhyBeatBiz = () => {
       <h2 className="text-3xl font-bold text-center mb-12 text-white">Why use BeatBiz Pro?</h2>
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
         {reasons.map((reason, index) => (
-          <Card key={index} className="feature-card">
+          <Card key={index} className="bg-white hover:shadow-lg transition-all duration-300">
             <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-2 text-white">{reason.title}</h3>
-              <p className="text-gray-300">{reason.description}</p>
+              <h3 className="text-xl font-semibold mb-2 text-gray-800">{reason.title}</h3>
+              <p className="text-gray-600">{reason.description}</p>
             </CardContent>
           </Card>
         ))}
