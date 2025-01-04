@@ -1,14 +1,33 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { 
+  Sidebar, 
+  SidebarContent, 
+  SidebarGroup, 
+  SidebarGroupContent, 
+  SidebarGroupLabel, 
+  SidebarMenu, 
+  SidebarMenuButton, 
+  SidebarMenuItem 
+} from "@/components/ui/sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { LogOut, User, Music, ShoppingCart, Settings } from "lucide-react";
+import { 
+  LogOut, 
+  User, 
+  Music, 
+  ShoppingCart, 
+  Settings,
+  LayoutDashboard,
+  Users,
+  FileText,
+  Megaphone,
+  BarChart,
+  Star,
+  MessageSquare,
+  Bell
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Profile {
-  role: "producer" | "artist" | "buyer" | "admin";
-}
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
@@ -52,6 +71,62 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getMenuItems = () => {
+    if (role === "producer") {
+      return [
+        {
+          title: "Dashboard",
+          icon: LayoutDashboard,
+          url: "/producer/dashboard",
+        },
+        {
+          title: "My Beats",
+          icon: Music,
+          url: "/producer/beats",
+        },
+        {
+          title: "Collaboration",
+          icon: Users,
+          url: "/producer/collaboration",
+        },
+        {
+          title: "Licensing",
+          icon: FileText,
+          url: "/producer/licensing",
+        },
+        {
+          title: "Marketing",
+          icon: Megaphone,
+          url: "/producer/marketing",
+        },
+        {
+          title: "Analytics",
+          icon: BarChart,
+          url: "/producer/analytics",
+        },
+        {
+          title: "Reviews",
+          icon: Star,
+          url: "/producer/reviews",
+        },
+        {
+          title: "Messages",
+          icon: MessageSquare,
+          url: "/producer/messages",
+        },
+        {
+          title: "Notifications",
+          icon: Bell,
+          url: "/producer/notifications",
+        },
+        {
+          title: "Settings",
+          icon: Settings,
+          url: "/producer/settings",
+        },
+      ];
+    }
+
+    // Return default menu items for other roles
     const commonItems = [
       {
         title: "Profile",
@@ -66,13 +141,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     ];
 
     const roleSpecificItems = {
-      producer: [
-        {
-          title: "My Beats",
-          icon: Music,
-          url: "/dashboard/beats",
-        },
-      ],
       artist: [
         {
           title: "Browse Beats",
@@ -96,7 +164,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       ],
     };
 
-    // Return only common items if role is not set or invalid
     if (!role || !roleSpecificItems[role as keyof typeof roleSpecificItems]) {
       return commonItems;
     }

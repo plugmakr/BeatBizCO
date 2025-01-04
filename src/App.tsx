@@ -9,6 +9,7 @@ import AuthGuard from "./components/auth/AuthGuard";
 import RoleGuard from "./components/auth/RoleGuard";
 import ArtistDashboard from "./pages/artist/Dashboard";
 import AdminDashboard from "./pages/admin/Dashboard";
+import ProducerDashboard from "./pages/producer/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +20,6 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Make the landing page the default route */}
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route
@@ -27,6 +27,16 @@ const App = () => (
             element={
               <AuthGuard>
                 <Index />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/producer/*"
+            element={
+              <AuthGuard>
+                <RoleGuard allowedRoles={["producer"]}>
+                  <ProducerDashboard />
+                </RoleGuard>
               </AuthGuard>
             }
           />
