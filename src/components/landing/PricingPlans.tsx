@@ -61,19 +61,19 @@ const PricingPlans = () => {
         <h2 className="text-3xl font-bold text-center mb-12 text-white">Choose Your Plan</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
-            <Card key={index} className="bg-card text-card-foreground border-white/20">
+            <Card key={index} className="flex flex-col bg-[#2980b9] border-white/20">
               <CardHeader>
-                <CardTitle className="text-2xl text-center">{plan.name}</CardTitle>
-                <div className="text-4xl font-bold text-center mt-4">
-                  {plan.price}<span className="text-lg opacity-70">/month</span>
+                <CardTitle className="text-2xl text-center text-white">{plan.name}</CardTitle>
+                <div className="text-4xl font-bold text-center mt-4 text-white">
+                  {plan.price}<span className="text-lg text-white/90">/month</span>
                 </div>
               </CardHeader>
               <CardContent className="flex-grow">
                 <ul className="space-y-3">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center gap-2">
-                      <Check className="h-4 w-4" />
-                      <span className="text-sm opacity-90">{feature}</span>
+                      <Check className="h-4 w-4 text-white" />
+                      <span className="text-sm text-white/90">{feature}</span>
                     </li>
                   ))}
                 </ul>
