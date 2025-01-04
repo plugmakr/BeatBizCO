@@ -297,6 +297,161 @@ export type Database = {
           },
         ]
       }
+      marketplace_analytics: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: string
+          item_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: string
+          item_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: string
+          item_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_analytics_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_analytics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_items: {
+        Row: {
+          bpm: number | null
+          created_at: string | null
+          description: string | null
+          download_url: string | null
+          genre: string | null
+          id: string
+          key: string | null
+          preview_url: string | null
+          price: number
+          producer_id: string | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          total_downloads: number | null
+          total_plays: number | null
+          total_sales: number | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          bpm?: number | null
+          created_at?: string | null
+          description?: string | null
+          download_url?: string | null
+          genre?: string | null
+          id?: string
+          key?: string | null
+          preview_url?: string | null
+          price: number
+          producer_id?: string | null
+          status?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          total_downloads?: number | null
+          total_plays?: number | null
+          total_sales?: number | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          bpm?: number | null
+          created_at?: string | null
+          description?: string | null
+          download_url?: string | null
+          genre?: string | null
+          id?: string
+          key?: string | null
+          preview_url?: string | null
+          price?: number
+          producer_id?: string | null
+          status?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          total_downloads?: number | null
+          total_plays?: number | null
+          total_sales?: number | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_items_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_sales: {
+        Row: {
+          amount: number
+          buyer_id: string | null
+          created_at: string | null
+          id: string
+          item_id: string | null
+          status: string | null
+        }
+        Insert: {
+          amount: number
+          buyer_id?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string | null
+          created_at?: string | null
+          id?: string
+          item_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_sales_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_sales_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
