@@ -7,6 +7,11 @@ import Auth from "./pages/Auth";
 import Marketplace from "./pages/Marketplace";
 import ArtistProfile from "./pages/ArtistProfile";
 import ProducerProfile from "./pages/producer/ProducerProfile";
+import ArtistDashboard from "./pages/artist/Dashboard";
+import ArtistWebsite from "./pages/artist/Website";
+import ArtistMarketing from "./pages/artist/Marketing";
+import ArtistSales from "./pages/artist/Sales";
+import ArtistAnalytics from "./pages/artist/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +26,11 @@ function App() {
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/artist/:slug" element={<ArtistProfile />} />
           <Route path="/producer/:slug" element={<ProducerProfile />} />
+          <Route path="/artist/dashboard" element={<ArtistDashboard />} />
+          <Route path="/artist/website" element={<ArtistWebsite />} />
+          <Route path="/artist/marketing" element={<ArtistMarketing />} />
+          <Route path="/artist/sales" element={<ArtistSales />} />
+          <Route path="/artist/analytics" element={<ArtistAnalytics />} />
         </Routes>
       </BrowserRouter>
       <Toaster />
