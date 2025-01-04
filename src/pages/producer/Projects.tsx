@@ -12,10 +12,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
+import { ProjectDetailsDialog } from "@/components/projects/ProjectDetailsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Eye, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 
 type Project = {
@@ -25,6 +26,7 @@ type Project = {
   deadline: string | null;
   status: string;
   created_by: string;
+  client_id: string | null;
   profiles: {
     full_name: string | null;
   } | null;
@@ -34,6 +36,8 @@ const ProducerProjects = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [activeProjects, setActiveProjects] = useState<Project[]>([]);
   const [completedProjects, setCompletedProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -132,6 +136,84 @@ const ProducerProjects = () => {
     fetchProjects();
   }, []);
 
+  const ProjectTable = ({ projects }: { projects: Project[] }) => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Project Name</TableHead>
+          <TableHead>Description</TableHead>
+          <TableHead>Deadline</TableHead>
+          <TableHead>Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {projects.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={4} className="text-center">
+              No projects
+            </TableCell>
+          </TableRow>
+        ) : (
+          projects.map((project) => (
+            <TableRow key={project.id}>
+              <TableCell className="font-medium">{project.name}</TableCell>
+              <TableCell>{project.description}</TableCell>
+              <TableCell>
+                {project.deadline
+                  ? format(new Date(project.deadline), "PPP")
+                  : "No deadline"}
+              </TableCell>
+              <TableCell>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    onClick={() => {
+                      setSelectedProject(project);
+                      setDetailsOpen(true);
+                    }}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  {project.status === "active" && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleCompleteProject(project.id)}
+                      >
+                        Complete
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        onClick={() => {
+                          toast({
+                            title: "Coming Soon",
+                            description: "Edit functionality will be added soon",
+                          });
+                        }}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => handleDeleteProject(project.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))
+        )}
+      </TableBody>
+    </Table>
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -153,69 +235,7 @@ const ProducerProjects = () => {
                 <CardTitle>Active Projects</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Project Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Deadline</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {activeProjects.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center">
-                          No active projects
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      activeProjects.map((project) => (
-                        <TableRow key={project.id}>
-                          <TableCell className="font-medium">
-                            {project.name}
-                          </TableCell>
-                          <TableCell>{project.description}</TableCell>
-                          <TableCell>
-                            {project.deadline
-                              ? format(new Date(project.deadline), "PPP")
-                              : "No deadline"}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => handleCompleteProject(project.id)}
-                              >
-                                Complete
-                              </Button>
-                              <Button
-                                variant="secondary"
-                                size="icon"
-                                onClick={() => {
-                                  toast({
-                                    title: "Coming Soon",
-                                    description: "Edit functionality will be added soon",
-                                  });
-                                }}
-                              >
-                                <Edit2 className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                onClick={() => handleDeleteProject(project.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                <ProjectTable projects={activeProjects} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -226,48 +246,7 @@ const ProducerProjects = () => {
                 <CardTitle>Completed Projects</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Project Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Completion Date</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {completedProjects.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center">
-                          No completed projects
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      completedProjects.map((project) => (
-                        <TableRow key={project.id}>
-                          <TableCell className="font-medium">
-                            {project.name}
-                          </TableCell>
-                          <TableCell>{project.description}</TableCell>
-                          <TableCell>
-                            {project.deadline
-                              ? format(new Date(project.deadline), "PPP")
-                              : "No deadline"}
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="destructive"
-                              size="icon"
-                              onClick={() => handleDeleteProject(project.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
+                <ProjectTable projects={completedProjects} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -288,6 +267,12 @@ const ProducerProjects = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <ProjectDetailsDialog
+          project={selectedProject}
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+        />
       </div>
     </DashboardLayout>
   );
