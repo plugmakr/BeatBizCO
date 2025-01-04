@@ -6,6 +6,7 @@ import HowItWorks from "./pages/HowItWorks";
 import Auth from "./pages/Auth";
 import Marketplace from "./pages/Marketplace";
 import ArtistProfile from "./pages/ArtistProfile";
+import ProducerProfile from "./pages/producer/ProducerProfile";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/artist/:slug" element={<ArtistProfile />} />
+          <Route path="/producer/:slug" element={<ProducerProfile />} />
         </Routes>
       </BrowserRouter>
       <Toaster />

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { SpotlightArtist } from "@/components/marketplace/SpotlightArtist";
+import { SpotlightProducer } from "@/components/marketplace/SpotlightProducer";
 import { NewBeats } from "@/components/marketplace/NewBeats";
 import { UpcomingArtists } from "@/components/marketplace/UpcomingArtists";
 import { PopularGenres } from "@/components/marketplace/PopularGenres";
@@ -45,8 +46,11 @@ export default function Marketplace() {
           ))}
         </div>
 
-        {/* Spotlight Artist */}
-        <SpotlightArtist />
+        {/* Spotlight Sections */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <SpotlightArtist />
+          <SpotlightProducer />
+        </div>
 
         {/* New Beats */}
         <NewBeats />
