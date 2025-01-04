@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
-import { Upload, Trash2 } from "lucide-react";
+import { Upload, Trash2, Loader2 } from "lucide-react";
 import { MediaThumbnail } from "@/components/shared/media/MediaThumbnail";
 import { FilePreviewDialog } from "@/components/producer/clients/FilePreviewDialog";
 import { UploadProgress } from "@/components/shared/media/UploadProgress";
