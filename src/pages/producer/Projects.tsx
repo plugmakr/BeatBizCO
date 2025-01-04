@@ -38,6 +38,7 @@ const ProducerProjects = () => {
   const [completedProjects, setCompletedProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -108,10 +109,14 @@ const ProducerProjects = () => {
   };
 
   const handleCompleteProject = async (projectId: string) => {
+    setIsLoading(true);
     try {
       const { error } = await supabase
         .from("collaboration_projects")
-        .update({ status: "completed" })
+        .update({ 
+          status: "completed",
+          updated_at: new Date().toISOString()
+        })
         .eq("id", projectId);
 
       if (error) throw error;
@@ -121,14 +126,21 @@ const ProducerProjects = () => {
         description: "Project marked as completed",
       });
 
-      fetchProjects();
-    } catch (error) {
+      // Move the project from active to completed list
+      const completedProject = activeProjects.find(p => p.id === projectId);
+      if (completedProject) {
+        setActiveProjects(prev => prev.filter(p => p.id !== projectId));
+        setCompletedProjects(prev => [...prev, { ...completedProject, status: 'completed' }]);
+      }
+    } catch (error: any) {
       console.error("Error completing project:", error);
       toast({
         title: "Error",
-        description: "Failed to complete project",
+        description: error.message || "Failed to complete project",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -180,9 +192,10 @@ const ProducerProjects = () => {
                       <Button
                         variant="secondary"
                         size="sm"
+                        disabled={isLoading}
                         onClick={() => handleCompleteProject(project.id)}
                       >
-                        Complete
+                        {isLoading ? "Completing..." : "Complete"}
                       </Button>
                       <Button
                         variant="secondary"
