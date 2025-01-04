@@ -95,6 +95,57 @@ export type Database = {
           },
         ]
       }
+      client_files: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          file_path: string
+          file_type: string
+          filename: string
+          id: string
+          size: number
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          file_path: string
+          file_type: string
+          filename: string
+          id?: string
+          size: number
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          file_path?: string
+          file_type?: string
+          filename?: string
+          id?: string
+          size?: number
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_files_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           budget_range: string | null

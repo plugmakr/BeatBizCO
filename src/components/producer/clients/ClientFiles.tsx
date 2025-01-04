@@ -1,18 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { FileUp, Trash2, Download } from "lucide-react";
-import type { Client } from "@/types/database";
-
-interface ClientFile {
-  id: string;
-  filename: string;
-  file_type: string;
-  size: number;
-  created_at: string;
-}
+import type { Client, ClientFile } from "@/types/database";
 
 interface ClientFilesProps {
   client: Client;
@@ -35,8 +27,12 @@ export function ClientFiles({ client }: ClientFilesProps) {
       return;
     }
 
-    setFiles(data);
+    setFiles(data as ClientFile[]);
   };
+
+  useEffect(() => {
+    fetchFiles();
+  }, [client.id]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

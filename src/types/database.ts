@@ -13,3 +13,15 @@ export interface Client {
   created_at: string | null;
   updated_at: string | null;
 }
+
+export interface ClientFile {
+  id: string;
+  client_id: string;
+  filename: string;
+  file_path: string;
+  file_type: string;
+  size: number;
+  uploaded_by: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
