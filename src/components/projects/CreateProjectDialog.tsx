@@ -75,7 +75,7 @@ export function CreateProjectDialog() {
       const { error } = await supabase.from("collaboration_projects").insert({
         name: data.name,
         description: data.description,
-        deadline: data.deadline,
+        deadline: data.deadline?.toISOString(),
         created_by: session.session.user.id,
         status: "active",
       });
@@ -105,10 +105,10 @@ export function CreateProjectDialog() {
       <DialogTrigger asChild>
         <Button>Create New Project</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[625px] bg-[#1A1F2C] border-[#9b87f5]/20 text-white">
         <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white">Create New Project</DialogTitle>
+          <DialogDescription className="text-gray-300">
             Fill in the details for your new music production project.
           </DialogDescription>
         </DialogHeader>
@@ -119,11 +119,15 @@ export function CreateProjectDialog() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Name</FormLabel>
+                  <FormLabel className="text-white">Project Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter project name" {...field} />
+                    <Input 
+                      placeholder="Enter project name" 
+                      {...field}
+                      className="bg-[#2A2F3C] border-[#9b87f5]/20 text-white placeholder:text-gray-400" 
+                    />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
@@ -132,14 +136,15 @@ export function CreateProjectDialog() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel className="text-white">Description</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Describe your project"
                       {...field}
+                      className="bg-[#2A2F3C] border-[#9b87f5]/20 text-white placeholder:text-gray-400"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
@@ -149,11 +154,15 @@ export function CreateProjectDialog() {
                 name="genre"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Genre</FormLabel>
+                    <FormLabel className="text-white">Genre</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Hip Hop, Pop" {...field} />
+                      <Input 
+                        placeholder="e.g., Hip Hop, Pop" 
+                        {...field}
+                        className="bg-[#2A2F3C] border-[#9b87f5]/20 text-white placeholder:text-gray-400"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
@@ -162,11 +171,15 @@ export function CreateProjectDialog() {
                 name="budget"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Budget</FormLabel>
+                    <FormLabel className="text-white">Budget</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter budget" {...field} />
+                      <Input 
+                        placeholder="Enter budget" 
+                        {...field}
+                        className="bg-[#2A2F3C] border-[#9b87f5]/20 text-white placeholder:text-gray-400"
+                      />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-400" />
                   </FormItem>
                 )}
               />
@@ -176,15 +189,15 @@ export function CreateProjectDialog() {
               name="deadline"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Deadline</FormLabel>
+                  <FormLabel className="text-white">Deadline</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
                           variant={"outline"}
                           className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
+                            "w-full pl-3 text-left font-normal bg-[#2A2F3C] border-[#9b87f5]/20 text-white",
+                            !field.value && "text-gray-400"
                           )}
                         >
                           {field.value ? (
@@ -205,10 +218,11 @@ export function CreateProjectDialog() {
                           date < new Date() || date < new Date("1900-01-01")
                         }
                         initialFocus
+                        className="bg-[#2A2F3C] text-white border-[#9b87f5]/20"
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
@@ -217,14 +231,15 @@ export function CreateProjectDialog() {
               name="deliverables"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Deliverables</FormLabel>
+                  <FormLabel className="text-white">Deliverables</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="List the expected deliverables"
                       {...field}
+                      className="bg-[#2A2F3C] border-[#9b87f5]/20 text-white placeholder:text-gray-400"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
@@ -233,19 +248,24 @@ export function CreateProjectDialog() {
               name="references"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reference Tracks</FormLabel>
+                  <FormLabel className="text-white">Reference Tracks</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Add links to reference tracks"
                       {...field}
+                      className="bg-[#2A2F3C] border-[#9b87f5]/20 text-white placeholder:text-gray-400"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-400" />
                 </FormItem>
               )}
             />
             <DialogFooter>
-              <Button type="submit" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="bg-[#9b87f5] hover:bg-[#8b77e5] text-white"
+              >
                 {isLoading && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
