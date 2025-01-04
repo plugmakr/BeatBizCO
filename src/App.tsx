@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AuthGuard from "./components/auth/AuthGuard";
+import RoleGuard from "./components/auth/RoleGuard";
+import ArtistDashboard from "./pages/artist/Dashboard";
+import AdminDashboard from "./pages/admin/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +25,26 @@ const App = () => (
             element={
               <AuthGuard>
                 <Index />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/artist"
+            element={
+              <AuthGuard>
+                <RoleGuard allowedRoles={["artist"]}>
+                  <ArtistDashboard />
+                </RoleGuard>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <AuthGuard>
+                <RoleGuard allowedRoles={["admin"]}>
+                  <AdminDashboard />
+                </RoleGuard>
               </AuthGuard>
             }
           />
