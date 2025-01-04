@@ -71,13 +71,13 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-[#1A1F2C] to-[#0F172A] min-h-screen text-white;
+    @apply bg-gradient-to-br from-[#4834d4] to-[#2980b9] min-h-screen text-white;
     background-attachment: fixed;
   }
 }
 
 @layer components {
   .feature-card {
-    @apply border border-white/20 backdrop-blur-sm bg-black/30 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-black/40;
+    @apply border border-white/20 backdrop-blur-sm bg-[#4834d4]/80 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#4834d4];
   }
 }

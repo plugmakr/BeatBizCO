@@ -56,28 +56,28 @@ const PricingPlans = () => {
   ];
 
   return (
-    <section className="bg-muted/50 py-20">
+    <section className="bg-[#4834d4]/10 py-20">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">Choose Your Plan</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 text-white">Choose Your Plan</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
-            <Card key={index} className="flex flex-col">
+            <Card key={index} className="flex flex-col bg-[#4834d4]/20 border-white/20">
               <CardHeader>
-                <CardTitle className="text-2xl text-center">{plan.name}</CardTitle>
-                <div className="text-4xl font-bold text-center mt-4">
-                  {plan.price}<span className="text-lg text-muted-foreground">/month</span>
+                <CardTitle className="text-2xl text-center text-white">{plan.name}</CardTitle>
+                <div className="text-4xl font-bold text-center mt-4 text-white">
+                  {plan.price}<span className="text-lg text-white/70">/month</span>
                 </div>
               </CardHeader>
               <CardContent className="flex-grow">
                 <ul className="space-y-3">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-primary" />
-                      <span className="text-sm">{feature}</span>
+                      <Check className="h-4 w-4 text-white" />
+                      <span className="text-sm text-white/90">{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <Button className="w-full mt-6">Get Started</Button>
+                <Button className="w-full mt-6 bg-white/20 hover:bg-white/30 text-white">Get Started</Button>
               </CardContent>
             </Card>
           ))}
