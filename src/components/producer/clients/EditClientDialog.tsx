@@ -25,19 +25,21 @@ export function EditClientDialog({ client, open, onOpenChange, onSuccess }: Edit
     try {
       setIsLoading(true);
       
+      const updateData = {
+        name: String(formData.get('name')),
+        email: String(formData.get('email')),
+        phone: String(formData.get('phone')),
+        website: String(formData.get('website')),
+        budget_range: String(formData.get('budget_range')),
+        genre_focus: String(formData.get('genre_focus')),
+        project_type: String(formData.get('project_type')),
+        social_media: String(formData.get('social_media')),
+        notes: String(formData.get('notes')),
+      };
+
       const { error } = await supabase
         .from('clients')
-        .update({
-          name: formData.get('name'),
-          email: formData.get('email'),
-          phone: formData.get('phone'),
-          website: formData.get('website'),
-          budget_range: formData.get('budget_range'),
-          genre_focus: formData.get('genre_focus'),
-          project_type: formData.get('project_type'),
-          social_media: formData.get('social_media'),
-          notes: formData.get('notes'),
-        })
+        .update(updateData)
         .eq('id', client.id);
 
       if (error) throw error;

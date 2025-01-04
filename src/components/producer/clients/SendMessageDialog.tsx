@@ -38,6 +38,7 @@ export function SendMessageDialog({ client, open, onOpenChange }: SendMessageDia
           content: message,
           sender_id: session.user.id,
           receiver_id: client.producer_id,
+          read: false
         });
 
       if (error) throw error;
