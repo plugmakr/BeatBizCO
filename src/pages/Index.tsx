@@ -3,7 +3,8 @@ import { Music2, User, LogOut, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
-import WhyBeatBiz from "@/components/landing/WhyBeatBiz";
+import WhyBeatBizBanner from "@/components/landing/WhyBeatBizBanner";
+import MoreFeatures from "@/components/landing/MoreFeatures";
 import PricingPlans from "@/components/landing/PricingPlans";
 import CallToAction from "@/components/landing/CallToAction";
 import { useEffect, useState } from "react";
@@ -201,11 +202,14 @@ const Index = () => {
       <section id="features">
         <Features />
       </section>
+      <section id="why-beatbiz">
+        <WhyBeatBizBanner />
+      </section>
+      <section id="more-features">
+        <MoreFeatures />
+      </section>
       <section id="pricing">
         <PricingPlans />
-      </section>
-      <section id="how-it-works">
-        <WhyBeatBiz />
       </section>
       <section id="marketplace">
         <CallToAction />
