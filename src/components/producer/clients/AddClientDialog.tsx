@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ClientForm } from "./ClientForm";
+import ClientForm from "./ClientForm";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Client } from "@/types/database";
@@ -24,15 +24,15 @@ export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogP
       }
 
       const clientData = {
-        name: formData.get('name') as string,
-        email: formData.get('email') as string,
-        phone: formData.get('phone') as string,
-        website: formData.get('website') as string,
-        budget_range: formData.get('budget_range') as string,
-        genre_focus: formData.get('genre_focus') as string,
-        project_type: formData.get('project_type') as string,
-        social_media: formData.get('social_media') as string,
-        notes: formData.get('notes') as string,
+        name: String(formData.get('name') || ''),
+        email: String(formData.get('email') || ''),
+        phone: String(formData.get('phone') || ''),
+        website: String(formData.get('website') || ''),
+        budget_range: String(formData.get('budget_range') || ''),
+        genre_focus: String(formData.get('genre_focus') || ''),
+        project_type: String(formData.get('project_type') || ''),
+        social_media: String(formData.get('social_media') || ''),
+        notes: String(formData.get('notes') || ''),
         producer_id: session.session.user.id
       };
 
