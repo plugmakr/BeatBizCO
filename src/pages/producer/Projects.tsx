@@ -184,17 +184,16 @@ const ProducerProjects = () => {
                           <TableCell>
                             <div className="flex space-x-2">
                               <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="sm"
                                 onClick={() => handleCompleteProject(project.id)}
                               >
                                 Complete
                               </Button>
                               <Button
-                                variant="outline"
+                                variant="secondary"
                                 size="icon"
                                 onClick={() => {
-                                  // TODO: Implement edit functionality
                                   toast({
                                     title: "Coming Soon",
                                     description: "Edit functionality will be added soon",
@@ -204,7 +203,7 @@ const ProducerProjects = () => {
                                 <Edit2 className="h-4 w-4" />
                               </Button>
                               <Button
-                                variant="outline"
+                                variant="destructive"
                                 size="icon"
                                 onClick={() => handleDeleteProject(project.id)}
                               >
@@ -257,7 +256,7 @@ const ProducerProjects = () => {
                           </TableCell>
                           <TableCell>
                             <Button
-                              variant="outline"
+                              variant="destructive"
                               size="icon"
                               onClick={() => handleDeleteProject(project.id)}
                             >
