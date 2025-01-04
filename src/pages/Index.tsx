@@ -6,7 +6,13 @@ import {
   Mic2, 
   HeadphonesIcon, 
   AudioWaveform,
-  DollarSign
+  DollarSign,
+  BarChart3,
+  Globe,
+  Users,
+  Mail,
+  Calendar,
+  LineChart
 } from "lucide-react";
 
 const Index = () => {
@@ -78,6 +84,64 @@ const Index = () => {
               <h3 className="text-xl font-semibold mb-2">Track Management</h3>
               <p className="text-muted-foreground">
                 Organize and manage your music portfolio
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Business Management Features */}
+      <section className="container mx-auto px-4 py-20">
+        <h2 className="text-3xl font-bold text-center mb-12">Business Tools</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-card p-6 rounded-lg shadow-sm">
+            <BarChart3 className="h-12 w-12 mb-4 text-primary" />
+            <h3 className="text-xl font-semibold mb-2">Analytics Dashboard</h3>
+            <p className="text-muted-foreground">
+              Track your sales, audience engagement, and revenue metrics
+            </p>
+          </div>
+          <div className="bg-card p-6 rounded-lg shadow-sm">
+            <Globe className="h-12 w-12 mb-4 text-primary" />
+            <h3 className="text-xl font-semibold mb-2">Pro Website</h3>
+            <p className="text-muted-foreground">
+              Custom website builder with your portfolio and music store
+            </p>
+          </div>
+          <div className="bg-card p-6 rounded-lg shadow-sm">
+            <Users className="h-12 w-12 mb-4 text-primary" />
+            <h3 className="text-xl font-semibold mb-2">CRM Tools</h3>
+            <p className="text-muted-foreground">
+              Manage client relationships and collaborations effectively
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Marketing & Growth */}
+      <section className="bg-muted/50 py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Marketing & Growth</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-card p-6 rounded-lg shadow-sm">
+              <Mail className="h-12 w-12 mb-4 text-primary" />
+              <h3 className="text-xl font-semibold mb-2">Email Marketing</h3>
+              <p className="text-muted-foreground">
+                Build and engage your audience with automated campaigns
+              </p>
+            </div>
+            <div className="bg-card p-6 rounded-lg shadow-sm">
+              <Calendar className="h-12 w-12 mb-4 text-primary" />
+              <h3 className="text-xl font-semibold mb-2">Release Planning</h3>
+              <p className="text-muted-foreground">
+                Schedule and coordinate your music releases
+              </p>
+            </div>
+            <div className="bg-card p-6 rounded-lg shadow-sm">
+              <LineChart className="h-12 w-12 mb-4 text-primary" />
+              <h3 className="text-xl font-semibold mb-2">Growth Analytics</h3>
+              <p className="text-muted-foreground">
+                Monitor your audience growth and engagement metrics
               </p>
             </div>
           </div>
