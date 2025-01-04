@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-type UserRole = "producer" | "artist" | "buyer";
+type UserRole = "producer" | "artist" | "buyer" | "admin";
 
 const AuthForm = () => {
   const navigate = useNavigate();
@@ -15,9 +15,17 @@ const AuthForm = () => {
 
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
-        navigate("/dashboard");
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          handleRoleBasedRedirect(profile.role);
+        }
       }
     });
 
@@ -41,7 +49,8 @@ const AuthForm = () => {
             title: "Welcome to BeatBiz!",
             description: "You've successfully signed in.",
           });
-          navigate("/dashboard");
+          
+          handleRoleBasedRedirect(role);
         } catch (error) {
           console.error("Error updating role:", error);
           toast({
@@ -57,6 +66,20 @@ const AuthForm = () => {
       subscription.unsubscribe();
     };
   }, [navigate, role, toast]);
+
+  const handleRoleBasedRedirect = (userRole: string) => {
+    switch (userRole) {
+      case "admin":
+        navigate("/admin");
+        break;
+      case "artist":
+        navigate("/artist");
+        break;
+      default:
+        navigate("/"); // Default route for other roles
+        break;
+    }
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
