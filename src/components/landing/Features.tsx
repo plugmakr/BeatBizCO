@@ -52,7 +52,7 @@ const Features = () => {
               <CardContent className="p-6 text-center">
                 {feature.icon}
                 <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
-                <p className="text-white/80">{feature.description}</p>
+                <p className="text-gray-300">{feature.description}</p>
               </CardContent>
             </Card>
           ))}
