@@ -10,6 +10,14 @@ import RoleGuard from "./components/auth/RoleGuard";
 import ArtistDashboard from "./pages/artist/Dashboard";
 import AdminDashboard from "./pages/admin/Dashboard";
 import ProducerDashboard from "./pages/producer/Dashboard";
+import ProducerProjects from "./pages/producer/Projects";
+import ProducerClients from "./pages/producer/Clients";
+import ProducerFinances from "./pages/producer/Finances";
+import ProducerMarketplace from "./pages/producer/Marketplace";
+import ProducerSupport from "./pages/producer/Support";
+import ProducerWebsite from "./pages/producer/Website";
+import ProducerSoundLibrary from "./pages/producer/SoundLibrary";
+import ProducerFunnels from "./pages/producer/Funnels";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +43,17 @@ const App = () => (
             element={
               <AuthGuard>
                 <RoleGuard allowedRoles={["producer"]}>
-                  <ProducerDashboard />
+                  <Routes>
+                    <Route path="/" element={<ProducerDashboard />} />
+                    <Route path="/projects" element={<ProducerProjects />} />
+                    <Route path="/clients" element={<ProducerClients />} />
+                    <Route path="/finances" element={<ProducerFinances />} />
+                    <Route path="/marketplace" element={<ProducerMarketplace />} />
+                    <Route path="/support" element={<ProducerSupport />} />
+                    <Route path="/website" element={<ProducerWebsite />} />
+                    <Route path="/sound-library" element={<ProducerSoundLibrary />} />
+                    <Route path="/funnels" element={<ProducerFunnels />} />
+                  </Routes>
                 </RoleGuard>
               </AuthGuard>
             }

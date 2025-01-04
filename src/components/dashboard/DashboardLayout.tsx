@@ -12,22 +12,9 @@ import {
   SidebarMenuItem 
 } from "@/components/ui/sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { 
-  LogOut, 
-  User, 
-  Music, 
-  ShoppingCart, 
-  Settings,
-  LayoutDashboard,
-  Users,
-  FileText,
-  Megaphone,
-  BarChart,
-  Star,
-  MessageSquare,
-  Bell
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getProducerMenuItems, getArtistMenuItems, getAdminMenuItems } from "@/config/producerMenuItems";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
@@ -71,104 +58,16 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getMenuItems = () => {
-    if (role === "producer") {
-      return [
-        {
-          title: "Dashboard",
-          icon: LayoutDashboard,
-          url: "/producer/dashboard",
-        },
-        {
-          title: "My Beats",
-          icon: Music,
-          url: "/producer/beats",
-        },
-        {
-          title: "Collaboration",
-          icon: Users,
-          url: "/producer/collaboration",
-        },
-        {
-          title: "Licensing",
-          icon: FileText,
-          url: "/producer/licensing",
-        },
-        {
-          title: "Marketing",
-          icon: Megaphone,
-          url: "/producer/marketing",
-        },
-        {
-          title: "Analytics",
-          icon: BarChart,
-          url: "/producer/analytics",
-        },
-        {
-          title: "Reviews",
-          icon: Star,
-          url: "/producer/reviews",
-        },
-        {
-          title: "Messages",
-          icon: MessageSquare,
-          url: "/producer/messages",
-        },
-        {
-          title: "Notifications",
-          icon: Bell,
-          url: "/producer/notifications",
-        },
-        {
-          title: "Settings",
-          icon: Settings,
-          url: "/producer/settings",
-        },
-      ];
+    switch (role) {
+      case "producer":
+        return getProducerMenuItems();
+      case "artist":
+        return getArtistMenuItems();
+      case "admin":
+        return getAdminMenuItems();
+      default:
+        return [];
     }
-
-    // Return default menu items for other roles
-    const commonItems = [
-      {
-        title: "Profile",
-        icon: User,
-        url: "/dashboard/profile",
-      },
-      {
-        title: "Settings",
-        icon: Settings,
-        url: "/dashboard/settings",
-      },
-    ];
-
-    const roleSpecificItems = {
-      artist: [
-        {
-          title: "Browse Beats",
-          icon: Music,
-          url: "/dashboard/browse",
-        },
-      ],
-      buyer: [
-        {
-          title: "Shop",
-          icon: ShoppingCart,
-          url: "/dashboard/shop",
-        },
-      ],
-      admin: [
-        {
-          title: "Dashboard",
-          icon: ShoppingCart,
-          url: "/admin",
-        },
-      ],
-    };
-
-    if (!role || !roleSpecificItems[role as keyof typeof roleSpecificItems]) {
-      return commonItems;
-    }
-
-    return [...(roleSpecificItems[role as keyof typeof roleSpecificItems] || []), ...commonItems];
   };
 
   return (
