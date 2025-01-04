@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
@@ -11,32 +11,49 @@ const AuthForm = () => {
   const { toast } = useToast();
   const [role, setRole] = useState<"producer" | "artist" | "buyer">("buyer");
 
-  // Listen for auth state changes
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_IN" && session) {
-      // Update the user's role in their profile
-      supabase
-        .from("profiles")
-        .update({ role })
-        .eq("id", session.user.id)
-        .then(({ error }) => {
-          if (error) {
-            console.error("Error updating role:", error);
-            toast({
-              title: "Error",
-              description: "Failed to set user role. Please try again.",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Welcome to BeatBiz!",
-              description: "You've successfully signed in.",
-            });
-            navigate("/dashboard");
-          }
-        });
-    }
-  });
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate("/dashboard");
+      }
+    });
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        try {
+          const { error } = await supabase
+            .from("profiles")
+            .insert([
+              {
+                id: session.user.id,
+                role: role,
+              },
+            ]);
+
+          if (error) throw error;
+
+          toast({
+            title: "Welcome to BeatBiz!",
+            description: "You've successfully signed in.",
+          });
+          navigate("/dashboard");
+        } catch (error) {
+          console.error("Error updating role:", error);
+          toast({
+            title: "Error",
+            description: "Failed to set user role. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, role, toast]);
 
   return (
     <Card className="w-full max-w-md mx-auto">
