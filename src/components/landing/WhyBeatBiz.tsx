@@ -21,17 +21,19 @@ const WhyBeatBiz = () => {
   ];
 
   return (
-    <section className="container mx-auto px-4 py-20">
-      <h2 className="text-3xl font-bold text-center mb-12 text-white">Why use BeatBiz Pro?</h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {reasons.map((reason, index) => (
-          <Card key={index} className="feature-card">
-            <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-2 text-white">{reason.title}</h3>
-              <p className="text-white/80">{reason.description}</p>
-            </CardContent>
-          </Card>
-        ))}
+    <section className="content-section">
+      <div className="container mx-auto">
+        <h2 className="section-title">Why use BeatBiz Pro?</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {reasons.map((reason, index) => (
+            <Card key={index} className="feature-card">
+              <CardContent className="p-6">
+                <h3 className="text-xl font-semibold mb-2 text-white">{reason.title}</h3>
+                <p className="text-white/80">{reason.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </section>
   );
