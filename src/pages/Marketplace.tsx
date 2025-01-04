@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import TopNavigation from "@/components/navigation/TopNavigation";
 import { SpotlightArtist } from "@/components/marketplace/SpotlightArtist";
 import { SpotlightProducer } from "@/components/marketplace/SpotlightProducer";
 import { NewBeats } from "@/components/marketplace/NewBeats";
@@ -18,8 +19,21 @@ const genres = [
 export default function Marketplace() {
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Mock functions for TopNavigation props
+  const handleLogout = () => {};
+  const scrollToSection = (id: string) => {};
+  const getDashboardRoute = () => "/dashboard";
+
   return (
     <div className="min-h-screen bg-background">
+      <TopNavigation 
+        session={null}
+        userRole={null}
+        handleLogout={handleLogout}
+        scrollToSection={scrollToSection}
+        getDashboardRoute={getDashboardRoute}
+      />
+      
       <div className="space-y-8 px-4 py-8 max-w-7xl mx-auto">
         {/* Search Section */}
         <div className="relative">
