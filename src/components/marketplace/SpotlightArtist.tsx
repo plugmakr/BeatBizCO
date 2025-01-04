@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const spotlightArtist = {
   name: "J. Cole",
@@ -28,7 +29,9 @@ export function SpotlightArtist() {
             <span>{spotlightArtist.location}</span>
             <span>{spotlightArtist.followers} followers</span>
           </div>
-          <Button>View Profile</Button>
+          <Link to="/artist/j-cole">
+            <Button>View Profile</Button>
+          </Link>
         </div>
       </CardContent>
     </Card>

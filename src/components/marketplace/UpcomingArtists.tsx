@@ -35,6 +35,13 @@ const upcomingArtists = [
     description: "Experimental producer pushing genre boundaries.",
     location: "Seattle, WA",
     followers: "40K"
+  },
+  {
+    name: "Crystal Harmony",
+    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=2070&auto=format&fit=crop",
+    description: "Emerging producer known for ethereal soundscapes and immersive beats.",
+    location: "Portland, OR",
+    followers: "35K"
   }
 ];
 
