@@ -4,14 +4,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Loader2, Upload, Trash2, FileText } from "lucide-react";
+import { Loader2, Upload, Trash2 } from "lucide-react";
+import { MediaThumbnail } from "@/components/shared/media/MediaThumbnail";
+import { AudioPlayer } from "@/components/shared/media/AudioPlayer";
+import { VideoPlayer } from "@/components/shared/media/VideoPlayer";
 
 const ALLOWED_FILE_TYPES = [
   "application/zip",
   "audio/mpeg",
   "audio/wav",
   "audio/ogg",
+  "video/mp4",
+  "video/webm",
+  "video/ogg",
+  "image/jpeg",
+  "image/png",
+  "image/gif",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "text/plain",
@@ -25,6 +40,11 @@ interface ProjectFilesProps {
 
 export default function ProjectFiles({ projectId }: ProjectFilesProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [previewFile, setPreviewFile] = useState<{
+    url: string;
+    type: string;
+    filename: string;
+  } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -132,24 +152,23 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
     }
   };
 
-  const handleDownload = async (filePath: string, filename: string) => {
+  const handlePreview = async (filePath: string, filename: string, fileType: string) => {
     try {
       const { data, error } = await supabase.storage
         .from("project_files")
-        .download(filePath);
+        .createSignedUrl(filePath, 3600); // 1 hour expiry
 
       if (error) throw error;
 
-      const url = URL.createObjectURL(data);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
+      setPreviewFile({
+        url: data.signedUrl,
+        type: fileType,
+        filename,
+      });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to download file",
+        description: "Failed to preview file",
         variant: "destructive",
       });
     }
@@ -191,43 +210,60 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
         {files?.map((file) => (
           <Card key={file.id} className="bg-[#2A2F3C] border-[#9b87f5]/20">
             <CardContent className="pt-4">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2 flex-1">
-                  <FileText className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-white">{file.filename}</p>
-                    <p className="text-sm text-gray-400">
-                      {format(new Date(file.created_at), "PPP")}
-                    </p>
-                  </div>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => handlePreview(file.file_path, file.filename, file.file_type)}
+                  className="focus:outline-none"
+                >
+                  <MediaThumbnail type={file.file_type} />
+                </button>
+                <div className="flex-1">
+                  <p className="text-white">{file.filename}</p>
+                  <p className="text-sm text-gray-400">
+                    {format(new Date(file.created_at), "PPP")}
+                  </p>
                 </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleDownload(file.file_path, file.filename)}
-                  >
-                    Download
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() =>
-                      deleteFileMutation.mutate({
-                        id: file.id,
-                        filePath: file.file_path,
-                      })
-                    }
-                    className="text-gray-400 hover:text-white"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() =>
+                    deleteFileMutation.mutate({
+                      id: file.id,
+                      filePath: file.file_path,
+                    })
+                  }
+                  className="text-gray-400 hover:text-white"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{previewFile?.filename}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {previewFile?.type.startsWith("audio/") && (
+              <AudioPlayer src={previewFile.url} title={previewFile.filename} />
+            )}
+            {previewFile?.type.startsWith("video/") && (
+              <VideoPlayer src={previewFile.url} title={previewFile.filename} />
+            )}
+            {previewFile?.type.startsWith("image/") && (
+              <img
+                src={previewFile.url}
+                alt={previewFile.filename}
+                className="w-full rounded-lg"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

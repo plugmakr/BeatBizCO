@@ -1,9 +1,18 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { FileUp, Trash2, Download } from "lucide-react";
+import { FileUp, Trash2 } from "lucide-react";
+import { MediaThumbnail } from "@/components/shared/media/MediaThumbnail";
+import { AudioPlayer } from "@/components/shared/media/AudioPlayer";
+import { VideoPlayer } from "@/components/shared/media/VideoPlayer";
 import type { Client, ClientFile } from "@/types/database";
 
 interface ClientFilesProps {
@@ -13,6 +22,11 @@ interface ClientFilesProps {
 export function ClientFiles({ client }: ClientFilesProps) {
   const [files, setFiles] = useState<ClientFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [previewFile, setPreviewFile] = useState<{
+    url: string;
+    type: string;
+    filename: string;
+  } | null>(null);
   const { toast } = useToast();
 
   const fetchFiles = async () => {
@@ -68,27 +82,24 @@ export function ClientFiles({ client }: ClientFilesProps) {
     }
   };
 
-  const handleDownload = async (filePath: string, fileName: string) => {
+  const handlePreview = async (filePath: string, filename: string, fileType: string) => {
     try {
       const { data, error } = await supabase.storage
         .from('client_files')
-        .download(filePath);
+        .createSignedUrl(filePath, 3600); // 1 hour expiry
 
       if (error) throw error;
 
-      const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      setPreviewFile({
+        url: data.signedUrl,
+        type: fileType,
+        filename,
+      });
     } catch (error) {
-      console.error('Error downloading file:', error);
+      console.error('Error creating preview URL:', error);
       toast({
         title: "Error",
-        description: "Failed to download file",
+        description: "Failed to preview file",
         variant: "destructive",
       });
     }
@@ -148,28 +159,27 @@ export function ClientFiles({ client }: ClientFilesProps) {
         <div className="space-y-4">
           {files.map((file) => (
             <div key={file.id} className="flex items-center justify-between p-2 border rounded">
-              <div className="flex-1">
-                <p className="font-medium">{file.filename}</p>
-                <p className="text-sm text-muted-foreground">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDownload(file.file_path, file.filename)}
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => handlePreview(file.file_path, file.filename, file.file_type)}
+                  className="focus:outline-none"
                 >
-                  <Download className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDelete(file.id, file.file_path)}
-                >
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
+                  <MediaThumbnail type={file.file_type} />
+                </button>
+                <div>
+                  <p className="font-medium">{file.filename}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDelete(file.id, file.file_path)}
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </Button>
             </div>
           ))}
           {files.length === 0 && (
@@ -177,6 +187,29 @@ export function ClientFiles({ client }: ClientFilesProps) {
           )}
         </div>
       </CardContent>
+
+      <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{previewFile?.filename}</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {previewFile?.type.startsWith("audio/") && (
+              <AudioPlayer src={previewFile.url} title={previewFile.filename} />
+            )}
+            {previewFile?.type.startsWith("video/") && (
+              <VideoPlayer src={previewFile.url} title={previewFile.filename} />
+            )}
+            {previewFile?.type.startsWith("image/") && (
+              <img
+                src={previewFile.url}
+                alt={previewFile.filename}
+                className="w-full rounded-lg"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
