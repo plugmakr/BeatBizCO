@@ -4,9 +4,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { AddClientDialog } from "@/components/producer/clients/AddClientDialog";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
@@ -26,7 +24,8 @@ import {
   User,
   Users,
   DollarSign,
-  Activity
+  Activity,
+  Globe
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -38,12 +37,6 @@ import {
 const ProducerClients = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddingClient, setIsAddingClient] = useState(false);
-  const [newClient, setNewClient] = useState({
-    name: "",
-    email: "",
-    phone: "",
-  });
-  const { toast } = useToast();
 
   // Fetch clients data
   const { data: clients, isLoading, refetch } = useQuery({
@@ -58,47 +51,6 @@ const ProducerClients = () => {
       return data;
     }
   });
-
-  // Add new client
-  const handleAddClient = async () => {
-    try {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.session?.user?.id) {
-        throw new Error("No authenticated user");
-      }
-
-      const { error } = await supabase.from('clients').insert({
-        name: newClient.name,
-        email: newClient.email,
-        phone: newClient.phone,
-        producer_id: session.session.user.id
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Client added successfully",
-      });
-
-      setIsAddingClient(false);
-      setNewClient({ name: "", email: "", phone: "" });
-      refetch();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add client. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Filter clients based on search query
-  const filteredClients = clients?.filter(client =>
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.phone?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   // Stats cards data
   const stats = [
@@ -130,6 +82,14 @@ const ProducerClients = () => {
     }
   ];
 
+  // Filter clients based on search query
+  const filteredClients = clients?.filter(client =>
+    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    client.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    client.genre_focus?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -138,49 +98,13 @@ const ProducerClients = () => {
             <h1 className="text-3xl font-bold">Clients</h1>
             <p className="text-muted-foreground">Manage your client relationships</p>
           </div>
-          <Dialog open={isAddingClient} onOpenChange={setIsAddingClient}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />
-                Add Client
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Client</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    value={newClient.name}
-                    onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={newClient.email}
-                    onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    value={newClient.phone}
-                    onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
-                  />
-                </div>
-                <Button className="w-full" onClick={handleAddClient}>
-                  Add Client
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => setIsAddingClient(true)}
+          >
+            <UserPlus className="h-4 w-4" />
+            Add Client
+          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -222,7 +146,7 @@ const ProducerClients = () => {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Contact</TableHead>
-                    <TableHead>Projects</TableHead>
+                    <TableHead>Details</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -259,12 +183,21 @@ const ProducerClients = () => {
                               <Phone className="h-4 w-4" />
                               <span className="text-sm">{client.phone}</span>
                             </div>
+                            {client.website && (
+                              <div className="flex items-center space-x-2">
+                                <Globe className="h-4 w-4" />
+                                <a href={client.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline">
+                                  Website
+                                </a>
+                              </div>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="h-4 w-4" />
-                            <span>3 Active</span>
+                          <div className="space-y-1">
+                            <div className="text-sm">Genre: {client.genre_focus}</div>
+                            <div className="text-sm">Budget: {client.budget_range}</div>
+                            <div className="text-sm">Type: {client.project_type}</div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -298,6 +231,15 @@ const ProducerClients = () => {
           </CardContent>
         </Card>
       </div>
+
+      <AddClientDialog
+        isOpen={isAddingClient}
+        onClose={() => setIsAddingClient(false)}
+        onSuccess={() => {
+          refetch();
+          setIsAddingClient(false);
+        }}
+      />
     </DashboardLayout>
   );
 };
