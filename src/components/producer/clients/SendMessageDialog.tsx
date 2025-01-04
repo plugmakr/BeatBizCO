@@ -1,16 +1,11 @@
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Client } from "@/types/database";
-import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Client } from "@/types/database";
+import { useSession } from "@supabase/auth-helpers-react";
 
 interface SendMessageDialogProps {
   client: Client;
@@ -22,15 +17,21 @@ export function SendMessageDialog({ client, open, onOpenChange }: SendMessageDia
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const session = useSession();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!session?.user?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to send messages",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
-      
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("No authenticated user");
 
       const { error } = await supabase
         .from('messages')
@@ -70,22 +71,25 @@ export function SendMessageDialog({ client, open, onOpenChange }: SendMessageDia
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Textarea
-            placeholder="Type your message here..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type your message here..."
             className="min-h-[100px]"
             required
           />
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              'Send Message'
-            )}
-          </Button>
+          <div className="flex justify-end space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Sending..." : "Send Message"}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>

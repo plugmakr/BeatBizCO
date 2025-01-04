@@ -1,27 +1,26 @@
 import { useState } from "react";
-import { ClientForm } from "./ClientForm";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Client } from "@/types/database";
+import { supabase } from "@/integrations/supabase/client";
+import type { Client } from "@/types/database";
+import ClientForm from "./ClientForm";
 
 interface EditClientDialogProps {
   client: Client;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 export function EditClientDialog({ client, open, onOpenChange, onSuccess }: EditClientDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
     try {
       setIsLoading(true);
       
@@ -49,7 +48,7 @@ export function EditClientDialog({ client, open, onOpenChange, onSuccess }: Edit
         description: "Client updated successfully",
       });
 
-      onSuccess();
+      onSuccess?.();
       onOpenChange(false);
     } catch (error) {
       console.error('Error updating client:', error);
@@ -69,20 +68,10 @@ export function EditClientDialog({ client, open, onOpenChange, onSuccess }: Edit
         <DialogHeader>
           <DialogTitle>Edit Client</DialogTitle>
         </DialogHeader>
-        <ClientForm 
-          onSubmit={handleSubmit} 
+        <ClientForm
+          onSubmit={handleSubmit}
           isLoading={isLoading}
-          defaultValues={{
-            name: client.name,
-            email: client.email || '',
-            phone: client.phone || '',
-            website: client.website || '',
-            budget_range: client.budget_range || '',
-            genre_focus: client.genre_focus || '',
-            project_type: client.project_type || '',
-            social_media: client.social_media || '',
-            notes: client.notes || '',
-          }}
+          defaultValues={client}
         />
       </DialogContent>
     </Dialog>
