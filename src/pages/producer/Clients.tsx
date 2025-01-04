@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AddClientDialog } from "@/components/producer/clients/AddClientDialog";
 import { supabase } from "@/integrations/supabase/client";
+import type { Client } from "@/types/database";
 import {
   Table,
   TableBody,
@@ -48,7 +49,7 @@ const ProducerClients = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as Client[];
     }
   });
 

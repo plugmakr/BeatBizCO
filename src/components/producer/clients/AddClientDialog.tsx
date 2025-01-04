@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ClientForm } from "./ClientForm";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Client } from "@/types/database";
 
 interface AddClientDialogProps {
   isOpen: boolean;
@@ -22,18 +23,20 @@ export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogP
         throw new Error("No authenticated user");
       }
 
-      const { error } = await supabase.from('clients').insert({
-        name: formData.get('name'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        website: formData.get('website'),
-        budget_range: formData.get('budget_range'),
-        genre_focus: formData.get('genre_focus'),
-        project_type: formData.get('project_type'),
-        social_media: formData.get('social_media'),
-        notes: formData.get('notes'),
+      const clientData: Partial<Client> = {
+        name: formData.get('name') as string,
+        email: formData.get('email') as string,
+        phone: formData.get('phone') as string,
+        website: formData.get('website') as string,
+        budget_range: formData.get('budget_range') as string,
+        genre_focus: formData.get('genre_focus') as string,
+        project_type: formData.get('project_type') as string,
+        social_media: formData.get('social_media') as string,
+        notes: formData.get('notes') as string,
         producer_id: session.session.user.id
-      });
+      };
+
+      const { error } = await supabase.from('clients').insert(clientData);
 
       if (error) throw error;
 
