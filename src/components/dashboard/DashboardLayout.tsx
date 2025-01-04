@@ -7,7 +7,7 @@ import { LogOut, User, Music, ShoppingCart, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Profile {
-  role: "producer" | "artist" | "buyer";
+  role: "producer" | "artist" | "buyer" | "admin";
 }
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
@@ -87,9 +87,21 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           url: "/dashboard/shop",
         },
       ],
+      admin: [
+        {
+          title: "Dashboard",
+          icon: ShoppingCart,
+          url: "/admin",
+        },
+      ],
     };
 
-    return [...(role ? roleSpecificItems[role as keyof typeof roleSpecificItems] : []), ...commonItems];
+    // Return only common items if role is not set or invalid
+    if (!role || !roleSpecificItems[role as keyof typeof roleSpecificItems]) {
+      return commonItems;
+    }
+
+    return [...(roleSpecificItems[role as keyof typeof roleSpecificItems] || []), ...commonItems];
   };
 
   return (
