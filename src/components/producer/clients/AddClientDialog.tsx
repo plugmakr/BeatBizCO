@@ -23,7 +23,7 @@ export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogP
         throw new Error("No authenticated user");
       }
 
-      const clientData: Partial<Client> = {
+      const clientData = {
         name: formData.get('name') as string,
         email: formData.get('email') as string,
         phone: formData.get('phone') as string,

@@ -97,31 +97,49 @@ export type Database = {
       }
       clients: {
         Row: {
+          budget_range: string | null
           created_at: string | null
           email: string | null
+          genre_focus: string | null
           id: string
           name: string
+          notes: string | null
           phone: string | null
           producer_id: string | null
+          project_type: string | null
+          social_media: string | null
           updated_at: string | null
+          website: string | null
         }
         Insert: {
+          budget_range?: string | null
           created_at?: string | null
           email?: string | null
+          genre_focus?: string | null
           id?: string
           name: string
+          notes?: string | null
           phone?: string | null
           producer_id?: string | null
+          project_type?: string | null
+          social_media?: string | null
           updated_at?: string | null
+          website?: string | null
         }
         Update: {
+          budget_range?: string | null
           created_at?: string | null
           email?: string | null
+          genre_focus?: string | null
           id?: string
           name?: string
+          notes?: string | null
           phone?: string | null
           producer_id?: string | null
+          project_type?: string | null
+          social_media?: string | null
           updated_at?: string | null
+          website?: string | null
         }
         Relationships: [
           {
