@@ -4,17 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Loader2, Upload, Trash2 } from "lucide-react";
+import { Upload, Trash2 } from "lucide-react";
 import { MediaThumbnail } from "@/components/shared/media/MediaThumbnail";
-import { AudioPlayer } from "@/components/shared/media/AudioPlayer";
-import { VideoPlayer } from "@/components/shared/media/VideoPlayer";
+import { FilePreviewDialog } from "@/components/producer/clients/FilePreviewDialog";
+import { UploadProgress } from "@/components/shared/media/UploadProgress";
 
 const ALLOWED_FILE_TYPES = [
   "application/zip",
@@ -40,6 +34,8 @@ interface ProjectFilesProps {
 
 export default function ProjectFiles({ projectId }: ProjectFilesProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentUpload, setCurrentUpload] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
     type: string;
@@ -116,31 +112,41 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
     }
 
     setIsUploading(true);
+    setUploadProgress(0);
+    setCurrentUpload(file.name);
+
     try {
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${projectId}/${crypto.randomUUID()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("project_files")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { error: dbError } = await supabase.from("project_files").insert({
-        project_id: projectId,
-        filename: file.name,
-        file_path: filePath,
-        file_type: file.type,
-        size: file.size,
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100;
+          setUploadProgress(progress);
+        }
       });
 
-      if (dbError) throw dbError;
+      xhr.onload = async () => {
+        if (xhr.status === 200) {
+          queryClient.invalidateQueries({ queryKey: ["project-files", projectId] });
+          toast({
+            title: "Success",
+            description: "File uploaded successfully",
+          });
+        } else {
+          throw new Error('Upload failed');
+        }
+      };
 
-      queryClient.invalidateQueries({ queryKey: ["project-files", projectId] });
-      toast({
-        title: "Success",
-        description: "File uploaded successfully",
-      });
+      xhr.onerror = () => {
+        throw new Error('Upload failed');
+      };
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('projectId', projectId);
+
+      xhr.open('POST', `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-project-file`);
+      xhr.setRequestHeader('Authorization', `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`);
+      xhr.send(formData);
     } catch (error) {
       toast({
         title: "Error",
@@ -149,6 +155,8 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
       });
     } finally {
       setIsUploading(false);
+      setCurrentUpload(null);
+      setUploadProgress(0);
     }
   };
 
@@ -156,7 +164,7 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
     try {
       const { data, error } = await supabase.storage
         .from("project_files")
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .createSignedUrl(filePath, 3600);
 
       if (error) throw error;
 
@@ -206,6 +214,15 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
         </Button>
       </div>
 
+      {isUploading && currentUpload && (
+        <div className="mb-4">
+          <UploadProgress
+            progress={uploadProgress}
+            fileName={currentUpload}
+          />
+        </div>
+      )}
+
       <div className="space-y-2">
         {files?.map((file) => (
           <Card key={file.id} className="bg-[#2A2F3C] border-[#9b87f5]/20">
@@ -242,28 +259,10 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
         ))}
       </div>
 
-      <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{previewFile?.filename}</DialogTitle>
-          </DialogHeader>
-          <div className="mt-4">
-            {previewFile?.type.startsWith("audio/") && (
-              <AudioPlayer src={previewFile.url} title={previewFile.filename} />
-            )}
-            {previewFile?.type.startsWith("video/") && (
-              <VideoPlayer src={previewFile.url} title={previewFile.filename} />
-            )}
-            {previewFile?.type.startsWith("image/") && (
-              <img
-                src={previewFile.url}
-                alt={previewFile.filename}
-                className="w-full rounded-lg"
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <FilePreviewDialog
+        file={previewFile}
+        onClose={() => setPreviewFile(null)}
+      />
     </div>
   );
 }

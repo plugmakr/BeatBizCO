@@ -1,19 +1,12 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { FileUp, Trash2 } from "lucide-react";
-import { MediaThumbnail } from "@/components/shared/media/MediaThumbnail";
-import { AudioPlayer } from "@/components/shared/media/AudioPlayer";
-import { VideoPlayer } from "@/components/shared/media/VideoPlayer";
 import type { Client, ClientFile } from "@/types/database";
+import { FileUploadButton } from "./FileUploadButton";
+import { FilePreviewDialog } from "./FilePreviewDialog";
+import { FileList } from "./FileList";
+import { UploadProgress } from "@/components/shared/media/UploadProgress";
 
 interface ClientFilesProps {
   client: Client;
@@ -22,6 +15,8 @@ interface ClientFilesProps {
 export function ClientFiles({ client }: ClientFilesProps) {
   const [files, setFiles] = useState<ClientFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentUpload, setCurrentUpload] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
     type: string;
@@ -53,23 +48,41 @@ export function ClientFiles({ client }: ClientFilesProps) {
     if (!file) return;
 
     setIsUploading(true);
+    setUploadProgress(0);
+    setCurrentUpload(file.name);
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('clientId', client.id);
 
     try {
-      const { error } = await supabase.functions.invoke('upload-client-file', {
-        body: formData,
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100;
+          setUploadProgress(progress);
+        }
       });
 
-      if (error) throw error;
+      xhr.onload = async () => {
+        if (xhr.status === 200) {
+          toast({
+            title: "Success",
+            description: "File uploaded successfully",
+          });
+          fetchFiles();
+        } else {
+          throw new Error('Upload failed');
+        }
+      };
 
-      toast({
-        title: "Success",
-        description: "File uploaded successfully",
-      });
+      xhr.onerror = () => {
+        throw new Error('Upload failed');
+      };
 
-      fetchFiles();
+      xhr.open('POST', `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-client-file`);
+      xhr.setRequestHeader('Authorization', `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`);
+      xhr.send(formData);
     } catch (error) {
       console.error('Error uploading file:', error);
       toast({
@@ -79,6 +92,8 @@ export function ClientFiles({ client }: ClientFilesProps) {
       });
     } finally {
       setIsUploading(false);
+      setCurrentUpload(null);
+      setUploadProgress(0);
     }
   };
 
@@ -86,7 +101,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
     try {
       const { data, error } = await supabase.storage
         .from('client_files')
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .createSignedUrl(filePath, 3600);
 
       if (error) throw error;
 
@@ -96,7 +111,6 @@ export function ClientFiles({ client }: ClientFilesProps) {
         filename,
       });
     } catch (error) {
-      console.error('Error creating preview URL:', error);
       toast({
         title: "Error",
         description: "Failed to preview file",
@@ -127,7 +141,6 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
       fetchFiles();
     } catch (error) {
-      console.error('Error deleting file:', error);
       toast({
         title: "Error",
         description: "Failed to delete file",
@@ -141,75 +154,32 @@ export function ClientFiles({ client }: ClientFilesProps) {
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Files</span>
-          <Button variant="outline" className="gap-2">
-            <FileUp className="h-4 w-4" />
-            <label className="cursor-pointer">
-              Upload File
-              <input
-                type="file"
-                className="hidden"
-                onChange={handleFileUpload}
-                disabled={isUploading}
-              />
-            </label>
-          </Button>
+          <FileUploadButton
+            isUploading={isUploading}
+            onFileSelect={handleFileUpload}
+          />
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {files.map((file) => (
-            <div key={file.id} className="flex items-center justify-between p-2 border rounded">
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => handlePreview(file.file_path, file.filename, file.file_type)}
-                  className="focus:outline-none"
-                >
-                  <MediaThumbnail type={file.file_type} />
-                </button>
-                <div>
-                  <p className="font-medium">{file.filename}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDelete(file.id, file.file_path)}
-              >
-                <Trash2 className="h-4 w-4 text-red-500" />
-              </Button>
-            </div>
-          ))}
-          {files.length === 0 && (
-            <p className="text-center text-muted-foreground">No files uploaded yet</p>
-          )}
-        </div>
+        {isUploading && currentUpload && (
+          <div className="mb-4">
+            <UploadProgress
+              progress={uploadProgress}
+              fileName={currentUpload}
+            />
+          </div>
+        )}
+        <FileList
+          files={files}
+          onPreview={handlePreview}
+          onDelete={handleDelete}
+        />
       </CardContent>
 
-      <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{previewFile?.filename}</DialogTitle>
-          </DialogHeader>
-          <div className="mt-4">
-            {previewFile?.type.startsWith("audio/") && (
-              <AudioPlayer src={previewFile.url} title={previewFile.filename} />
-            )}
-            {previewFile?.type.startsWith("video/") && (
-              <VideoPlayer src={previewFile.url} title={previewFile.filename} />
-            )}
-            {previewFile?.type.startsWith("image/") && (
-              <img
-                src={previewFile.url}
-                alt={previewFile.filename}
-                className="w-full rounded-lg"
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <FilePreviewDialog
+        file={previewFile}
+        onClose={() => setPreviewFile(null)}
+      />
     </Card>
   );
 }
