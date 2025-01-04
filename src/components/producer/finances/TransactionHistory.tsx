@@ -25,6 +25,9 @@ interface Transaction {
   description: string;
   category: string;
   date: string;
+  producer_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export function TransactionHistory() {
@@ -47,7 +50,12 @@ export function TransactionHistory() {
       return;
     }
 
-    setTransactions(data || []);
+    // Validate and transform the data to ensure type safety
+    const validTransactions = (data || []).filter((transaction): transaction is Transaction => {
+      return transaction.type === "income" || transaction.type === "expense";
+    });
+
+    setTransactions(validTransactions);
   }
 
   const filteredTransactions = transactions.filter((transaction) => {
