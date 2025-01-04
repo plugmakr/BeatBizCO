@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AddClientDialog } from "@/components/producer/clients/AddClientDialog";
+import { ViewClientDialog } from "@/components/producer/clients/ViewClientDialog";
+import { EditClientDialog } from "@/components/producer/clients/EditClientDialog";
+import { SendMessageDialog } from "@/components/producer/clients/SendMessageDialog";
 import { supabase } from "@/integrations/supabase/client";
 import type { Client } from "@/types/database";
 import {
@@ -16,6 +19,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   UserPlus,
   Search,
   Mail,
@@ -26,7 +39,11 @@ import {
   Users,
   DollarSign,
   Activity,
-  Globe
+  Globe,
+  Eye,
+  Edit,
+  MessageSquare,
+  Trash
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -34,10 +51,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 const ProducerClients = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddingClient, setIsAddingClient] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isViewingClient, setIsViewingClient] = useState(false);
+  const [isEditingClient, setIsEditingClient] = useState(false);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const { toast } = useToast();
 
   // Fetch clients data
   const { data: clients, isLoading, refetch } = useQuery({
@@ -90,6 +114,36 @@ const ProducerClients = () => {
     client.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     client.genre_focus?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleDeleteClient = async () => {
+    if (!selectedClient) return;
+
+    try {
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', selectedClient.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Client deleted successfully",
+      });
+
+      refetch();
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete client",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConfirmingDelete(false);
+      setSelectedClient(null);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -214,10 +268,41 @@ const ProducerClients = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem>View Details</DropdownMenuItem>
-                              <DropdownMenuItem>Edit Client</DropdownMenuItem>
-                              <DropdownMenuItem>Send Message</DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600">
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedClient(client);
+                                  setIsViewingClient(true);
+                                }}
+                              >
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedClient(client);
+                                  setIsEditingClient(true);
+                                }}
+                              >
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Client
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedClient(client);
+                                  setIsSendingMessage(true);
+                                }}
+                              >
+                                <MessageSquare className="mr-2 h-4 w-4" />
+                                Send Message
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={() => {
+                                  setSelectedClient(client);
+                                  setIsConfirmingDelete(true);
+                                }}
+                              >
+                                <Trash className="mr-2 h-4 w-4" />
                                 Remove Client
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -241,6 +326,53 @@ const ProducerClients = () => {
           setIsAddingClient(false);
         }}
       />
+
+      {selectedClient && (
+        <>
+          <ViewClientDialog
+            client={selectedClient}
+            open={isViewingClient}
+            onOpenChange={setIsViewingClient}
+          />
+
+          <EditClientDialog
+            client={selectedClient}
+            open={isEditingClient}
+            onOpenChange={setIsEditingClient}
+            onSuccess={() => {
+              refetch();
+              setIsEditingClient(false);
+            }}
+          />
+
+          <SendMessageDialog
+            client={selectedClient}
+            open={isSendingMessage}
+            onOpenChange={setIsSendingMessage}
+          />
+
+          <AlertDialog open={isConfirmingDelete} onOpenChange={setIsConfirmingDelete}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the client
+                  and remove all associated data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteClient}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      )}
     </DashboardLayout>
   );
 };

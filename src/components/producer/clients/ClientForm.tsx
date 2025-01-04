@@ -14,9 +14,20 @@ import { Loader2 } from "lucide-react";
 interface ClientFormProps {
   onSubmit: (formData: FormData) => void;
   isLoading: boolean;
+  defaultValues?: {
+    name: string;
+    email: string;
+    phone: string;
+    website: string;
+    budget_range: string;
+    genre_focus: string;
+    project_type: string;
+    social_media: string;
+    notes: string;
+  };
 }
 
-export function ClientForm({ onSubmit, isLoading }: ClientFormProps) {
+export function ClientForm({ onSubmit, isLoading, defaultValues }: ClientFormProps) {
   return (
     <form onSubmit={(e) => {
       e.preventDefault();
@@ -26,29 +37,50 @@ export function ClientForm({ onSubmit, isLoading }: ClientFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
-          <Input id="name" name="name" required />
+          <Input 
+            id="name" 
+            name="name" 
+            required 
+            defaultValue={defaultValues?.name}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" />
+          <Input 
+            id="email" 
+            name="email" 
+            type="email"
+            defaultValue={defaultValues?.email}
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" name="phone" type="tel" />
+          <Input 
+            id="phone" 
+            name="phone" 
+            type="tel"
+            defaultValue={defaultValues?.phone}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="website">Website</Label>
-          <Input id="website" name="website" type="url" placeholder="https://" />
+          <Input 
+            id="website" 
+            name="website" 
+            type="url" 
+            placeholder="https://"
+            defaultValue={defaultValues?.website}
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="budget_range">Budget Range</Label>
-          <Select name="budget_range">
+          <Select name="budget_range" defaultValue={defaultValues?.budget_range}>
             <SelectTrigger>
               <SelectValue placeholder="Select budget range" />
             </SelectTrigger>
@@ -62,7 +94,7 @@ export function ClientForm({ onSubmit, isLoading }: ClientFormProps) {
         </div>
         <div className="space-y-2">
           <Label htmlFor="genre_focus">Genre Focus</Label>
-          <Select name="genre_focus">
+          <Select name="genre_focus" defaultValue={defaultValues?.genre_focus}>
             <SelectTrigger>
               <SelectValue placeholder="Select primary genre" />
             </SelectTrigger>
@@ -80,7 +112,7 @@ export function ClientForm({ onSubmit, isLoading }: ClientFormProps) {
 
       <div className="space-y-2">
         <Label htmlFor="project_type">Project Type</Label>
-        <Select name="project_type">
+        <Select name="project_type" defaultValue={defaultValues?.project_type}>
           <SelectTrigger>
             <SelectValue placeholder="Select project type" />
           </SelectTrigger>
@@ -101,6 +133,7 @@ export function ClientForm({ onSubmit, isLoading }: ClientFormProps) {
           id="social_media" 
           name="social_media" 
           placeholder="Instagram, Spotify, SoundCloud, etc."
+          defaultValue={defaultValues?.social_media}
         />
       </div>
 
@@ -111,6 +144,7 @@ export function ClientForm({ onSubmit, isLoading }: ClientFormProps) {
           name="notes"
           placeholder="Project details, preferences, deadlines, etc."
           className="h-24"
+          defaultValue={defaultValues?.notes}
         />
       </div>
 
@@ -118,10 +152,10 @@ export function ClientForm({ onSubmit, isLoading }: ClientFormProps) {
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Adding Client...
+            {defaultValues ? 'Updating Client...' : 'Adding Client...'}
           </>
         ) : (
-          'Add Client'
+          defaultValues ? 'Update Client' : 'Add Client'
         )}
       </Button>
     </form>
