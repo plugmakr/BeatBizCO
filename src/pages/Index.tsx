@@ -5,7 +5,7 @@ import {
   ShoppingCart, 
   Mic2, 
   HeadphonesIcon, 
-  Waveform,
+  AudioWaveform,
   DollarSign
 } from "lucide-react";
 
@@ -74,7 +74,7 @@ const Index = () => {
               </p>
             </div>
             <div className="bg-card p-6 rounded-lg shadow-sm">
-              <Waveform className="h-12 w-12 mb-4 text-primary" />
+              <AudioWaveform className="h-12 w-12 mb-4 text-primary" />
               <h3 className="text-xl font-semibold mb-2">Track Management</h3>
               <p className="text-muted-foreground">
                 Organize and manage your music portfolio
@@ -126,7 +126,7 @@ const Index = () => {
             </div>
             <div className="text-center md:text-left">
               <div className="inline-block mb-6">
-                <Waveform className="h-12 w-12 text-primary" />
+                <AudioWaveform className="h-12 w-12 text-primary" />
               </div>
               <h2 className="text-3xl font-bold mb-4">For Producers</h2>
               <p className="text-muted-foreground mb-6">
