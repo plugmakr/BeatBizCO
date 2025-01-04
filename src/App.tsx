@@ -19,9 +19,11 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Make the landing page the default route */}
+          <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <AuthGuard>
                 <Index />
