@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Client } from "@/types/database";
@@ -17,23 +16,20 @@ export function EditClientDialog({ client, open, onOpenChange, onSuccess }: Edit
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-
+  const handleSubmit = async (formData: FormData) => {
     try {
       setIsLoading(true);
       
       const updateData = {
-        name: String(formData.get('name')),
-        email: String(formData.get('email')),
-        phone: String(formData.get('phone')),
-        website: String(formData.get('website')),
-        budget_range: String(formData.get('budget_range')),
-        genre_focus: String(formData.get('genre_focus')),
-        project_type: String(formData.get('project_type')),
-        social_media: String(formData.get('social_media')),
-        notes: String(formData.get('notes')),
+        name: String(formData.get('name') || ''),
+        email: String(formData.get('email') || ''),
+        phone: String(formData.get('phone') || ''),
+        website: String(formData.get('website') || ''),
+        budget_range: String(formData.get('budget_range') || ''),
+        genre_focus: String(formData.get('genre_focus') || ''),
+        project_type: String(formData.get('project_type') || ''),
+        social_media: String(formData.get('social_media') || ''),
+        notes: String(formData.get('notes') || ''),
       };
 
       const { error } = await supabase

@@ -27,7 +27,7 @@ interface ClientFormProps {
   };
 }
 
-export function ClientForm({ onSubmit, isLoading, defaultValues }: ClientFormProps) {
+export default function ClientForm({ onSubmit, isLoading, defaultValues }: ClientFormProps) {
   return (
     <form onSubmit={(e) => {
       e.preventDefault();
