@@ -142,14 +142,14 @@ export default function ProjectClient({ project }: ProjectClientProps) {
                 Current Client
               </h3>
               <Select
-                value={selectedClientId || ""}
+                value={selectedClientId || undefined}
                 onValueChange={handleClientChange}
               >
                 <SelectTrigger className="bg-[#1A1F2C] border-[#9b87f5]/20">
                   <SelectValue placeholder="Select a client" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">No Client</SelectItem>
                   {clients?.map((client) => (
                     <SelectItem key={client.id} value={client.id}>
                       {client.name}
