@@ -8,15 +8,51 @@ const Auth = () => {
 
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/");
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          switch (profile.role) {
+            case "admin":
+              navigate("/admin");
+              break;
+            case "artist":
+              navigate("/artist");
+              break;
+            default:
+              navigate("/");
+              break;
+          }
+        }
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        navigate("/");
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          switch (profile.role) {
+            case "admin":
+              navigate("/admin");
+              break;
+            case "artist":
+              navigate("/artist");
+              break;
+            default:
+              navigate("/");
+              break;
+          }
+        }
       }
     });
 
