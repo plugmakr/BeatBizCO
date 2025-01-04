@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+import { decode as base64Decode } from "https://deno.land/std@0.140.0/encoding/base64.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -32,42 +33,68 @@ serve(async (req) => {
     const fileExt = fileName.split('.').pop();
     const previewPath = `preview_${crypto.randomUUID()}.${fileExt}`;
 
-    // Upload the original file to temp storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('temp_audio')
-      .upload(previewPath, file, {
-        contentType: file.type,
-        upsert: false
+    // Create a temporary file from the uploaded data
+    const tempFilePath = await Deno.makeTempFile();
+    const arrayBuffer = await file.arrayBuffer();
+    await Deno.writeFile(tempFilePath, new Uint8Array(arrayBuffer));
+
+    // Create output file path
+    const outputPath = await Deno.makeTempFile({ suffix: `.${fileExt}` });
+
+    try {
+      // Use ffmpeg to create a 30-second preview
+      const ffmpeg = new Deno.Command("ffmpeg", {
+        args: [
+          "-i", tempFilePath,
+          "-t", "30",
+          "-acodec", "libmp3lame",
+          "-b:a", "192k",
+          outputPath
+        ]
       });
 
-    if (uploadError) {
-      throw uploadError;
+      const { success } = await ffmpeg.output();
+
+      if (!success) {
+        throw new Error("Failed to generate preview");
+      }
+
+      // Read the preview file
+      const previewFile = await Deno.readFile(outputPath);
+
+      // Upload the preview to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('temp_audio')
+        .upload(previewPath, previewFile, {
+          contentType: file.type,
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Clean up temporary files
+      await Deno.remove(tempFilePath);
+      await Deno.remove(outputPath);
+
+      return new Response(
+        JSON.stringify({
+          previewPath: previewPath
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
+    } catch (error) {
+      console.error('Error processing audio:', error);
+      // Clean up temporary files in case of error
+      try {
+        await Deno.remove(tempFilePath);
+        await Deno.remove(outputPath);
+      } catch {
+        // Ignore cleanup errors
+      }
+      throw error;
     }
-
-    // Get a signed URL for the uploaded file
-    const { data: urlData, error: urlError } = await supabase.storage
-      .from('temp_audio')
-      .createSignedUrl(previewPath, 3600);
-
-    if (urlError) {
-      throw urlError;
-    }
-
-    // TODO: Implement audio trimming logic here
-    // For now, we'll just return the original file URL
-    // In a real implementation, you would:
-    // 1. Download the file
-    // 2. Use ffmpeg or similar to create a 30-second preview
-    // 3. Upload the preview file
-    // 4. Delete the temporary files
-
-    return new Response(
-      JSON.stringify({
-        previewUrl: urlData.signedUrl,
-        previewPath: previewPath
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-    );
   } catch (error) {
     console.error('Error generating preview:', error);
     return new Response(

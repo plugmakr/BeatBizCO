@@ -135,7 +135,7 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Upload New Item</DialogTitle>
         </DialogHeader>
@@ -147,7 +147,7 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
               <AudioUpload onFileSelect={setAudioFile} />
               <DownloadUpload onFileSelect={setDownloadFile} />
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 sticky bottom-0 bg-background py-4 border-t">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
