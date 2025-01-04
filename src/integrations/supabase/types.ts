@@ -95,8 +95,47 @@ export type Database = {
           },
         ]
       }
+      clients: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          producer_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          producer_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          producer_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaboration_projects: {
         Row: {
+          client_id: string | null
           created_at: string | null
           created_by: string | null
           deadline: string | null
@@ -107,6 +146,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          client_id?: string | null
           created_at?: string | null
           created_by?: string | null
           deadline?: string | null
@@ -117,6 +157,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          client_id?: string | null
           created_at?: string | null
           created_by?: string | null
           deadline?: string | null
@@ -127,6 +168,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "collaboration_projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "collaboration_projects_created_by_fkey"
             columns: ["created_by"]
