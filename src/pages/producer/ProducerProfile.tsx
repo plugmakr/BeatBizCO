@@ -58,97 +58,117 @@ export default function ProducerProfile() {
 
       {/* Navigation */}
       <div className="sticky top-0 z-50 bg-black/95 border-b border-yellow-500/20">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="max-w-7xl mx-auto">
-          <TabsList className="h-16 bg-transparent border-b border-yellow-500/20">
-            <TabsTrigger value="beats" className="gap-2 text-lg">
-              <Music className="w-5 h-5" /> Beats
-            </TabsTrigger>
-            <TabsTrigger value="sampleKits" className="gap-2 text-lg">
-              <Package className="w-5 h-5" /> Sample Kits
-            </TabsTrigger>
-            <TabsTrigger value="drumKits" className="gap-2 text-lg">
-              <Disc className="w-5 h-5" /> Drum Kits
-            </TabsTrigger>
-            <TabsTrigger value="licensing" className="gap-2 text-lg">
-              <CreditCard className="w-5 h-5" /> Licensing
-            </TabsTrigger>
-            <TabsTrigger value="services" className="gap-2 text-lg">
-              <Settings className="w-5 h-5" /> Services
-            </TabsTrigger>
-            <TabsTrigger value="collaboration" className="gap-2 text-lg">
-              <Users className="w-5 h-5" /> Collaboration
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+        <div className="max-w-7xl mx-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="h-16 bg-transparent border-b border-yellow-500/20">
+              <TabsTrigger value="beats" className="gap-2 text-lg">
+                <Music className="w-5 h-5" /> Beats
+              </TabsTrigger>
+              <TabsTrigger value="sampleKits" className="gap-2 text-lg">
+                <Package className="w-5 h-5" /> Sample Kits
+              </TabsTrigger>
+              <TabsTrigger value="drumKits" className="gap-2 text-lg">
+                <Disc className="w-5 h-5" /> Drum Kits
+              </TabsTrigger>
+              <TabsTrigger value="licensing" className="gap-2 text-lg">
+                <CreditCard className="w-5 h-5" /> Licensing
+              </TabsTrigger>
+              <TabsTrigger value="services" className="gap-2 text-lg">
+                <Settings className="w-5 h-5" /> Services
+              </TabsTrigger>
+              <TabsTrigger value="collaboration" className="gap-2 text-lg">
+                <Users className="w-5 h-5" /> Collaboration
+              </TabsTrigger>
+            </TabsList>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto p-8">
-        <TabsContent value="beats" className="mt-0">
-          <h2 className="text-2xl font-bold mb-6 text-yellow-500">Featured Beats</h2>
-          <div className="grid grid-cols-3 gap-6">
-            {producerData.recentWork.beats.map((beat) => (
-              <Card key={beat.id} className="bg-zinc-900 border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
-                <CardContent className="p-0">
-                  <img src={beat.image} alt={beat.title} className="w-full h-48 object-cover" />
-                  <div className="p-4">
-                    <h3 className="font-bold text-white">{beat.title}</h3>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-yellow-500">${beat.price}</span>
-                      <Button variant="outline" className="border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black">
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+            {/* Content */}
+            <div className="max-w-7xl mx-auto p-8">
+              <TabsContent value="beats">
+                <h2 className="text-2xl font-bold mb-6 text-yellow-500">Featured Beats</h2>
+                <div className="grid grid-cols-3 gap-6">
+                  {producerData.recentWork.beats.map((beat) => (
+                    <Card key={beat.id} className="bg-zinc-900 border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
+                      <CardContent className="p-0">
+                        <img src={beat.image} alt={beat.title} className="w-full h-48 object-cover" />
+                        <div className="p-4">
+                          <h3 className="font-bold text-white">{beat.title}</h3>
+                          <div className="flex justify-between items-center mt-2">
+                            <span className="text-yellow-500">${beat.price}</span>
+                            <Button variant="outline" className="border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black">
+                              Add to Cart
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
 
-        <TabsContent value="sampleKits" className="mt-0">
-          <h2 className="text-2xl font-bold mb-6 text-yellow-500">Sample Kits</h2>
-          <div className="grid grid-cols-2 gap-6">
-            {producerData.recentWork.sampleKits.map((kit) => (
-              <Card key={kit.id} className="bg-zinc-900 border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
-                <CardContent className="p-0">
-                  <img src={kit.image} alt={kit.title} className="w-full h-48 object-cover" />
-                  <div className="p-4">
-                    <h3 className="font-bold text-white">{kit.title}</h3>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-yellow-500">${kit.price}</span>
-                      <Button variant="outline" className="border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black">
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+              <TabsContent value="sampleKits">
+                <h2 className="text-2xl font-bold mb-6 text-yellow-500">Sample Kits</h2>
+                <div className="grid grid-cols-2 gap-6">
+                  {producerData.recentWork.sampleKits.map((kit) => (
+                    <Card key={kit.id} className="bg-zinc-900 border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
+                      <CardContent className="p-0">
+                        <img src={kit.image} alt={kit.title} className="w-full h-48 object-cover" />
+                        <div className="p-4">
+                          <h3 className="font-bold text-white">{kit.title}</h3>
+                          <div className="flex justify-between items-center mt-2">
+                            <span className="text-yellow-500">${kit.price}</span>
+                            <Button variant="outline" className="border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black">
+                              Add to Cart
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
 
-        <TabsContent value="drumKits" className="mt-0">
-          <h2 className="text-2xl font-bold mb-6 text-yellow-500">Drum Kits</h2>
-          <div className="grid grid-cols-2 gap-6">
-            {producerData.recentWork.drumKits.map((kit) => (
-              <Card key={kit.id} className="bg-zinc-900 border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
-                <CardContent className="p-0">
-                  <img src={kit.image} alt={kit.title} className="w-full h-48 object-cover" />
-                  <div className="p-4">
-                    <h3 className="font-bold text-white">{kit.title}</h3>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-yellow-500">${kit.price}</span>
-                      <Button variant="outline" className="border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black">
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
+              <TabsContent value="drumKits">
+                <h2 className="text-2xl font-bold mb-6 text-yellow-500">Drum Kits</h2>
+                <div className="grid grid-cols-2 gap-6">
+                  {producerData.recentWork.drumKits.map((kit) => (
+                    <Card key={kit.id} className="bg-zinc-900 border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
+                      <CardContent className="p-0">
+                        <img src={kit.image} alt={kit.title} className="w-full h-48 object-cover" />
+                        <div className="p-4">
+                          <h3 className="font-bold text-white">{kit.title}</h3>
+                          <div className="flex justify-between items-center mt-2">
+                            <span className="text-yellow-500">${kit.price}</span>
+                            <Button variant="outline" className="border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black">
+                              Add to Cart
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="licensing">
+                <div className="text-center py-12 text-gray-400">
+                  Licensing information coming soon...
+                </div>
+              </TabsContent>
+
+              <TabsContent value="services">
+                <div className="text-center py-12 text-gray-400">
+                  Services information coming soon...
+                </div>
+              </TabsContent>
+
+              <TabsContent value="collaboration">
+                <div className="text-center py-12 text-gray-400">
+                  Collaboration information coming soon...
+                </div>
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
