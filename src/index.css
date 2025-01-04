@@ -63,9 +63,7 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -78,6 +76,6 @@
 
 @layer components {
   .feature-card {
-    @apply border border-white/20 backdrop-blur-sm bg-[#4834d4]/80 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#4834d4];
+    @apply border border-white/20 backdrop-blur-sm bg-[#4834d4] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#4834d4]/90;
   }
 }
