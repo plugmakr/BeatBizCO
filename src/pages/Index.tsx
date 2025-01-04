@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { 
   Music2, 
+  ShoppingCart, 
   Mic2, 
   HeadphonesIcon, 
   AudioWaveform,
