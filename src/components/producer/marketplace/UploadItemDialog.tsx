@@ -12,6 +12,7 @@ import { ThumbnailUpload } from "./upload/ThumbnailUpload";
 import { AudioUpload } from "./upload/AudioUpload";
 import { DownloadUpload } from "./upload/DownloadUpload";
 import { ItemForm } from "./upload/ItemForm";
+import { UploadProgress } from "@/components/shared/media/UploadProgress";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -36,6 +37,13 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [downloadFile, setDownloadFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({
+    thumbnail: 0,
+    audio: 0,
+    download: 0,
+    preview: 0,
+  });
+  const [currentUpload, setCurrentUpload] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,6 +59,51 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
     },
   });
 
+  const uploadFileWithProgress = async (
+    file: File,
+    path: string,
+    bucket: string,
+    type: 'thumbnail' | 'audio' | 'download'
+  ) => {
+    setCurrentUpload(type);
+    const xhr = new XMLHttpRequest();
+    
+    return new Promise<string>((resolve, reject) => {
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100;
+          setUploadProgress(prev => ({ ...prev, [type]: progress }));
+        }
+      });
+
+      xhr.onload = async () => {
+        if (xhr.status === 200) {
+          const { data, error } = await supabase.storage
+            .from(bucket)
+            .upload(path, file, {
+              contentType: file.type,
+              upsert: false,
+            });
+          
+          if (error) reject(error);
+          else resolve(path);
+        } else {
+          reject(new Error('Upload failed'));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Upload failed'));
+
+      // Prepare form data for the XHR request
+      const formData = new FormData();
+      formData.append('file', file);
+
+      xhr.open('POST', `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/${bucket}/${path}`);
+      xhr.setRequestHeader('Authorization', `Bearer ${supabase.auth.getSession()}`);
+      xhr.send(formData);
+    });
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!thumbnailFile || !audioFile || !downloadFile) {
       toast({
@@ -65,6 +118,7 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
 
     try {
       // Generate audio preview
+      setCurrentUpload('preview');
       const formData = new FormData();
       formData.append('file', audioFile);
 
@@ -76,6 +130,8 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
         throw new Error('Failed to generate preview');
       }
 
+      setUploadProgress(prev => ({ ...prev, preview: 100 }));
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("No session");
 
@@ -84,16 +140,12 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
       const audioPath = `${session.user.id}/${timestamp}_audio_${audioFile.name}`;
       const downloadPath = `${session.user.id}/${timestamp}_download_${downloadFile.name}`;
 
-      // Upload files
-      const [thumbnailUpload, audioUpload, downloadUpload] = await Promise.all([
-        supabase.storage.from("marketplace").upload(thumbnailPath, thumbnailFile),
-        supabase.storage.from("marketplace").upload(audioPath, audioFile),
-        supabase.storage.from("marketplace").upload(downloadPath, downloadFile),
+      // Upload files with progress
+      const [thumbnailUploadPath, audioUploadPath, downloadUploadPath] = await Promise.all([
+        uploadFileWithProgress(thumbnailFile, thumbnailPath, 'marketplace', 'thumbnail'),
+        uploadFileWithProgress(audioFile, audioPath, 'marketplace', 'audio'),
+        uploadFileWithProgress(downloadFile, downloadPath, 'marketplace', 'download'),
       ]);
-
-      if (thumbnailUpload.error || audioUpload.error || downloadUpload.error) {
-        throw new Error("Failed to upload files");
-      }
 
       // Create marketplace item
       const { error: insertError } = await supabase.from("marketplace_items").insert({
@@ -130,6 +182,13 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
       });
     } finally {
       setIsUploading(false);
+      setCurrentUpload(null);
+      setUploadProgress({
+        thumbnail: 0,
+        audio: 0,
+        download: 0,
+        preview: 0,
+      });
     }
   };
 
@@ -147,6 +206,36 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
               <AudioUpload onFileSelect={setAudioFile} />
               <DownloadUpload onFileSelect={setDownloadFile} />
             </div>
+            
+            {isUploading && (
+              <div className="space-y-2">
+                {currentUpload === 'preview' && (
+                  <UploadProgress
+                    progress={uploadProgress.preview}
+                    fileName="Generating preview..."
+                  />
+                )}
+                {currentUpload === 'thumbnail' && (
+                  <UploadProgress
+                    progress={uploadProgress.thumbnail}
+                    fileName="Uploading thumbnail..."
+                  />
+                )}
+                {currentUpload === 'audio' && (
+                  <UploadProgress
+                    progress={uploadProgress.audio}
+                    fileName="Uploading audio..."
+                  />
+                )}
+                {currentUpload === 'download' && (
+                  <UploadProgress
+                    progress={uploadProgress.download}
+                    fileName="Uploading download file..."
+                  />
+                )}
+              </div>
+            )}
+            
             <div className="flex justify-end gap-2 sticky bottom-0 bg-background py-4 border-t">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
