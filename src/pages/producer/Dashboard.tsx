@@ -1,4 +1,4 @@
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Music, Users2, DollarSign, ChartLine, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
