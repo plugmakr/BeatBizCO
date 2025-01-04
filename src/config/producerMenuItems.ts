@@ -1,22 +1,16 @@
 import { 
   LayoutDashboard, 
-  Music, 
-  Users, 
-  FileText, 
-  Megaphone, 
-  BarChart, 
-  Star, 
-  MessageSquare, 
-  Bell,
-  Settings,
-  FolderKanban,
   Users2,
   Wallet,
   ShoppingBag,
   HelpCircle,
   Globe,
   Library,
-  GitFork
+  GitFork,
+  MessageSquare,
+  Bell,
+  Settings,
+  FolderKanban,
 } from "lucide-react";
 
 export const getProducerMenuItems = () => [
@@ -66,11 +60,6 @@ export const getProducerMenuItems = () => [
     url: "/producer/funnels",
   },
   {
-    title: "My Beats",
-    icon: Music,
-    url: "/producer/beats",
-  },
-  {
     title: "Messages",
     icon: MessageSquare,
     url: "/producer/messages",
@@ -90,12 +79,12 @@ export const getProducerMenuItems = () => [
 export const getArtistMenuItems = () => [
   {
     title: "Profile",
-    icon: User,
+    icon: Users2,
     url: "/dashboard/profile",
   },
   {
     title: "Browse Beats",
-    icon: Music,
+    icon: Library,
     url: "/dashboard/browse",
   },
   {
