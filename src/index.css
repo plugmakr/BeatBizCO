@@ -76,6 +76,6 @@
 
 @layer components {
   .feature-card {
-    @apply bg-[#4834d4] border-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#4834d4]/90 text-white;
+    @apply bg-[#2980b9] border-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-[#2980b9]/90 text-white;
   }
 }
