@@ -74,36 +74,49 @@ export const ClientTableRow = ({
           Active
         </span>
       </TableCell>
-      <TableCell onClick={(e) => e.stopPropagation()}>
-        <DropdownMenu>
+      <TableCell>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button 
               variant="ghost" 
               className="h-8 w-8 p-0"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
             >
+              <span className="sr-only">Open menu</span>
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background">
-            <DropdownMenuItem onClick={() => onView(client)}>
+            <DropdownMenuItem onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onView(client);
+            }}>
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(client)}>
+            <DropdownMenuItem onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onEdit(client);
+            }}>
               <Edit className="mr-2 h-4 w-4" />
               Edit Client
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onMessage(client)}>
+            <DropdownMenuItem onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onMessage(client);
+            }}>
               <MessageSquare className="mr-2 h-4 w-4" />
               Send Message
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-red-600"
-              onClick={() => onDelete(client)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(client);
+              }}
             >
               <Trash className="mr-2 h-4 w-4" />
               Remove Client
