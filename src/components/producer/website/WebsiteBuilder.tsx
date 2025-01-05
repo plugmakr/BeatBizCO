@@ -28,9 +28,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { NavigationEditor } from "./block-editors/NavigationEditor";
+import { HeroEditor } from "./block-editors/HeroEditor";
+import { ProductsEditor } from "./block-editors/ProductsEditor";
 
 interface WebsiteBuilderProps {
   currentTemplate: string | null;
@@ -47,6 +47,10 @@ const blockTypes = [
       links: [
         { label: "Home", url: "#" },
         { label: "Beats", url: "#beats" },
+        { label: "Loop Kits", url: "#loop-kits" },
+        { label: "Sample Kits", url: "#sample-kits" },
+        { label: "Drum Kits", url: "#drum-kits" },
+        { label: "Licensing", url: "#licensing" },
         { label: "Services", url: "#services" },
         { label: "Contact", url: "#contact" },
       ],
@@ -223,9 +227,36 @@ export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps)
     setBlocks(blocks.filter((block) => block.id !== blockId));
   };
 
+  const renderBlockEditor = (block: any) => {
+    switch (block.type) {
+      case "navigation":
+        return (
+          <NavigationEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
+      case "hero":
+        return (
+          <HeroEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
+      case "products":
+        return (
+          <ProductsEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
+      default:
+        return <div>Editor not implemented for this block type</div>;
+    }
+  };
+
   return (
     <div className="grid grid-cols-12 gap-6">
-      {/* Block Library */}
       <Card className="col-span-3">
         <CardContent className="p-4">
           <h3 className="font-semibold mb-4">Available Blocks</h3>
@@ -247,7 +278,6 @@ export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps)
         </CardContent>
       </Card>
 
-      {/* Builder Canvas */}
       <div className="col-span-9">
         <Card>
           <CardContent className="p-6">
@@ -288,51 +318,14 @@ export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps)
                                       <Edit2 className="h-4 w-4" />
                                     </Button>
                                   </DialogTrigger>
-                                  <DialogContent>
+                                  <DialogContent className="max-w-2xl">
                                     <DialogHeader>
                                       <DialogTitle>
                                         Edit {blockTypes.find((b) => b.id === block.type)?.name}
                                       </DialogTitle>
                                     </DialogHeader>
-                                    <div className="space-y-4 py-4">
-                                      {block.type === "hero" && (
-                                        <>
-                                          <div className="space-y-2">
-                                            <Label>Heading</Label>
-                                            <Input
-                                              defaultValue={block.content.heading}
-                                              onChange={(e) =>
-                                                updateBlockContent(block.id, {
-                                                  heading: e.target.value,
-                                                })
-                                              }
-                                            />
-                                          </div>
-                                          <div className="space-y-2">
-                                            <Label>Subheading</Label>
-                                            <Input
-                                              defaultValue={block.content.subheading}
-                                              onChange={(e) =>
-                                                updateBlockContent(block.id, {
-                                                  subheading: e.target.value,
-                                                })
-                                              }
-                                            />
-                                          </div>
-                                          <div className="space-y-2">
-                                            <Label>CTA Text</Label>
-                                            <Input
-                                              defaultValue={block.content.ctaText}
-                                              onChange={(e) =>
-                                                updateBlockContent(block.id, {
-                                                  ctaText: e.target.value,
-                                                })
-                                              }
-                                            />
-                                          </div>
-                                        </>
-                                      )}
-                                      {/* Add more block-specific edit forms here */}
+                                    <div className="py-4">
+                                      {renderBlockEditor(block)}
                                     </div>
                                   </DialogContent>
                                 </Dialog>
