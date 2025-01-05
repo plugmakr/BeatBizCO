@@ -11,9 +11,9 @@ export const urbanVibeTemplate: Template = {
       content: {
         links: [
           { label: "Home", url: "#" },
-          { label: "Beats", url: "#beats" },
-          { label: "Services", url: "#services" },
-          { label: "Licensing", url: "#licensing" },
+          { label: "Tracks", url: "#tracks" },
+          { label: "Studio", url: "#studio" },
+          { label: "Shop", url: "#shop" },
           { label: "Contact", url: "#contact" }
         ]
       }
@@ -22,31 +22,30 @@ export const urbanVibeTemplate: Template = {
       type: "hero",
       content: {
         heading: "Next Level Beats",
-        subheading: "Creating Hits, Defining Sound",
-        ctaText: "Start Listening",
-        ctaUrl: "#player",
-        backgroundImage: "https://images.unsplash.com/photo-1511379938547-c1f69419868d"
+        subheading: "Premium Sound Design & Production",
+        ctaText: "Start Creating",
+        ctaUrl: "#tracks",
+        backgroundImage: "https://images.unsplash.com/photo-1598387993441-a364f854c3e1"
       }
     },
     {
       type: "music-player",
       content: {
-        heading: "Featured Tracks",
-        artistName: "Studio Name",
+        heading: "Hot Tracks",
         playlist: [
           {
             id: "track-1",
             title: "Street Dreams",
             bpm: 145,
-            key: "Gm",
-            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
+            key: "Fm",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-driving-ambition-32.mp3"
           },
           {
             id: "track-2",
             title: "Urban Flow",
             bpm: 130,
             key: "Am",
-            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
           }
         ]
       }
@@ -58,13 +57,18 @@ export const urbanVibeTemplate: Template = {
         services: [
           {
             name: "Beat Production",
-            price: "Custom Quote",
-            description: "Professional beat making with industry-standard equipment"
+            price: "$599",
+            description: "Custom beats with your signature sound"
           },
           {
-            name: "Recording Sessions",
-            price: "from $100/hr",
-            description: "State-of-the-art recording studio with experienced engineers"
+            name: "Studio Time",
+            price: "$99/hr",
+            description: "Professional recording studio sessions"
+          },
+          {
+            name: "Artist Development",
+            price: "$999",
+            description: "Complete artist development program"
           }
         ]
       }
@@ -72,22 +76,22 @@ export const urbanVibeTemplate: Template = {
     {
       type: "licensing",
       content: {
-        heading: "License Your Beat",
+        heading: "Beat Licenses",
         licenses: [
           {
             name: "Basic",
             price: "$39.99",
-            features: ["MP3 File", "Limited Streams", "Personal Use"]
+            features: ["MP3 File", "100k Streams", "Non-Profit"]
           },
           {
             name: "Premium",
             price: "$149.99",
-            features: ["WAV + MP3", "Unlimited Streams", "Commercial Rights"]
+            features: ["WAV + Stems", "1M Streams", "Commercial Use"]
           },
           {
             name: "Exclusive",
-            price: "$599.99",
-            features: ["Full Rights", "Source Files", "Commercial Use"]
+            price: "$499.99",
+            features: ["Full Rights", "Unlimited", "Remove from Store"]
           }
         ]
       }
@@ -98,14 +102,14 @@ export const urbanVibeTemplate: Template = {
         heading: "Artist Reviews",
         testimonials: [
           {
-            name: "James Wilson",
-            role: "Rap Artist",
-            content: "These beats are fire! The quality and creativity is next level."
+            name: "Jay Wilson",
+            role: "Hip-Hop Artist",
+            content: "These beats are straight fire! Best production quality I've found."
           },
           {
-            name: "Maria Garcia",
-            role: "Producer",
-            content: "Best studio experience I've had. Professional and talented team."
+            name: "Maria Rodriguez",
+            role: "R&B Singer",
+            content: "The studio sessions are professional and the results are amazing."
           }
         ]
       }
@@ -125,7 +129,7 @@ export const urbanVibeTemplate: Template = {
       type: "contact",
       content: {
         heading: "Book a Session",
-        fields: ["name", "email", "phone", "project-details"],
+        fields: ["name", "email", "phone", "project-details", "message"],
         showSocials: true
       }
     }

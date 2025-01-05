@@ -11,9 +11,9 @@ export const creativeHubTemplate: Template = {
       content: {
         links: [
           { label: "Home", url: "#" },
-          { label: "Services", url: "#services" },
-          { label: "Portfolio", url: "#portfolio" },
-          { label: "Licensing", url: "#licensing" },
+          { label: "Studio", url: "#studio" },
+          { label: "Beats", url: "#beats" },
+          { label: "Collabs", url: "#collabs" },
           { label: "Contact", url: "#contact" }
         ]
       }
@@ -22,9 +22,9 @@ export const creativeHubTemplate: Template = {
       type: "hero",
       content: {
         heading: "Unleash Your Creativity",
-        subheading: "Your Vision, Our Sound",
+        subheading: "Where Music Comes to Life",
         ctaText: "Start Creating",
-        ctaUrl: "#create",
+        ctaUrl: "#studio",
         backgroundImage: "https://images.unsplash.com/photo-1598520106830-8c45c2035460"
       }
     },
@@ -35,18 +35,18 @@ export const creativeHubTemplate: Template = {
         services: [
           {
             name: "Music Production",
-            price: "from $299",
-            description: "Full-service music production with a creative touch"
+            price: "$699",
+            description: "Full service music production and arrangement"
+          },
+          {
+            name: "Collaboration",
+            price: "$399",
+            description: "Work together on your next hit"
           },
           {
             name: "Sound Design",
-            price: "from $199",
-            description: "Custom sound design for your unique project"
-          },
-          {
-            name: "Artist Development",
-            price: "from $499",
-            description: "Comprehensive artist development program"
+            price: "$299",
+            description: "Custom sound design for your project"
           }
         ]
       }
@@ -54,20 +54,20 @@ export const creativeHubTemplate: Template = {
     {
       type: "music-player",
       content: {
-        heading: "Latest Works",
+        heading: "Featured Works",
         playlist: [
           {
             id: "track-1",
             title: "Creative Flow",
             bpm: 125,
-            key: "Cm",
+            key: "Am",
             audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
           },
           {
             id: "track-2",
             title: "Artistic Vision",
-            bpm: 135,
-            key: "Gm",
+            bpm: 140,
+            key: "Fm",
             audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
           }
         ]
@@ -76,22 +76,22 @@ export const creativeHubTemplate: Template = {
     {
       type: "licensing",
       content: {
-        heading: "Licensing Plans",
+        heading: "License Your Music",
         licenses: [
           {
             name: "Creator License",
             price: "$59.99",
-            features: ["High-Quality Files", "Social Media Use", "Monetization Rights"]
+            features: ["WAV File", "Online Use", "Content Creation"]
           },
           {
-            name: "Professional",
-            price: "$299.99",
-            features: ["All Audio Formats", "Commercial Use", "Unlimited Revenue"]
+            name: "Artist License",
+            price: "$199.99",
+            features: ["All Formats", "Commercial Use", "Performance Rights"]
           },
           {
-            name: "Enterprise",
-            price: "$799.99",
-            features: ["Exclusive Rights", "Source Files", "Full Ownership"]
+            name: "Master License",
+            price: "$599.99",
+            features: ["Exclusive Rights", "Full Ownership", "Custom Terms"]
           }
         ]
       }
@@ -99,22 +99,17 @@ export const creativeHubTemplate: Template = {
     {
       type: "testimonials",
       content: {
-        heading: "Client Success Stories",
+        heading: "Creator Feedback",
         testimonials: [
           {
-            name: "Michael Chen",
-            role: "Producer",
-            content: "The quality of sounds and attention to detail is unmatched. A game-changer for my production workflow."
+            name: "Chris Zhang",
+            role: "Content Creator",
+            content: "The creative process and results exceeded my expectations."
           },
           {
-            name: "Lisa Rodriguez",
-            role: "Artist",
-            content: "Found my signature sound here. The professional approach and quality of work exceeded expectations."
-          },
-          {
-            name: "James Wilson",
-            role: "Sound Designer",
-            content: "These sound kits have become essential tools in my creative process. Exceptional quality."
+            name: "Maya Patel",
+            role: "Independent Artist",
+            content: "Found my sound and developed my style working together."
           }
         ]
       }
@@ -122,7 +117,7 @@ export const creativeHubTemplate: Template = {
     {
       type: "social",
       content: {
-        title: "Join Our Creative Community",
+        title: "Join the Community",
         platforms: [
           { name: "Instagram", url: "#" },
           { name: "YouTube", url: "#" },
@@ -134,7 +129,7 @@ export const creativeHubTemplate: Template = {
       type: "contact",
       content: {
         heading: "Let's Create Together",
-        fields: ["name", "email", "project-type", "vision", "budget"],
+        fields: ["name", "email", "project-type", "inspiration", "message"],
         showSocials: true
       }
     }

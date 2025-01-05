@@ -11,9 +11,9 @@ export const proStudioTemplate: Template = {
       content: {
         links: [
           { label: "Home", url: "#" },
-          { label: "Services", url: "#services" },
+          { label: "Production", url: "#production" },
           { label: "Portfolio", url: "#portfolio" },
-          { label: "Licensing", url: "#licensing" },
+          { label: "Services", url: "#services" },
           { label: "Contact", url: "#contact" }
         ]
       }
@@ -22,31 +22,31 @@ export const proStudioTemplate: Template = {
       type: "hero",
       content: {
         heading: "Professional Sound Design",
-        subheading: "Where Quality Meets Creativity",
-        ctaText: "Explore Catalog",
-        ctaUrl: "#catalog",
-        backgroundImage: "https://images.unsplash.com/photo-1519892300165-cb5542fb47c7"
+        subheading: "Industry Standard Production Tools",
+        ctaText: "View Portfolio",
+        ctaUrl: "#portfolio",
+        backgroundImage: "https://images.unsplash.com/photo-1598449356475-b9f71db7d847"
       }
     },
     {
       type: "services",
       content: {
-        heading: "Studio Services",
+        heading: "Professional Services",
         services: [
           {
+            name: "Full Production",
+            price: "$1999",
+            description: "Complete song production from concept to master"
+          },
+          {
             name: "Beat Production",
-            price: "Custom Quote",
-            description: "Professional beat making with industry-standard equipment"
+            price: "$799",
+            description: "Professional beat making with premium sounds"
           },
           {
-            name: "Recording Sessions",
-            price: "from $100/hr",
-            description: "State-of-the-art recording studio with experienced engineers"
-          },
-          {
-            name: "Sound Design",
-            price: "Custom Quote",
-            description: "Custom sound design for your unique needs"
+            name: "Mixing Service",
+            price: "$499",
+            description: "Professional mixing for your tracks"
           }
         ]
       }
@@ -54,18 +54,18 @@ export const proStudioTemplate: Template = {
     {
       type: "music-player",
       content: {
-        heading: "Recent Productions",
+        heading: "Recent Work",
         playlist: [
           {
             id: "track-1",
             title: "Studio Magic",
             bpm: 128,
-            key: "Am",
+            key: "Dm",
             audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
           },
           {
             id: "track-2",
-            title: "Professional Touch",
+            title: "Pro Level",
             bpm: 140,
             key: "Gm",
             audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
@@ -79,19 +79,19 @@ export const proStudioTemplate: Template = {
         heading: "License Options",
         licenses: [
           {
-            name: "Standard License",
-            price: "$49.99",
-            features: ["MP3 & WAV Files", "10,000 Streams", "Non-Profit Use"]
+            name: "Standard",
+            price: "$79.99",
+            features: ["WAV File", "500k Streams", "Music Video Rights"]
           },
           {
-            name: "Premium License",
-            price: "$199.99",
-            features: ["All Audio Files", "Unlimited Streams", "Commercial Use"]
+            name: "Professional",
+            price: "$299.99",
+            features: ["WAV + Stems", "Unlimited Streams", "Broadcast Rights"]
           },
           {
-            name: "Exclusive Rights",
+            name: "Enterprise",
             price: "$999.99",
-            features: ["Full Ownership", "Source Files", "Unlimited Usage"]
+            features: ["Full Rights", "Custom Terms", "Priority Support"]
           }
         ]
       }
@@ -99,17 +99,17 @@ export const proStudioTemplate: Template = {
     {
       type: "testimonials",
       content: {
-        heading: "Client Success Stories",
+        heading: "Industry Feedback",
         testimonials: [
           {
-            name: "David Lee",
-            role: "Professional Artist",
-            content: "The level of professionalism and quality here is unmatched. Every session exceeds expectations."
+            name: "David Miller",
+            role: "Grammy Nominated Artist",
+            content: "The production quality and professionalism are world-class."
           },
           {
-            name: "Emma Thompson",
-            role: "Recording Artist",
-            content: "Found my signature sound here. The team's expertise made all the difference."
+            name: "Lisa Wang",
+            role: "Label Executive",
+            content: "Consistently delivers outstanding results for our artists."
           }
         ]
       }
@@ -117,7 +117,7 @@ export const proStudioTemplate: Template = {
     {
       type: "social",
       content: {
-        title: "Follow Our Journey",
+        title: "Professional Network",
         platforms: [
           { name: "Instagram", url: "#" },
           { name: "YouTube", url: "#" },
@@ -129,7 +129,7 @@ export const proStudioTemplate: Template = {
       type: "contact",
       content: {
         heading: "Start Your Project",
-        fields: ["name", "email", "budget", "project-details"],
+        fields: ["name", "email", "company", "budget", "project-details"],
         showSocials: true
       }
     }

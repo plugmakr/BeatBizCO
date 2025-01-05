@@ -3,7 +3,7 @@ import { Template } from "../../types/template";
 export const minimalLightTemplate: Template = {
   id: "minimal-light",
   name: "Minimal Light",
-  description: "Clean and minimalist design with light aesthetics",
+  description: "Clean and minimalist design with light colors",
   thumbnail: "/placeholder.svg",
   blocks: [
     {
@@ -11,9 +11,9 @@ export const minimalLightTemplate: Template = {
       content: {
         links: [
           { label: "Home", url: "#" },
-          { label: "About", url: "#about" },
+          { label: "Music", url: "#music" },
           { label: "Services", url: "#services" },
-          { label: "Beats", url: "#beats" },
+          { label: "About", url: "#about" },
           { label: "Contact", url: "#contact" }
         ]
       }
@@ -21,10 +21,10 @@ export const minimalLightTemplate: Template = {
     {
       type: "hero",
       content: {
-        heading: "Elevate Your Sound",
-        subheading: "Professional Beat Making & Music Production",
-        ctaText: "Browse Collection",
-        ctaUrl: "#beats",
+        heading: "Crafting Sonic Excellence",
+        subheading: "Premium Beats & Professional Production",
+        ctaText: "Explore Music",
+        ctaUrl: "#music",
         backgroundImage: "https://images.unsplash.com/photo-1598653222000-6b7b7a552625"
       }
     },
@@ -35,18 +35,18 @@ export const minimalLightTemplate: Template = {
         services: [
           {
             name: "Beat Production",
-            price: "$299",
-            description: "Custom beats tailored to your style"
+            price: "From $399",
+            description: "Custom beats crafted to your specifications"
           },
           {
             name: "Vocal Production",
-            price: "$199",
-            description: "Professional vocal recording and editing"
+            price: "From $299",
+            description: "Professional vocal recording and production"
           },
           {
-            name: "Audio Mixing",
-            price: "$149",
-            description: "Expert mixing for crystal clear sound"
+            name: "Audio Engineering",
+            price: "From $199",
+            description: "Expert mixing and mastering services"
           }
         ]
       }
@@ -58,17 +58,17 @@ export const minimalLightTemplate: Template = {
         playlist: [
           {
             id: "track-1",
-            title: "Summer Vibes",
-            bpm: 128,
-            key: "Am",
-            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
+            title: "Summer Breeze",
+            bpm: 95,
+            key: "Gm",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-serene-view-443.mp3"
           },
           {
             id: "track-2",
-            title: "Midnight Dreams",
-            bpm: 95,
-            key: "Fm",
-            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
+            title: "Midnight Drive",
+            bpm: 128,
+            key: "Em",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-deep-urban-623.mp3"
           }
         ]
       }
@@ -76,17 +76,17 @@ export const minimalLightTemplate: Template = {
     {
       type: "licensing",
       content: {
-        heading: "License Options",
+        heading: "Licensing Options",
         licenses: [
           {
             name: "Standard License",
             price: "$49.99",
-            features: ["MP3 & WAV Files", "10,000 Streams", "Non-Profit Use"]
+            features: ["WAV File", "250k Streams", "Music Video Use"]
           },
           {
-            name: "Premium License",
+            name: "Premium Rights",
             price: "$199.99",
-            features: ["All Audio Files", "Unlimited Streams", "Commercial Use"]
+            features: ["All Formats", "Unlimited Streams", "Broadcasting Rights"]
           }
         ]
       }
@@ -94,17 +94,17 @@ export const minimalLightTemplate: Template = {
     {
       type: "testimonials",
       content: {
-        heading: "Artist Testimonials",
+        heading: "Client Feedback",
         testimonials: [
           {
-            name: "Michael Chen",
-            role: "Hip Hop Artist",
-            content: "The quality and attention to detail is unmatched. A game-changer for my production workflow."
+            name: "Michael Roberts",
+            role: "Professional Artist",
+            content: "The attention to detail and quality is exceptional."
           },
           {
-            name: "Lisa Rodriguez",
-            role: "R&B Singer",
-            content: "Found my signature sound here. The professional approach exceeded expectations."
+            name: "Emma Davis",
+            role: "Singer-Songwriter",
+            content: "Working together has been an amazing experience."
           }
         ]
       }
@@ -112,7 +112,7 @@ export const minimalLightTemplate: Template = {
     {
       type: "social",
       content: {
-        title: "Follow Me",
+        title: "Connect With Me",
         platforms: [
           { name: "Instagram", url: "#" },
           { name: "YouTube", url: "#" },
@@ -124,13 +124,13 @@ export const minimalLightTemplate: Template = {
       type: "contact",
       content: {
         heading: "Work Together",
-        fields: ["name", "email", "message"],
-        showSocials: true
+        fields: ["name", "email", "project-type", "message"],
+        showSocials: false
       }
     }
   ],
   theme: {
-    background: "bg-white",
+    background: "bg-gray-50",
     accent: "bg-gradient-to-r from-gray-200 to-gray-300"
   }
 };
