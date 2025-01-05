@@ -33,7 +33,7 @@ export function ProjectFileList({ files, onPreview, onDelete }: ProjectFileListP
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <p className="text-white">
-                    {file.type === 'regular' ? file.file.filename : (file.file as SoundLibraryFile).title}
+                    {file.type === 'regular' ? file.file.filename : (file.file as any).title}
                   </p>
                   {file.type === 'sound_library' && (
                     <Badge variant="secondary">Sound Library</Badge>

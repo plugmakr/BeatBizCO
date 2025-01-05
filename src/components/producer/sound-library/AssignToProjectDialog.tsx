@@ -46,6 +46,24 @@ export function AssignToProjectDialog({
     setIsAssigning(true);
 
     try {
+      // First check if the sound is already assigned to this project
+      const { data: existingAssignment } = await supabase
+        .from("sound_library_project_files")
+        .select("id")
+        .eq("sound_id", soundId)
+        .eq("project_id", selectedProject)
+        .single();
+
+      if (existingAssignment) {
+        toast({
+          title: "Already Assigned",
+          description: "This sound is already assigned to the selected project",
+          variant: "default",
+        });
+        onOpenChange(false);
+        return;
+      }
+
       const { error } = await supabase.from("sound_library_project_files").insert({
         sound_id: soundId,
         project_id: selectedProject,
