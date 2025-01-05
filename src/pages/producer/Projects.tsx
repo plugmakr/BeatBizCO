@@ -13,10 +13,11 @@ import {
 } from "@/components/ui/table";
 import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
 import { ProjectDetailsDialog } from "@/components/projects/ProjectDetailsDialog";
+import { AddClientDialog } from "@/components/producer/clients/AddClientDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Edit2, Eye, Trash2 } from "lucide-react";
+import { Edit2, Eye, Trash2, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 
 type Project = {
@@ -39,6 +40,7 @@ const ProducerProjects = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAddingClient, setIsAddingClient] = useState(false);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -232,7 +234,17 @@ const ProducerProjects = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Projects</h1>
-          <CreateProjectDialog />
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => setIsAddingClient(true)}
+              className="flex items-center gap-2"
+            >
+              <UserPlus className="h-4 w-4" />
+              Add Client
+            </Button>
+            <CreateProjectDialog />
+          </div>
         </div>
         
         <Tabs defaultValue="active" className="space-y-4">
@@ -285,6 +297,18 @@ const ProducerProjects = () => {
           project={selectedProject}
           open={detailsOpen}
           onOpenChange={setDetailsOpen}
+        />
+
+        <AddClientDialog
+          isOpen={isAddingClient}
+          onClose={() => setIsAddingClient(false)}
+          onSuccess={() => {
+            toast({
+              title: "Success",
+              description: "Client added successfully",
+            });
+            setIsAddingClient(false);
+          }}
         />
       </div>
     </DashboardLayout>
