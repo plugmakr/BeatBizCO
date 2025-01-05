@@ -15,7 +15,22 @@ import {
   FileText,
   Menu,
   Plus,
+  Music2,
+  PlayCircle,
+  MessageSquare,
+  Calendar,
+  Users,
+  Instagram,
+  Youtube,
+  Twitter,
+  Mail,
+  Edit2,
+  Trash2,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface WebsiteBuilderProps {
   currentTemplate: string | null;
@@ -28,29 +43,146 @@ const blockTypes = [
     name: "Navigation Menu",
     icon: Menu,
     description: "Add a navigation menu to your site",
+    defaultContent: {
+      links: [
+        { label: "Home", url: "#" },
+        { label: "Beats", url: "#beats" },
+        { label: "Services", url: "#services" },
+        { label: "Contact", url: "#contact" },
+      ],
+    },
   },
   {
     id: "hero",
     name: "Hero Section",
     icon: Image,
     description: "Add a hero section with image and text",
+    defaultContent: {
+      heading: "Professional Beat Making & Music Production",
+      subheading: "Turn Your Vision Into Reality",
+      ctaText: "Browse Beats",
+      ctaUrl: "#beats",
+      backgroundImage: "",
+    },
   },
   {
     id: "products",
-    name: "Products Grid",
+    name: "Beat Store",
     icon: ShoppingCart,
     description: "Display your beats and products",
+    defaultContent: {
+      heading: "Featured Beats",
+      layout: "grid",
+      itemsPerRow: 3,
+      showFilters: true,
+      showSort: true,
+    },
   },
   {
     id: "licensing",
     name: "Licensing Options",
     icon: FileText,
     description: "Show your licensing terms and prices",
+    defaultContent: {
+      heading: "Licensing Options",
+      description: "Choose the right license for your project",
+      licenses: [
+        {
+          name: "Basic License",
+          price: "29.99",
+          features: ["MP3 File", "5000 Streams", "Non-Profit Use"],
+        },
+        {
+          name: "Premium License",
+          price: "99.99",
+          features: ["WAV File", "Unlimited Streams", "Commercial Use"],
+        },
+      ],
+    },
+  },
+  {
+    id: "music-player",
+    name: "Music Player",
+    icon: PlayCircle,
+    description: "Add an embedded music player",
+    defaultContent: {
+      playlist: [],
+      autoplay: false,
+      showArtwork: true,
+      showWaveform: true,
+    },
+  },
+  {
+    id: "services",
+    name: "Services",
+    icon: Music2,
+    description: "Showcase your production services",
+    defaultContent: {
+      heading: "Production Services",
+      services: [
+        {
+          name: "Custom Beat Production",
+          price: "Starting at $299",
+          description: "Professional beat production tailored to your style",
+        },
+        {
+          name: "Mixing & Mastering",
+          price: "Starting at $149",
+          description: "Industry-standard mixing and mastering services",
+        },
+      ],
+    },
+  },
+  {
+    id: "testimonials",
+    name: "Testimonials",
+    icon: MessageSquare,
+    description: "Display client testimonials",
+    defaultContent: {
+      heading: "What Artists Say",
+      testimonials: [],
+    },
+  },
+  {
+    id: "booking",
+    name: "Studio Booking",
+    icon: Calendar,
+    description: "Add studio booking calendar",
+    defaultContent: {
+      heading: "Book Studio Time",
+      description: "Schedule your next session",
+      showCalendar: true,
+    },
+  },
+  {
+    id: "social",
+    name: "Social Links",
+    icon: Users,
+    description: "Add social media links",
+    defaultContent: {
+      platforms: [
+        { name: "Instagram", icon: Instagram, url: "" },
+        { name: "YouTube", icon: Youtube, url: "" },
+        { name: "Twitter", icon: Twitter, url: "" },
+      ],
+    },
+  },
+  {
+    id: "contact",
+    name: "Contact Form",
+    icon: Mail,
+    description: "Add a contact form",
+    defaultContent: {
+      heading: "Get in Touch",
+      fields: ["name", "email", "message"],
+      showSocials: true,
+    },
   },
 ];
 
 export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps) => {
   const [blocks, setBlocks] = useState<any[]>([]);
+  const [editingBlock, setEditingBlock] = useState<any>(null);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -63,7 +195,32 @@ export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps)
   };
 
   const addBlock = (blockType: string) => {
-    setBlocks([...blocks, { id: `${blockType}-${Date.now()}`, type: blockType }]);
+    const blockConfig = blockTypes.find((b) => b.id === blockType);
+    if (!blockConfig) return;
+
+    setBlocks([
+      ...blocks,
+      {
+        id: `${blockType}-${Date.now()}`,
+        type: blockType,
+        content: { ...blockConfig.defaultContent },
+      },
+    ]);
+  };
+
+  const updateBlockContent = (blockId: string, newContent: any) => {
+    setBlocks(
+      blocks.map((block) =>
+        block.id === blockId
+          ? { ...block, content: { ...block.content, ...newContent } }
+          : block
+      )
+    );
+    setEditingBlock(null);
+  };
+
+  const deleteBlock = (blockId: string) => {
+    setBlocks(blocks.filter((block) => block.id !== blockId));
   };
 
   return (
@@ -113,11 +270,80 @@ export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps)
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            className="bg-card p-4 rounded-lg border"
+                            className="bg-card p-4 rounded-lg border group relative"
                           >
-                            <div className="flex items-center">
-                              <LayoutTemplate className="mr-2 h-4 w-4" />
-                              {blockTypes.find((b) => b.id === block.type)?.name}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <LayoutTemplate className="mr-2 h-4 w-4" />
+                                {blockTypes.find((b) => b.id === block.type)?.name}
+                              </div>
+                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => setEditingBlock(block)}
+                                    >
+                                      <Edit2 className="h-4 w-4" />
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>
+                                        Edit {blockTypes.find((b) => b.id === block.type)?.name}
+                                      </DialogTitle>
+                                    </DialogHeader>
+                                    <div className="space-y-4 py-4">
+                                      {block.type === "hero" && (
+                                        <>
+                                          <div className="space-y-2">
+                                            <Label>Heading</Label>
+                                            <Input
+                                              defaultValue={block.content.heading}
+                                              onChange={(e) =>
+                                                updateBlockContent(block.id, {
+                                                  heading: e.target.value,
+                                                })
+                                              }
+                                            />
+                                          </div>
+                                          <div className="space-y-2">
+                                            <Label>Subheading</Label>
+                                            <Input
+                                              defaultValue={block.content.subheading}
+                                              onChange={(e) =>
+                                                updateBlockContent(block.id, {
+                                                  subheading: e.target.value,
+                                                })
+                                              }
+                                            />
+                                          </div>
+                                          <div className="space-y-2">
+                                            <Label>CTA Text</Label>
+                                            <Input
+                                              defaultValue={block.content.ctaText}
+                                              onChange={(e) =>
+                                                updateBlockContent(block.id, {
+                                                  ctaText: e.target.value,
+                                                })
+                                              }
+                                            />
+                                          </div>
+                                        </>
+                                      )}
+                                      {/* Add more block-specific edit forms here */}
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteBlock(block.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         )}
