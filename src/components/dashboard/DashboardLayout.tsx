@@ -137,7 +137,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
               <SidebarGroupContent>
                 <SidebarMenu>
                   {isAdmin && (
-                    <SidebarMenuItem className="mb-4">
+                    <SidebarMenuItem className="mb-2">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <SidebarMenuButton className="flex items-center gap-2 w-full">
