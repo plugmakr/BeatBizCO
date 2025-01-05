@@ -16,23 +16,13 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    // First, get the user ID for seth@audicode.com
-    const { data: { user }, error: userError } = await supabaseClient.auth.admin.getUserByEmail('seth@audicode.com')
-    
-    if (userError || !user) {
-      throw new Error('User not found')
-    }
-
-    // Update the profile with admin role
-    const { data: userData, error: updateError } = await supabaseClient
+    const { data: userData, error: userError } = await supabaseClient
       .from('profiles')
       .update({ role: 'admin' })
-      .eq('id', user.id)
+      .eq('id', (await supabaseClient.auth.admin.getUserByEmail('seth@audicode.com')).data.user?.id)
       .select()
 
-    if (updateError) throw updateError
-
-    console.log('Successfully updated role to admin for seth@audicode.com')
+    if (userError) throw userError
 
     return new Response(
       JSON.stringify({ message: 'Role updated successfully', data: userData }),
@@ -42,7 +32,6 @@ Deno.serve(async (req) => {
       }
     )
   } catch (error) {
-    console.error('Error updating admin role:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       {
