@@ -5,8 +5,8 @@ import {
   Sidebar, 
   SidebarContent, 
   SidebarGroup, 
-  SidebarGroupContent, 
   SidebarGroupLabel, 
+  SidebarGroupContent, 
   SidebarMenu, 
   SidebarMenuButton, 
   SidebarMenuItem 
@@ -85,6 +85,8 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
           return getArtistMenuItems();
         case "admin":
           return getAdminMenuItems();
+        case "buyer":
+          return []; // Add buyer menu items when available
         default:
           return getAdminMenuItems();
       }
@@ -97,6 +99,8 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         return getArtistMenuItems();
       case "admin":
         return getAdminMenuItems();
+      case "buyer":
+        return []; // Add buyer menu items when available
       default:
         return [];
     }
@@ -129,6 +133,9 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleRoleSwitch('artist')}>
                             Artist
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleRoleSwitch('buyer')}>
+                            Buyer
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
