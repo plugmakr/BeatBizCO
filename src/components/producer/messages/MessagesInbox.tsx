@@ -28,7 +28,10 @@ export function MessagesInbox() {
         `)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching conversations:", error);
+        throw error;
+      }
       return data;
     },
   });
@@ -84,7 +87,7 @@ export function MessagesInbox() {
                   No messages yet
                 </div>
               ) : (
-                conversations?.map((conversation) => (
+                conversations?.map((conversation: any) => (
                   <div key={conversation.id}>
                     <button
                       onClick={() => setSelectedConversation(conversation.id)}
@@ -96,7 +99,7 @@ export function MessagesInbox() {
                         <MessageSquare className="h-5 w-5 text-muted-foreground" />
                         <div>
                           <p className="font-medium">
-                            {conversation.sender.full_name}
+                            {conversation.sender?.full_name}
                           </p>
                           <p className="text-sm text-muted-foreground truncate">
                             {conversation.content}
