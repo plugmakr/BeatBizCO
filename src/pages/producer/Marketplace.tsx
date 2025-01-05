@@ -10,6 +10,12 @@ import { MarketplaceItemList } from "@/components/producer/marketplace/Marketpla
 import { MarketplaceSubmenu } from "@/components/producer/marketplace/MarketplaceSubmenu";
 import { supabase } from "@/integrations/supabase/client";
 
+type ValidCategory = 'Loops' | 'Midi Kits' | 'Sample Kits' | 'Drum Kits' | 'Beats';
+
+const isValidCategory = (category: string | null): category is ValidCategory => {
+  return ['Loops', 'Midi Kits', 'Sample Kits', 'Drum Kits', 'Beats'].includes(category || '');
+};
+
 export default function ProducerMarketplace() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,12 +54,10 @@ export default function ProducerMarketplace() {
       const { data, error } = await query;
       if (error) throw error;
       
-      // Ensure each item has a valid category
+      // Transform the data to ensure category is valid
       return data?.map(item => ({
         ...item,
-        category: ['Loops', 'Midi Kits', 'Sample Kits', 'Drum Kits', 'Beats'].includes(item.category) 
-          ? item.category 
-          : 'Beats'
+        category: isValidCategory(item.category) ? item.category : 'Beats' as ValidCategory
       })) || [];
     },
   });
