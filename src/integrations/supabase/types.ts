@@ -323,6 +323,7 @@ export type Database = {
           order_index: number
           type: string
           updated_at: string | null
+          website_blocks: Json | null
         }
         Insert: {
           config?: Json | null
@@ -333,6 +334,7 @@ export type Database = {
           order_index: number
           type: string
           updated_at?: string | null
+          website_blocks?: Json | null
         }
         Update: {
           config?: Json | null
@@ -343,6 +345,7 @@ export type Database = {
           order_index?: number
           type?: string
           updated_at?: string | null
+          website_blocks?: Json | null
         }
         Relationships: [
           {
@@ -364,6 +367,7 @@ export type Database = {
           status: Database["public"]["Enums"]["funnel_status"] | null
           template_id: string | null
           updated_at: string | null
+          website_template_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -374,6 +378,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["funnel_status"] | null
           template_id?: string | null
           updated_at?: string | null
+          website_template_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -384,6 +389,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["funnel_status"] | null
           template_id?: string | null
           updated_at?: string | null
+          website_template_id?: string | null
         }
         Relationships: [
           {
