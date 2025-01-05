@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +9,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Folder, FolderPlus, Music2 } from "lucide-react";
@@ -60,6 +60,7 @@ export function SoundLibrarySidebar({
 
   const handleDrop = (e: React.DragEvent, folderId: string | null) => {
     e.preventDefault();
+    e.currentTarget.classList.remove("bg-muted");
     const fileId = e.dataTransfer.getData("fileId");
     if (fileId && onFileDrop) {
       onFileDrop(fileId, folderId);

@@ -52,7 +52,7 @@ export default function ProducerSoundLibrary() {
     try {
       const { error } = await supabase
         .from("sound_library")
-        .update({ folder_path: folderId || "/" })
+        .update({ folder_path: folderId })
         .eq("id", soundId);
 
       if (error) throw error;
@@ -86,7 +86,7 @@ export default function ProducerSoundLibrary() {
       const { error: insertError } = await supabase.from("sound_library").insert({
         ...originalFile,
         id: undefined,
-        folder_path: folderId || "/",
+        folder_path: folderId,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       });
