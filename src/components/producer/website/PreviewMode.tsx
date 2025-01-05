@@ -1,7 +1,7 @@
 import React from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Settings } from "lucide-react";
 import { MusicPlayerPreview } from "./preview/MusicPlayerPreview";
 
 interface PreviewModeProps {
@@ -30,7 +30,7 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
         `;
       case "hero":
         return `
-          <div class="relative min-h-[80vh] flex items-center justify-center text-white">
+          <section class="relative min-h-[80vh] flex items-center justify-center text-white">
             ${
               block.content.backgroundImage
                 ? `<img src="${block.content.backgroundImage}" class="absolute inset-0 w-full h-full object-cover" alt="Hero background"/>`
@@ -52,11 +52,11 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                 ${block.content.ctaText || "Browse Beats"}
               </a>
             </div>
-          </div>
+          </section>
         `;
       case "products":
         return `
-          <div class="py-24 px-6 bg-gradient-to-b from-black to-gray-900">
+          <section class="py-24 px-6 bg-gradient-to-b from-black to-gray-900">
             <div class="max-w-7xl mx-auto">
               <h2 class="text-4xl font-bold text-center mb-16 text-white">${
                 block.content.heading || "Featured Beats"
@@ -93,11 +93,11 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                   .join("")}
               </div>
             </div>
-          </div>
+          </section>
         `;
       case "services":
         return `
-          <div class="py-24 px-6 bg-black">
+          <section class="py-24 px-6 bg-black">
             <div class="max-w-5xl mx-auto">
               <h2 class="text-4xl font-bold text-center mb-16 text-white">${
                 block.content.heading || "Production Services"
@@ -127,18 +127,74 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                   .join("")}
               </div>
             </div>
-          </div>
+          </section>
         `;
       case "music-player":
-        return MusicPlayerPreview({ content: block.content });
+        return `<div class="relative z-10 mb-24">${MusicPlayerPreview({ content: block.content })}</div>`;
+      case "licensing":
+        return `
+          <section class="py-24 px-6 bg-gradient-to-b from-gray-900 to-black">
+            <div class="max-w-5xl mx-auto">
+              <h2 class="text-4xl font-bold text-center mb-16 text-white">Licensing Options</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                ${(block.content?.licenses || [
+                  {
+                    name: "Basic License",
+                    price: "$29.99",
+                    features: ["MP3 File", "5000 Streams", "Non-Profit Use"]
+                  },
+                  {
+                    name: "Premium License",
+                    price: "$99.99",
+                    features: ["WAV File", "Unlimited Streams", "Commercial Use"]
+                  },
+                  {
+                    name: "Exclusive Rights",
+                    price: "$499.99",
+                    features: ["All Files", "Full Ownership", "Unlimited Use"]
+                  }
+                ])
+                  .map(
+                    (license: any) => `
+                  <div class="bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 hover:border-white/20 transition-all">
+                    <h3 class="text-xl font-semibold text-white mb-3">${license.name}</h3>
+                    <p class="text-primary font-bold mb-6">${license.price}</p>
+                    <ul class="space-y-3">
+                      ${license.features
+                        .map(
+                          (feature: string) => `
+                        <li class="flex items-center text-white/70">
+                          <svg class="w-5 h-5 mr-2 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                          ${feature}
+                        </li>
+                      `
+                        )
+                        .join("")}
+                    </ul>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
+            </div>
+          </section>
+        `;
       default:
         return `
-          <div class="py-24 px-6 bg-black/50 backdrop-blur-sm">
+          <div class="py-24 px-6 bg-black/50 backdrop-blur-sm border-y border-white/10">
             <div class="max-w-md mx-auto text-center">
-              <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" class="w-32 h-32 object-cover mx-auto mb-4 rounded-lg opacity-50" alt="Placeholder"/>
-              <p class="text-white/50">
-                Configuration needed for "${block.type}" block
-              </p>
+              <div class="bg-white/5 p-8 rounded-xl border border-white/10">
+                <Settings className="w-12 h-12 mx-auto mb-4 text-white/50" />
+                <h3 class="text-xl font-semibold text-white mb-2">Configuration Required</h3>
+                <p class="text-white/60 mb-6">
+                  The "${block.type}" block needs to be configured before it can be displayed.
+                </p>
+                <button class="inline-flex items-center justify-center bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                  Configure Block
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -177,6 +233,10 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                       }
                     });
                   </script>
+                  <style>
+                    body { background: #000; }
+                    section + section { margin-top: 1px; }
+                  </style>
                 </head>
                 <body class="bg-black text-white">
                   <div id="preview">
