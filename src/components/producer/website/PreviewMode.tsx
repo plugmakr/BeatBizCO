@@ -134,13 +134,51 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                                 </div>
                               </div>
                             `;
+                          case "music-player":
+                            return `
+                              <div class="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/10 p-4">
+                                <div class="max-w-7xl mx-auto flex items-center justify-between">
+                                  <div class="flex items-center gap-4">
+                                    <button class="rounded-full p-2 bg-white/10 hover:bg-white/20">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                      </svg>
+                                    </button>
+                                    <div class="text-white">
+                                      <h3 class="font-semibold">${block.content?.currentTrack?.title || "Select a track"}</h3>
+                                      <p class="text-sm text-white/60">${block.content?.artistName || "Artist Name"}</p>
+                                    </div>
+                                  </div>
+                                  <div class="w-1/2 h-1 bg-white/20 rounded-full">
+                                    <div class="w-1/3 h-full bg-white rounded-full"></div>
+                                  </div>
+                                  <div class="flex items-center gap-4">
+                                    <button class="text-white hover:text-white/80">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                      </svg>
+                                    </button>
+                                    <button class="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-full text-sm font-medium hover:bg-white/90">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="9" cy="21" r="1"></circle>
+                                        <circle cx="20" cy="21" r="1"></circle>
+                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                      </svg>
+                                      Add to Cart
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            `;
                           default:
                             return `
-                              <div class="p-16 text-center bg-gray-50">
-                                <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" class="w-64 h-64 object-cover mx-auto mb-4 rounded-lg" alt="Placeholder"/>
-                                <p class="text-gray-500">
-                                  Preview content is being prepared for this block type
-                                </p>
+                              <div class="p-8 text-center bg-gray-50">
+                                <div class="max-w-md mx-auto">
+                                  <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" class="w-32 h-32 object-cover mx-auto mb-4 rounded-lg opacity-50" alt="Placeholder"/>
+                                  <p class="text-gray-500">
+                                    Configuration needed for "${block.type}" block
+                                  </p>
+                                </div>
                               </div>
                             `;
                         }
