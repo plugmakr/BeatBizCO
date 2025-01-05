@@ -148,7 +148,6 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
     <>
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {items.map((item) => {
-          // Ensure category is valid, fallback to 'Beats' if not
           const safeItem = {
             ...item,
             category: isValidCategory(item.category) ? item.category : 'Beats'
@@ -161,6 +160,7 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
               thumbnailUrl={thumbnailUrls[safeItem.id] || ''}
               onPlay={handlePlay}
               onDelete={handleDelete}
+              onRefresh={onRefresh}
             />
           );
         })}

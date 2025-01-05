@@ -9,7 +9,9 @@ import {
   Tag,
   DollarSign,
   Shield,
-  Folder
+  Folder,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -18,6 +20,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MarketplaceItemCardProps {
   item: {
@@ -35,18 +39,24 @@ interface MarketplaceItemCardProps {
     total_sales: number;
     total_downloads: number;
     total_plays: number;
+    status?: string;
   };
   thumbnailUrl: string;
   onPlay: (id: string, previewUrl: string) => void;
   onDelete: (id: string) => void;
+  onRefresh: () => void;
 }
 
 export function MarketplaceItemCard({ 
   item, 
   thumbnailUrl, 
   onPlay, 
-  onDelete 
+  onDelete,
+  onRefresh 
 }: MarketplaceItemCardProps) {
+  const { toast } = useToast();
+  const isVisible = item.status === 'published';
+
   const handleShare = async () => {
     try {
       await navigator.share({
@@ -56,6 +66,31 @@ export function MarketplaceItemCard({
       });
     } catch (error) {
       console.error('Error sharing:', error);
+    }
+  };
+
+  const handleVisibilityToggle = async () => {
+    try {
+      const { error } = await supabase
+        .from("marketplace_items")
+        .update({ status: isVisible ? 'draft' : 'published' })
+        .eq("id", item.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Item ${isVisible ? 'hidden from' : 'published to'} marketplace`,
+      });
+
+      onRefresh();
+    } catch (error) {
+      console.error("Visibility toggle error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update item visibility",
+        variant: "destructive",
+      });
     }
   };
 
@@ -97,6 +132,19 @@ export function MarketplaceItemCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleVisibilityToggle}>
+              {isVisible ? (
+                <>
+                  <EyeOff className="h-3 w-3 mr-2" />
+                  Hide
+                </>
+              ) : (
+                <>
+                  <Eye className="h-3 w-3 mr-2" />
+                  Show
+                </>
+              )}
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleShare}>
               <Share2 className="h-3 w-3 mr-2" />
               Share
