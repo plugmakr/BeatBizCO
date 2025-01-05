@@ -15,16 +15,26 @@ const AuthForm = () => {
   const mounted = useRef(true);
 
   useEffect(() => {
-    // Check if user is already logged in
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session && mounted.current) {
-          const { data: profile } = await supabase
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          return;
+        }
+
+        if (session?.user && mounted.current) {
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', session.user.id)
             .single();
+
+          if (profileError) {
+            console.error("Profile fetch error:", profileError);
+            return;
+          }
 
           if (profile && mounted.current) {
             handleRoleBasedRedirect(profile.role);
@@ -37,11 +47,13 @@ const AuthForm = () => {
 
     checkSession();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session && mounted.current) {
+        // Add a small delay to ensure the auth session is fully established
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         try {
-          const { error } = await supabase
+          const { error: upsertError } = await supabase
             .from("profiles")
             .upsert({
               id: session.user.id,
@@ -51,14 +63,16 @@ const AuthForm = () => {
               onConflict: 'id'
             });
 
-          if (error) throw error;
+          if (upsertError) {
+            console.error("Profile upsert error:", upsertError);
+            throw upsertError;
+          }
 
           if (mounted.current) {
             toast({
               title: "Welcome to BeatBiz!",
               description: "You've successfully signed in.",
             });
-            
             handleRoleBasedRedirect(role);
           }
         } catch (error) {
