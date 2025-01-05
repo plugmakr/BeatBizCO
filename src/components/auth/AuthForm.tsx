@@ -12,10 +12,62 @@ const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [role, setRole] = useState<UserRole>("buyer");
-  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          handleRoleBasedRedirect(profile.role);
+        }
+      }
+    });
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        try {
+          const { error } = await supabase
+            .from("profiles")
+            .upsert({
+              id: session.user.id,
+              role: role,
+              updated_at: new Date().toISOString(),
+            }, {
+              onConflict: 'id'
+            });
+
+          if (error) throw error;
+
+          toast({
+            title: "Welcome to BeatBiz!",
+            description: "You've successfully signed in.",
+          });
+          
+          handleRoleBasedRedirect(role);
+        } catch (error) {
+          console.error("Error updating role:", error);
+          toast({
+            title: "Error",
+            description: "Failed to set user role. Please try again.",
+            variant: "destructive",
+          });
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, role, toast]);
 
   const handleRoleBasedRedirect = (userRole: string) => {
-    console.log("Handling redirect for role:", userRole);
     switch (userRole) {
       case "admin":
         navigate("/admin");
@@ -23,111 +75,11 @@ const AuthForm = () => {
       case "artist":
         navigate("/artist");
         break;
-      case "producer":
-        navigate("/producer");
-        break;
       default:
-        navigate("/");
+        navigate("/"); // Default route for other roles
         break;
     }
   };
-
-  useEffect(() => {
-    let mounted = true;
-
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) {
-          console.error("Session check error:", sessionError);
-          throw sessionError;
-        }
-        
-        if (session && mounted) {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profileError) {
-            console.error("Profile fetch error:", profileError);
-            throw profileError;
-          }
-
-          if (profile && mounted) {
-            console.log("Found existing session with role:", profile.role);
-            handleRoleBasedRedirect(profile.role);
-          }
-        }
-      } catch (error) {
-        console.error("Session check error:", error);
-        if (mounted) {
-          toast({
-            title: "Error",
-            description: "There was a problem checking your session. Please try logging in again.",
-            variant: "destructive",
-          });
-        }
-      }
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session?.user?.id);
-      
-      if (event === "SIGNED_IN" && session && mounted) {
-        setIsLoading(true);
-        try {
-          // Add a small delay to ensure the profile is created
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", session.user.id)
-            .single();
-
-          if (profileError) {
-            console.error("Profile fetch error after sign in:", profileError);
-            throw profileError;
-          }
-
-          if (mounted) {
-            console.log("Successfully signed in with role:", profile?.role || role);
-            toast({
-              title: "Welcome to BeatBiz!",
-              description: "You've successfully signed in.",
-            });
-            
-            // Ensure we're using the correct role from the profile
-            const userRole = profile?.role || role;
-            console.log("Redirecting user with role:", userRole);
-            handleRoleBasedRedirect(userRole);
-          }
-        } catch (error: any) {
-          console.error("Error during sign in:", error);
-          if (mounted) {
-            toast({
-              title: "Error",
-              description: error.message || "There was a problem signing you in. Please try again.",
-              variant: "destructive",
-            });
-          }
-        } finally {
-          if (mounted) {
-            setIsLoading(false);
-          }
-        }
-      }
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [navigate, role, toast]);
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -148,12 +100,12 @@ const AuthForm = () => {
                 <button
                   key={option}
                   onClick={() => setRole(option)}
-                  disabled={isLoading}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                    ${role === option
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary hover:bg-secondary/80"
-                    } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                    ${
+                      role === option
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary hover:bg-secondary/80"
+                    }`}
                 >
                   {option.charAt(0).toUpperCase() + option.slice(1)}
                 </button>
@@ -175,9 +127,6 @@ const AuthForm = () => {
             }}
             providers={[]}
             redirectTo={window.location.origin}
-            additionalData={{
-              role: role
-            }}
           />
         </div>
       </CardContent>
