@@ -8,9 +8,10 @@ import { FolderSelectDialog } from "./files/FolderSelectDialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
 interface FileListProps {
-  files: ClientFile[];
+  files: (ClientFile & { fromSoundLibrary?: boolean, projectName?: string })[];
   onPreview: (filePath: string, filename: string, fileType: string) => void;
   onDelete: (fileId: string, filePath: string) => void;
   onFolderClick: (folderId: string) => void;
@@ -133,7 +134,7 @@ export function FileList({
             >
               <div
                 className="flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-secondary/50"
-                draggable={true}
+                draggable={!file.fromSoundLibrary}
                 onDragStart={() => handleDragStart(file)}
                 onDragOver={(e) => handleDragOver(e, file)}
                 onDragLeave={handleDragLeave}
@@ -158,9 +159,17 @@ export function FileList({
                     </button>
                   )}
                   <div>
-                    <p className="font-medium">
-                      {file.display_name || file.filename}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">
+                        {file.display_name || file.filename}
+                      </p>
+                      {file.fromSoundLibrary && (
+                        <Badge variant="secondary">Sound Library</Badge>
+                      )}
+                      {file.projectName && (
+                        <Badge variant="outline">{file.projectName}</Badge>
+                      )}
+                    </div>
                     {file.type !== "folder" && (
                       <p className="text-sm text-muted-foreground">
                         {(file.size / 1024 / 1024).toFixed(2)} MB
@@ -168,13 +177,15 @@ export function FileList({
                     )}
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDelete(file.id, file.file_path)}
-                >
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
+                {!file.fromSoundLibrary && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(file.id, file.file_path)}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                )}
               </div>
             </FileContextMenu>
           ))}

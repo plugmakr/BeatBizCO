@@ -40,28 +40,119 @@ export function ClientFiles({ client }: ClientFilesProps) {
   useDefaultFolders(client.id, fetchFiles);
 
   async function fetchFiles() {
-    let query = supabase
-      .from('client_files')
-      .select('*')
-      .eq('client_id', client.id)
-      .order('type', { ascending: false })
-      .order('created_at', { ascending: false });
+    try {
+      // Fetch regular client files
+      let query = supabase
+        .from('client_files')
+        .select('*')
+        .eq('client_id', client.id)
+        .order('type', { ascending: false })
+        .order('created_at', { ascending: false });
 
-    // Handle parent_id filtering
-    if (currentFolder === null) {
-      query = query.is('parent_id', null);
-    } else {
-      query = query.eq('parent_id', currentFolder);
-    }
+      // Handle parent_id filtering
+      if (currentFolder === null) {
+        query = query.is('parent_id', null);
+      } else {
+        query = query.eq('parent_id', currentFolder);
+      }
 
-    const { data, error } = await query;
+      const { data: clientFiles, error: clientFilesError } = await query;
 
-    if (error) {
+      if (clientFilesError) throw clientFilesError;
+
+      // Fetch project files if we're at root level
+      if (currentFolder === null) {
+        // First get all projects associated with this client
+        const { data: projects, error: projectsError } = await supabase
+          .from('collaboration_projects')
+          .select(`
+            id,
+            name,
+            sound_library_project_files (
+              sound_library (
+                id,
+                title,
+                file_path,
+                file_type,
+                size,
+                created_at,
+                type
+              )
+            )
+          `)
+          .eq('client_id', client.id);
+
+        if (projectsError) throw projectsError;
+
+        // Create virtual folder entries for each project
+        const projectFolders = projects?.map(project => ({
+          id: `project-${project.id}`,
+          client_id: client.id,
+          filename: project.name,
+          display_name: project.name,
+          file_path: '',
+          file_type: 'folder',
+          size: 0,
+          type: 'folder' as const,
+          created_at: null,
+          updated_at: null,
+          parent_id: null,
+          project_files: project.sound_library_project_files
+            .map(spf => ({
+              ...spf.sound_library,
+              fromSoundLibrary: true,
+              projectName: project.name
+            }))
+        })) || [];
+
+        setFiles([...(clientFiles || []), ...projectFolders]);
+      } else if (currentFolder?.startsWith('project-')) {
+        // If we're inside a project folder, show its sound library files
+        const projectId = currentFolder.replace('project-', '');
+        const { data: projectFiles, error: projectFilesError } = await supabase
+          .from('sound_library_project_files')
+          .select(`
+            sound_library (
+              id,
+              title,
+              file_path,
+              file_type,
+              size,
+              created_at,
+              type
+            )
+          `)
+          .eq('project_id', projectId);
+
+        if (projectFilesError) throw projectFilesError;
+
+        const soundLibraryFiles = projectFiles?.map(pf => ({
+          id: pf.sound_library.id,
+          client_id: client.id,
+          filename: pf.sound_library.title,
+          display_name: pf.sound_library.title,
+          file_path: pf.sound_library.file_path,
+          file_type: pf.sound_library.file_type,
+          size: pf.sound_library.size,
+          type: 'file' as const,
+          created_at: pf.sound_library.created_at,
+          updated_at: null,
+          parent_id: currentFolder,
+          fromSoundLibrary: true
+        })) || [];
+
+        setFiles(soundLibraryFiles);
+      } else {
+        setFiles(clientFiles || []);
+      }
+    } catch (error) {
       console.error('Error fetching files:', error);
-      return;
+      toast({
+        title: "Error",
+        description: "Failed to fetch files",
+        variant: "destructive",
+      });
     }
-
-    setFiles(data as ClientFile[]);
   }
 
   async function updateBreadcrumbs() {
