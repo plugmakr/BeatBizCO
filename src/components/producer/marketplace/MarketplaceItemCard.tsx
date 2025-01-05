@@ -8,7 +8,8 @@ import {
   Star, 
   Tag,
   DollarSign,
-  Shield
+  Shield,
+  Folder
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -28,6 +29,7 @@ interface MarketplaceItemCardProps {
     bpm?: number;
     key?: string;
     genre: string;
+    category: "Loops" | "Midi Kits" | "Sample Kits" | "Drum Kits" | "Beats";
     tags?: string[];
     preview_url: string;
     total_sales: number;
@@ -58,45 +60,45 @@ export function MarketplaceItemCard({
   };
 
   return (
-    <Card className="overflow-hidden w-full max-w-sm">
-      <div className="aspect-video relative h-36">
+    <Card className="overflow-hidden w-full max-w-[200px]">
+      <div className="aspect-video relative h-24">
         <img
           src={thumbnailUrl}
           alt={item.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute bottom-2 right-2 flex gap-2">
+        <div className="absolute bottom-1 right-1 flex gap-1">
           <Button
             variant="secondary"
             size="icon"
-            className="h-8 w-8"
+            className="h-6 w-6"
             onClick={() => onPlay(item.id, item.preview_url)}
           >
-            <Play className="h-4 w-4" />
+            <Play className="h-3 w-3" />
           </Button>
           {item.total_sales > 10 && (
-            <Badge variant="secondary" className="bg-primary/20">
-              <Star className="h-3 w-3 mr-1" />
+            <Badge variant="secondary" className="bg-primary/20 text-xs py-0 h-6">
+              <Star className="h-2 w-2 mr-1" />
               Featured
             </Badge>
           )}
         </div>
       </div>
       
-      <CardHeader className="p-3 flex flex-row items-center justify-between">
+      <CardHeader className="p-2 flex flex-row items-center justify-between">
         <div>
-          <h3 className="font-semibold text-sm">{item.title}</h3>
-          <p className="text-xs text-muted-foreground">{item.type}</p>
+          <h3 className="font-semibold text-xs truncate max-w-[120px]">{item.title}</h3>
+          <p className="text-[10px] text-muted-foreground">{item.type}</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="h-6 w-6">
+              <MoreVertical className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={handleShare}>
-              <Share2 className="h-4 w-4 mr-2" />
+              <Share2 className="h-3 w-3 mr-2" />
               Share
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -107,40 +109,34 @@ export function MarketplaceItemCard({
         </DropdownMenu>
       </CardHeader>
 
-      <CardContent className="p-3 space-y-2">
+      <CardContent className="p-2 space-y-1">
         <div className="flex flex-wrap gap-1">
-          <Badge variant="outline" className="text-xs">
-            <Tag className="h-3 w-3 mr-1" />
+          <Badge variant="outline" className="text-[10px] py-0">
+            <Folder className="h-2 w-2 mr-1" />
+            {item.category}
+          </Badge>
+          <Badge variant="outline" className="text-[10px] py-0">
+            <Tag className="h-2 w-2 mr-1" />
             {item.genre}
           </Badge>
-          {item.bpm && (
-            <Badge variant="outline" className="text-xs">
-              {item.bpm} BPM
-            </Badge>
-          )}
-          {item.key && (
-            <Badge variant="outline" className="text-xs">
-              Key: {item.key}
-            </Badge>
-          )}
         </div>
         
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-xs">
           <div className="flex items-center">
-            <DollarSign className="h-3 w-3 mr-1" />
+            <DollarSign className="h-2 w-2 mr-1" />
             <span className="font-semibold">${item.price}</span>
           </div>
-          <Badge variant="secondary" className="text-xs">
-            <Shield className="h-3 w-3 mr-1" />
-            Basic License
+          <Badge variant="secondary" className="text-[10px] py-0">
+            <Shield className="h-2 w-2 mr-1" />
+            Basic
           </Badge>
         </div>
       </CardContent>
 
-      <CardFooter className="p-3 flex justify-between text-xs text-muted-foreground">
+      <CardFooter className="p-2 flex justify-between text-[10px] text-muted-foreground">
         <span>{item.total_plays} plays</span>
         <span>•</span>
-        <span>{item.total_downloads} downloads</span>
+        <span>{item.total_downloads} dl</span>
       </CardFooter>
     </Card>
   );
