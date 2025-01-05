@@ -7,6 +7,7 @@ import { Upload, Loader2 } from "lucide-react";
 import { FilePreviewDialog } from "@/components/producer/clients/FilePreviewDialog";
 import { UploadProgress } from "@/components/shared/media/UploadProgress";
 import { ProjectFileList } from "./ProjectFileList";
+import { FileEditDialog } from "./file-management/FileEditDialog";
 import { CombinedProjectFile } from "./types/ProjectFileTypes";
 
 const ALLOWED_FILE_TYPES = [
@@ -40,6 +41,8 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
     type: string;
     filename: string;
   } | null>(null);
+  const [selectedFile, setSelectedFile] = useState<CombinedProjectFile | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -204,11 +207,10 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
 
         if (dbError) throw dbError;
       } else {
-        // For sound library files, just remove the assignment
         const { error } = await supabase
           .from("sound_library_project_files")
           .delete()
-          .eq("id", (file.file as any).assignment_id);
+          .eq("id", file.file.assignment_id);
 
         if (error) throw error;
       }
@@ -234,7 +236,7 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
       const bucket = file.type === 'regular' ? 'project_files' : 'sound_library';
       const filePath = file.type === 'regular' 
         ? file.file.file_path 
-        : (file.file as any).file_path;
+        : file.file.file_path;
 
       const { data, error } = await supabase.storage
         .from(bucket)
@@ -256,11 +258,16 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
     }
   };
 
+  const handleEdit = (file: CombinedProjectFile) => {
+    setSelectedFile(file);
+    setEditDialogOpen(true);
+  };
+
   const getFileType = (file: CombinedProjectFile) => {
     if (file.type === 'regular') {
       return file.file.file_type;
     }
-    return 'audio'; // Sound library files are always audio files
+    return 'audio';
   };
 
   const getFileName = (file: CombinedProjectFile) => {
@@ -314,12 +321,20 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
       <ProjectFileList 
         files={combinedFiles || []}
         onPreview={handlePreview}
+        onEdit={handleEdit}
         onDelete={handleDelete}
       />
 
       <FilePreviewDialog
         file={previewFile}
         onClose={() => setPreviewFile(null)}
+      />
+
+      <FileEditDialog
+        file={selectedFile}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onUpdate={() => queryClient.invalidateQueries({ queryKey: ["project-files", projectId] })}
       />
     </div>
   );

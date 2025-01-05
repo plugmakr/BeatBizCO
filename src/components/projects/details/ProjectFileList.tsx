@@ -1,23 +1,24 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { Trash2, Music2 } from "lucide-react";
+import { Music2 } from "lucide-react";
 import { MediaThumbnail } from "@/components/shared/media/MediaThumbnail";
 import { CombinedProjectFile } from "./types/ProjectFileTypes";
+import { FileActions } from "./file-management/FileActions";
 
 interface ProjectFileListProps {
   files: CombinedProjectFile[];
   onPreview: (file: CombinedProjectFile) => void;
+  onEdit: (file: CombinedProjectFile) => void;
   onDelete: (file: CombinedProjectFile) => void;
 }
 
-export function ProjectFileList({ files, onPreview, onDelete }: ProjectFileListProps) {
+export function ProjectFileList({ files, onPreview, onEdit, onDelete }: ProjectFileListProps) {
   const getFileType = (file: CombinedProjectFile) => {
     if (file.type === 'regular') {
       return file.file.file_type;
     }
-    return 'audio'; // Sound library files are always audio files
+    return 'audio';
   };
 
   const getFileName = (file: CombinedProjectFile) => {
@@ -55,14 +56,12 @@ export function ProjectFileList({ files, onPreview, onDelete }: ProjectFileListP
                   {format(new Date(file.file.created_at || ''), "PPP")}
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onDelete(file)}
-                className="text-gray-400 hover:text-white"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <FileActions
+                file={file}
+                onPreview={onPreview}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
             </div>
           </CardContent>
         </Card>
