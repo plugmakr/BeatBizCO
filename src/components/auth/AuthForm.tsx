@@ -57,10 +57,7 @@ const AuthForm = () => {
           }
         } catch (error: any) {
           console.error('Auth state change error:', error);
-          const errorMessage = error.message === "Database error granting user" 
-            ? "There was an issue with authentication. Please try again or contact support if the problem persists."
-            : error.message;
-          
+          const errorMessage = error.message || "An unexpected error occurred";
           setError(errorMessage);
           toast({
             title: "Authentication Error",
