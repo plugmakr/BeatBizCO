@@ -10,23 +10,8 @@ import {
 } from "@hello-pangea/dnd";
 import {
   LayoutTemplate,
-  Image,
-  ShoppingCart,
-  FileText,
   Menu,
   Plus,
-  Music2,
-  PlayCircle,
-  MessageSquare,
-  Calendar,
-  Users,
-  Instagram,
-  Youtube,
-  Twitter,
-  Mail,
-  Edit2,
-  Trash2,
-  Save,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { NavigationEditor } from "./block-editors/NavigationEditor";
@@ -35,8 +20,10 @@ import { ProductsEditor } from "./block-editors/ProductsEditor";
 import { ServicesEditor } from "./block-editors/ServicesEditor";
 import { LicensingEditor } from "./block-editors/LicensingEditor";
 import { MusicPlayerEditor } from "./block-editors/MusicPlayerEditor";
-import { SaveTemplateDialog } from "./SaveTemplateDialog";
-import { musicPlayerTemplate } from "./block-templates/MusicPlayerTemplate";
+import { ContactEditor } from "./block-editors/ContactEditor";
+import { TestimonialsEditor } from "./block-editors/TestimonialsEditor";
+import { BookingEditor } from "./block-editors/BookingEditor";
+import { SocialLinksEditor } from "./block-editors/SocialLinksEditor";
 import { useToast } from "@/hooks/use-toast";
 
 interface WebsiteBuilderProps {
@@ -52,144 +39,60 @@ const blockTypes = [
     name: "Navigation Menu",
     icon: Menu,
     description: "Add a navigation menu to your site",
-    defaultContent: {
-      links: [
-        { label: "Home", url: "#" },
-        { label: "Beats", url: "#beats" },
-        { label: "Loop Kits", url: "#loop-kits" },
-        { label: "Sample Kits", url: "#sample-kits" },
-        { label: "Drum Kits", url: "#drum-kits" },
-        { label: "Licensing", url: "#licensing" },
-        { label: "Services", url: "#services" },
-        { label: "Contact", url: "#contact" },
-      ],
-    },
   },
   {
     id: "hero",
     name: "Hero Section",
-    icon: Image,
+    icon: LayoutTemplate,
     description: "Add a hero section with image and text",
-    defaultContent: {
-      heading: "Professional Beat Making & Music Production",
-      subheading: "Turn Your Vision Into Reality",
-      ctaText: "Browse Beats",
-      ctaUrl: "#beats",
-      backgroundImage: "",
-    },
   },
   {
     id: "products",
     name: "Beat Store",
-    icon: ShoppingCart,
+    icon: LayoutTemplate,
     description: "Display your beats and products",
-    defaultContent: {
-      heading: "Featured Beats",
-      layout: "grid",
-      itemsPerRow: 3,
-      showFilters: true,
-      showSort: true,
-    },
-  },
-  {
-    id: "licensing",
-    name: "Licensing Options",
-    icon: FileText,
-    description: "Show your licensing terms and prices",
-    defaultContent: {
-      heading: "Licensing Options",
-      description: "Choose the right license for your project",
-      licenses: [
-        {
-          name: "Basic License",
-          price: "29.99",
-          features: ["MP3 File", "5000 Streams", "Non-Profit Use"],
-        },
-        {
-          name: "Premium License",
-          price: "99.99",
-          features: ["WAV File", "Unlimited Streams", "Commercial Use"],
-        },
-      ],
-    },
-  },
-  {
-    id: "music-player",
-    name: "Music Player",
-    icon: PlayCircle,
-    description: "Add an embedded music player",
-    defaultContent: {
-      playlist: [],
-      autoplay: false,
-      showArtwork: true,
-      showWaveform: true,
-    },
   },
   {
     id: "services",
     name: "Services",
-    icon: Music2,
+    icon: LayoutTemplate,
     description: "Showcase your production services",
-    defaultContent: {
-      heading: "Production Services",
-      services: [
-        {
-          name: "Custom Beat Production",
-          price: "Starting at $299",
-          description: "Professional beat production tailored to your style",
-        },
-        {
-          name: "Mixing & Mastering",
-          price: "Starting at $149",
-          description: "Industry-standard mixing and mastering services",
-        },
-      ],
-    },
+  },
+  {
+    id: "licensing",
+    name: "Licensing Options",
+    icon: LayoutTemplate,
+    description: "Show your licensing terms and prices",
+  },
+  {
+    id: "music-player",
+    name: "Music Player",
+    icon: LayoutTemplate,
+    description: "Add an embedded music player",
   },
   {
     id: "testimonials",
     name: "Testimonials",
-    icon: MessageSquare,
+    icon: LayoutTemplate,
     description: "Display client testimonials",
-    defaultContent: {
-      heading: "What Artists Say",
-      testimonials: [],
-    },
   },
   {
     id: "booking",
     name: "Studio Booking",
-    icon: Calendar,
+    icon: LayoutTemplate,
     description: "Add studio booking calendar",
-    defaultContent: {
-      heading: "Book Studio Time",
-      description: "Schedule your next session",
-      showCalendar: true,
-    },
   },
   {
     id: "social",
     name: "Social Links",
-    icon: Users,
+    icon: LayoutTemplate,
     description: "Add social media links",
-    defaultContent: {
-      platforms: [
-        { name: "Instagram", icon: Instagram, url: "" },
-        { name: "YouTube", icon: Youtube, url: "" },
-        { name: "Twitter", icon: Twitter, url: "" },
-      ],
-    },
   },
   {
     id: "contact",
     name: "Contact Form",
-    icon: Mail,
+    icon: LayoutTemplate,
     description: "Add a contact form",
-    defaultContent: {
-      heading: "Get in Touch",
-      fields: ["name", "email", "message"],
-      showSocials: true,
-    },
   },
 ];
 
@@ -200,7 +103,6 @@ export const WebsiteBuilder = ({
   onBlocksChange,
 }: WebsiteBuilderProps) => {
   const [editingBlock, setEditingBlock] = useState<any>(null);
-  const [isSaveTemplateOpen, setIsSaveTemplateOpen] = useState(false);
   const { toast } = useToast();
 
   const handleDragEnd = (result: DropResult) => {
@@ -222,7 +124,7 @@ export const WebsiteBuilder = ({
       {
         id: `${blockType}-${Date.now()}`,
         type: blockType,
-        content: { ...blockConfig.defaultContent },
+        content: {},
       },
     ]);
   };
@@ -286,6 +188,34 @@ export const WebsiteBuilder = ({
             onSave={(content) => updateBlockContent(block.id, content)}
           />
         );
+      case "testimonials":
+        return (
+          <TestimonialsEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
+      case "booking":
+        return (
+          <BookingEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
+      case "social":
+        return (
+          <SocialLinksEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
+      case "contact":
+        return (
+          <ContactEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
       default:
         return (
           <div className="p-4 text-center">
@@ -297,15 +227,6 @@ export const WebsiteBuilder = ({
     }
   };
 
-  const handleSaveTemplate = (templateName: string) => {
-    // Here you would typically save the template to your backend
-    // For now, we'll just show a success message
-    toast({
-      title: "Template saved",
-      description: `Template "${templateName}" has been saved successfully.`,
-    });
-  };
-
   return (
     <div className="grid grid-cols-12 gap-6">
       <Card className="col-span-3">
@@ -315,9 +236,9 @@ export const WebsiteBuilder = ({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setIsSaveTemplateOpen(true)}
+              onClick={onSave}
             >
-              <Save className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4 mr-2" />
               Save Template
             </Button>
           </div>
@@ -376,7 +297,7 @@ export const WebsiteBuilder = ({
                                       size="sm"
                                       onClick={() => setEditingBlock(block)}
                                     >
-                                      <Edit2 className="h-4 w-4" />
+                                      <Plus className="h-4 w-4" />
                                     </Button>
                                   </DialogTrigger>
                                   <DialogContent className="max-w-2xl">
@@ -395,7 +316,7 @@ export const WebsiteBuilder = ({
                                   size="sm"
                                   onClick={() => deleteBlock(block.id)}
                                 >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                  <Plus className="h-4 w-4 text-destructive" />
                                 </Button>
                               </div>
                             </div>
@@ -419,12 +340,6 @@ export const WebsiteBuilder = ({
           </CardContent>
         </Card>
       </div>
-
-      <SaveTemplateDialog
-        isOpen={isSaveTemplateOpen}
-        onClose={() => setIsSaveTemplateOpen(false)}
-        onSave={handleSaveTemplate}
-      />
     </div>
   );
 };
