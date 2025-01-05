@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +40,27 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
   const { toast } = useToast();
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
+  const [thumbnailUrls, setThumbnailUrls] = useState<{ [key: string]: string }>({});
+
+  useEffect(() => {
+    const loadThumbnails = async () => {
+      const urls: { [key: string]: string } = {};
+      for (const item of items) {
+        try {
+          const { data: { publicUrl } } = supabase
+            .storage
+            .from('marketplace')
+            .getPublicUrl(item.thumbnail_url);
+          urls[item.id] = publicUrl;
+        } catch (error) {
+          console.error("Error getting thumbnail URL:", error);
+        }
+      }
+      setThumbnailUrls(urls);
+    };
+
+    loadThumbnails();
+  }, [items]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -95,19 +116,6 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
     }
   };
 
-  const getThumbnailUrl = async (path: string) => {
-    try {
-      const { data: { publicUrl } } = supabase
-        .storage
-        .from('marketplace')
-        .getPublicUrl(path);
-      return publicUrl;
-    } catch (error) {
-      console.error("Error getting thumbnail URL:", error);
-      return null;
-    }
-  };
-
   return (
     <>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -115,7 +123,7 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
           <Card key={item.id} className="overflow-hidden">
             <div className="aspect-video relative">
               <img
-                src={getThumbnailUrl(item.thumbnail_url)}
+                src={thumbnailUrls[item.id]}
                 alt={item.title}
                 className="w-full h-full object-cover"
               />
