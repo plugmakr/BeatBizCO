@@ -38,10 +38,7 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
         return;
       }
 
-      // Get the active role from localStorage (for admin view-as functionality)
-      const activeRole = localStorage.getItem('activeRole') || profile.role;
-
-      // If user is admin, they're authorized for all routes regardless of active role
+      // If user is admin, they're authorized for all routes
       if (profile.role === 'admin') {
         setIsAuthorized(true);
         return;

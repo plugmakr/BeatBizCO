@@ -5,8 +5,8 @@ import {
   Sidebar, 
   SidebarContent, 
   SidebarGroup, 
-  SidebarGroupLabel, 
   SidebarGroupContent, 
+  SidebarGroupLabel, 
   SidebarMenu, 
   SidebarMenuButton, 
   SidebarMenuItem 
@@ -42,8 +42,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         if (profile) {
           setRole(profile.role);
           setIsAdmin(profile.role === 'admin');
-          const savedActiveRole = localStorage.getItem('activeRole');
-          setActiveRole(savedActiveRole || profile.role);
+          setActiveRole(profile.role);
         }
       }
     };
@@ -60,7 +59,6 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         variant: "destructive",
       });
     } else {
-      localStorage.removeItem('activeRole');
       toast({
         title: "Signed out",
         description: "You've been successfully signed out.",
@@ -71,26 +69,6 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
   const handleRoleSwitch = (newRole: string) => {
     setActiveRole(newRole);
-    localStorage.setItem('activeRole', newRole);
-    
-    // Navigate to the appropriate dashboard based on the selected role
-    switch (newRole) {
-      case "admin":
-        navigate("/admin");
-        break;
-      case "producer":
-        navigate("/producer/dashboard");
-        break;
-      case "artist":
-        navigate("/artist/dashboard");
-        break;
-      case "buyer":
-        navigate("/marketplace");
-        break;
-      default:
-        navigate("/");
-    }
-
     toast({
       title: "Role Switched",
       description: `Viewing dashboard as ${newRole}`,
@@ -98,6 +76,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
   };
 
   const getMenuItems = () => {
+    // For admins, use the active role to determine menu items
     if (isAdmin) {
       switch (activeRole) {
         case "producer":
@@ -106,13 +85,11 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
           return getArtistMenuItems();
         case "admin":
           return getAdminMenuItems();
-        case "buyer":
-          return [];
         default:
           return getAdminMenuItems();
       }
     }
-    
+    // For non-admins, use their assigned role
     switch (role) {
       case "producer":
         return getProducerMenuItems();
@@ -120,8 +97,6 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         return getArtistMenuItems();
       case "admin":
         return getAdminMenuItems();
-      case "buyer":
-        return [];
       default:
         return [];
     }
@@ -137,7 +112,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
               <SidebarGroupContent>
                 <SidebarMenu>
                   {isAdmin && (
-                    <SidebarMenuItem className="mb-2">
+                    <SidebarMenuItem>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <SidebarMenuButton className="flex items-center gap-2 w-full">
@@ -154,9 +129,6 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleRoleSwitch('artist')}>
                             Artist
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleRoleSwitch('buyer')}>
-                            Buyer
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

@@ -1,222 +1,247 @@
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { DataTable } from "@/components/ui/data-table";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { AddClientDialog } from "@/components/producer/clients/AddClientDialog";
+import { ViewClientDialog } from "@/components/producer/clients/ViewClientDialog";
+import { EditClientDialog } from "@/components/producer/clients/EditClientDialog";
+import { SendMessageDialog } from "@/components/producer/clients/SendMessageDialog";
+import { ClientStats } from "@/components/producer/clients/ClientStats";
+import { ClientTableRow } from "@/components/producer/clients/ClientTableRow";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@/types/database";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableCell,
+} from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { UserPlus, Search } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-export default function Clients() {
-  const [clients, setClients] = useState<Client[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+const ProducerClients = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isAddingClient, setIsAddingClient] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isViewingClient, setIsViewingClient] = useState(false);
+  const [isEditingClient, setIsEditingClient] = useState(false);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
   const { toast } = useToast();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newClient, setNewClient] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    website: "",
-    budget_range: "",
-    genre_focus: "",
-    project_type: "",
-    social_media: "",
-    notes: "",
-  });
 
-  useEffect(() => {
-    fetchClients();
-  }, []);
-
-  const fetchClients = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+  const { data: clients, isLoading, refetch } = useQuery({
+    queryKey: ['clients'],
+    queryFn: async () => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user?.id) {
+        throw new Error('Not authenticated');
+      }
 
       const { data, error } = await supabase
         .from('clients')
         .select('*')
-        .eq('producer_id', session.user.id);
+        .eq('producer_id', session.session.user.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as Client[];
+    }
+  });
+
+  const handleDeleteClient = async () => {
+    if (!selectedClient) return;
+
+    try {
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', selectedClient.id);
 
       if (error) throw error;
-      setClients(data || []);
-    } catch (error) {
+
       toast({
-        title: "Error fetching clients",
-        description: "Please try again later",
+        title: "Success",
+        description: "Client deleted successfully",
+      });
+
+      refetch();
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete client",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsConfirmingDelete(false);
+      setSelectedClient(null);
     }
   };
-
-  const handleAddClient = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-
-      const { data, error } = await supabase
-        .from('clients')
-        .insert([
-          {
-            ...newClient,
-            producer_id: session.user.id,
-          },
-        ])
-        .select();
-
-      if (error) throw error;
-
-      setClients([...(data || []), ...clients]);
-      setIsDialogOpen(false);
-      setNewClient({
-        name: "",
-        email: "",
-        phone: "",
-        website: "",
-        budget_range: "",
-        genre_focus: "",
-        project_type: "",
-        social_media: "",
-        notes: "",
-      });
-
-      toast({
-        title: "Client added successfully",
-        description: "The new client has been added to your list",
-      });
-    } catch (error) {
-      toast({
-        title: "Error adding client",
-        description: "Please try again later",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const columns = [
-    {
-      accessorKey: "name",
-      header: "Name",
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      accessorKey: "phone",
-      header: "Phone",
-    },
-    {
-      accessorKey: "project_type",
-      header: "Project Type",
-    },
-    {
-      accessorKey: "budget_range",
-      header: "Budget Range",
-    },
-  ];
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Clients</h1>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Client
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Client</DialogTitle>
-                <DialogDescription>
-                  Enter the details of your new client below.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    value={newClient.name}
-                    onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={newClient.email}
-                    onChange={(e) => setNewClient({ ...newClient, email: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    value={newClient.phone}
-                    onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="project_type">Project Type</Label>
-                  <Select
-                    value={newClient.project_type}
-                    onValueChange={(value) => setNewClient({ ...newClient, project_type: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select project type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="single">Single</SelectItem>
-                      <SelectItem value="ep">EP</SelectItem>
-                      <SelectItem value="album">Album</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="notes">Notes</Label>
-                  <Textarea
-                    id="notes"
-                    value={newClient.notes}
-                    onChange={(e) => setNewClient({ ...newClient, notes: e.target.value })}
-                  />
-                </div>
-                <Button onClick={handleAddClient}>Add Client</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Clients</h1>
+            <p className="text-muted-foreground">Manage your client relationships</p>
+          </div>
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => setIsAddingClient(true)}
+          >
+            <UserPlus className="h-4 w-4" />
+            Add Client
+          </Button>
         </div>
-        {isLoading ? (
-          <div>Loading...</div>
-        ) : (
-          <DataTable columns={columns} data={clients} />
-        )}
+
+        <ClientStats clients={clients} />
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search clients..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Details</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center">
+                        Loading clients...
+                      </TableCell>
+                    </TableRow>
+                  ) : clients?.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center">
+                        No clients found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    clients?.filter(client =>
+                      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      client.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      client.genre_focus?.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).map((client) => (
+                      <ClientTableRow
+                        key={client.id}
+                        client={client}
+                        onView={(client) => {
+                          setSelectedClient(client);
+                          setIsViewingClient(true);
+                        }}
+                        onEdit={(client) => {
+                          setSelectedClient(client);
+                          setIsEditingClient(true);
+                        }}
+                        onMessage={(client) => {
+                          setSelectedClient(client);
+                          setIsSendingMessage(true);
+                        }}
+                        onDelete={(client) => {
+                          setSelectedClient(client);
+                          setIsConfirmingDelete(true);
+                        }}
+                      />
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      <AddClientDialog
+        isOpen={isAddingClient}
+        onClose={() => setIsAddingClient(false)}
+        onSuccess={() => {
+          refetch();
+          setIsAddingClient(false);
+        }}
+      />
+
+      {selectedClient && (
+        <>
+          <ViewClientDialog
+            client={selectedClient}
+            open={isViewingClient}
+            onOpenChange={setIsViewingClient}
+          />
+
+          <EditClientDialog
+            client={selectedClient}
+            open={isEditingClient}
+            onOpenChange={setIsEditingClient}
+            onSuccess={() => {
+              refetch();
+              setIsEditingClient(false);
+            }}
+          />
+
+          <SendMessageDialog
+            client={selectedClient}
+            open={isSendingMessage}
+            onOpenChange={setIsSendingMessage}
+          />
+
+          <AlertDialog open={isConfirmingDelete} onOpenChange={setIsConfirmingDelete}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the client
+                  and remove all associated data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteClient}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      )}
     </DashboardLayout>
   );
-}
+};
+
+export default ProducerClients;

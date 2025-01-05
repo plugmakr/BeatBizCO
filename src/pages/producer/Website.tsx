@@ -1,33 +1,38 @@
 import { useState } from "react";
-import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WebsiteBuilder } from "@/components/producer/website/WebsiteBuilder";
 import { DomainSettings } from "@/components/producer/website/DomainSettings";
 import { TemplateLibrary } from "@/components/producer/website/TemplateLibrary";
 import { PreviewMode } from "@/components/producer/website/PreviewMode";
 import { Button } from "@/components/ui/button";
-import { Eye, Save } from "lucide-react";
-import { SaveTemplateDialog } from "@/components/producer/website/SaveTemplateDialog";
+import { Globe, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { templates } from "@/components/producer/website/data/templates";
 
-export default function Website() {
+const Website = () => {
   const [currentTemplate, setCurrentTemplate] = useState<string | null>(null);
   const [blocks, setBlocks] = useState<any[]>([]);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const { toast } = useToast();
 
-  const handleSaveTemplate = (name: string) => {
-    toast({
-      title: "Template Saved",
-      description: `Website template "${name}" has been saved successfully.`,
-    });
-    setSaveTemplateOpen(false);
+  const handleTemplateSelect = (templateId: string) => {
+    const selectedTemplate = templates.find(t => t.id === templateId);
+    if (selectedTemplate) {
+      setCurrentTemplate(templateId);
+      setBlocks([...selectedTemplate.blocks]);
+      console.log(`Loading template ${templateId} with ${selectedTemplate.blocks.length} blocks`);
+      
+      toast({
+        title: "Template Applied",
+        description: `${selectedTemplate.name} template has been loaded with ${selectedTemplate.blocks.length} sections.`,
+      });
+    }
   };
 
   const handleSave = () => {
     toast({
-      title: "Changes Saved",
+      title: "Changes saved",
       description: "Your website changes have been saved successfully.",
     });
   };
@@ -36,28 +41,32 @@ export default function Website() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Website Builder</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setPreviewOpen(true)}>
-              <Eye className="w-4 h-4 mr-2" />
-              Preview
+          <div>
+            <h1 className="text-3xl font-bold">Website Builder</h1>
+            <p className="text-muted-foreground">
+              Create and manage your professional producer website
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={handleSave}>
+              <Save className="mr-2 h-4 w-4" />
+              Save Changes
             </Button>
-            <Button variant="outline" onClick={() => setSaveTemplateOpen(true)}>
-              <Save className="w-4 h-4 mr-2" />
-              Save as Template
+            <Button onClick={() => setIsPreviewOpen(true)}>
+              <Globe className="mr-2 h-4 w-4" />
+              Preview Site
             </Button>
-            <Button onClick={handleSave}>Save Changes</Button>
           </div>
         </div>
 
-        <Tabs defaultValue="builder">
+        <Tabs defaultValue="builder" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="builder">Website Builder</TabsTrigger>
+            <TabsTrigger value="builder">Builder</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="domain">Domain Settings</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="builder" className="mt-6">
+          <TabsContent value="builder" className="space-y-6">
             <WebsiteBuilder
               currentTemplate={currentTemplate}
               onSave={handleSave}
@@ -66,30 +75,26 @@ export default function Website() {
             />
           </TabsContent>
 
-          <TabsContent value="templates" className="mt-6">
+          <TabsContent value="templates" className="space-y-6">
             <TemplateLibrary
-              onSelectTemplate={setCurrentTemplate}
+              onSelectTemplate={handleTemplateSelect}
               currentTemplate={currentTemplate}
             />
           </TabsContent>
 
-          <TabsContent value="domain" className="mt-6">
+          <TabsContent value="domain" className="space-y-6">
             <DomainSettings />
           </TabsContent>
         </Tabs>
 
         <PreviewMode
           blocks={blocks}
-          isOpen={previewOpen}
-          onClose={() => setPreviewOpen(false)}
-        />
-
-        <SaveTemplateDialog
-          isOpen={saveTemplateOpen}
-          onClose={() => setSaveTemplateOpen(false)}
-          onSave={handleSaveTemplate}
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
         />
       </div>
     </DashboardLayout>
   );
-}
+};
+
+export default Website;
