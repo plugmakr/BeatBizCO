@@ -116,8 +116,8 @@ export function FileList({
   };
 
   return (
-    <div className="relative min-h-[400px] w-full overflow-hidden rounded-md border">
-      <ScrollArea className="h-[400px] w-full">
+    <div className="relative w-full h-[300px] overflow-hidden rounded-md border">
+      <ScrollArea className="w-full h-full">
         <div className="space-y-2 p-4">
           {files.map((file) => (
             <FileContextMenu

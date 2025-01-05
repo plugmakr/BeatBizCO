@@ -13,12 +13,12 @@ interface ViewClientDialogProps {
 export function ViewClientDialog({ client, open, onOpenChange }: ViewClientDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Client Details</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6">
+        <ScrollArea className="flex-1">
+          <div className="space-y-6 pr-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <h3 className="font-semibold">Name</h3>

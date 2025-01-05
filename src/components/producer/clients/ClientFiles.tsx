@@ -19,11 +19,6 @@ interface ClientFilesProps {
   client: Client;
 }
 
-interface Breadcrumb {
-  id: string | null;
-  name: string;
-}
-
 export function ClientFiles({ client }: ClientFilesProps) {
   const [files, setFiles] = useState<ClientFile[]>([]);
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
@@ -201,7 +196,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
   };
 
   return (
-    <Card>
+    <Card className="h-[500px] flex flex-col">
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Files</span>
@@ -222,7 +217,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-hidden">
         <FileExplanation />
         
         <FolderNavigation breadcrumbs={breadcrumbs} onNavigate={handleNavigate} />
