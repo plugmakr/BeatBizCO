@@ -9,7 +9,7 @@ export function useClientFileUpload(client: Client, onSuccess: () => void) {
   const [currentUpload, setCurrentUpload] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = async (file: File, parentId: string | null = null) => {
     setIsUploading(true);
     setUploadProgress(0);
     setCurrentUpload(file.name);
@@ -32,9 +32,12 @@ export function useClientFileUpload(client: Client, onSuccess: () => void) {
       const { error: dbError } = await supabase.from('client_files').insert({
         client_id: client.id,
         filename: file.name,
+        display_name: file.name,
         file_path: filePath,
         file_type: file.type,
         size: file.size,
+        parent_id: parentId,
+        type: 'file'
       });
 
       if (dbError) throw dbError;

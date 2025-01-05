@@ -99,33 +99,42 @@ export type Database = {
         Row: {
           client_id: string
           created_at: string | null
+          display_name: string | null
           file_path: string
           file_type: string
           filename: string
           id: string
+          parent_id: string | null
           size: number
+          type: Database["public"]["Enums"]["client_item_type"]
           updated_at: string | null
           uploaded_by: string | null
         }
         Insert: {
           client_id: string
           created_at?: string | null
+          display_name?: string | null
           file_path: string
           file_type: string
           filename: string
           id?: string
+          parent_id?: string | null
           size: number
+          type?: Database["public"]["Enums"]["client_item_type"]
           updated_at?: string | null
           uploaded_by?: string | null
         }
         Update: {
           client_id?: string
           created_at?: string | null
+          display_name?: string | null
           file_path?: string
           file_type?: string
           filename?: string
           id?: string
+          parent_id?: string | null
           size?: number
+          type?: Database["public"]["Enums"]["client_item_type"]
           updated_at?: string | null
           uploaded_by?: string | null
         }
@@ -135,6 +144,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_files_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "client_files"
             referencedColumns: ["id"]
           },
           {
@@ -791,6 +807,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      client_item_type: "folder" | "file"
       user_role: "producer" | "artist" | "buyer" | "admin"
     }
     CompositeTypes: {
