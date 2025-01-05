@@ -73,6 +73,10 @@ export function SoundLibraryGrid({
     }
   };
 
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, sound: Sound) => {
+    e.dataTransfer.setData("fileId", sound.id);
+  };
+
   const getFileType = (filename: string): string => {
     const ext = filename?.split('.').pop()?.toLowerCase() || '';
     switch (ext) {
@@ -116,7 +120,11 @@ export function SoundLibraryGrid({
         {sounds.map((sound) => (
           <ContextMenu key={sound.id}>
             <ContextMenuTrigger>
-              <Card className="p-4">
+              <Card 
+                className="p-4"
+                draggable
+                onDragStart={(e) => handleDragStart(e, sound)}
+              >
                 <div className="flex flex-col gap-4">
                   <div className="flex gap-4">
                     <div className="h-24 w-24 rounded-lg bg-secondary flex items-center justify-center">

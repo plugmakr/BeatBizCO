@@ -15,7 +15,7 @@ interface FileContextMenuProps {
 export function FileContextMenu({ children, onMove, onCopy }: FileContextMenuProps) {
   return (
     <ContextMenu>
-      <ContextMenuTrigger>{children}</ContextMenuTrigger>
+      <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuItem onClick={onMove}>
           <Move className="h-4 w-4 mr-2" />
