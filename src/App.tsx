@@ -4,7 +4,17 @@ import Index from "@/pages/Index";
 import AuthGuard from "@/components/auth/AuthGuard";
 import RoleGuard from "@/components/auth/RoleGuard";
 import AdminDashboard from "@/pages/admin/Dashboard";
+import UserManagement from "@/pages/admin/UserManagement";
 import ProducerDashboard from "@/pages/producer/Dashboard";
+import Clients from "@/pages/producer/Clients";
+import Funnels from "@/pages/producer/Funnels";
+import Marketplace from "@/pages/producer/Marketplace";
+import Messages from "@/pages/producer/Messages";
+import Projects from "@/pages/producer/Projects";
+import Settings from "@/pages/producer/Settings";
+import SoundLibrary from "@/pages/producer/SoundLibrary";
+import Support from "@/pages/producer/Support";
+import Website from "@/pages/producer/Website";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
@@ -20,13 +30,16 @@ function App() {
           element={
             <AuthGuard>
               <RoleGuard allowedRoles={["admin"]}>
-                <AdminDashboard />
+                <Routes>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="users" element={<UserManagement />} />
+                </Routes>
               </RoleGuard>
             </AuthGuard>
           }
         />
 
-        {/* Producer Routes - Using nested route configuration */}
+        {/* Producer Routes */}
         <Route
           path="/producer/*"
           element={
@@ -35,22 +48,20 @@ function App() {
                 <Routes>
                   <Route index element={<ProducerDashboard />} />
                   <Route path="dashboard" element={<ProducerDashboard />} />
-                  <Route path="clients" element={<ProducerDashboard />} />
-                  <Route path="funnels" element={<ProducerDashboard />} />
-                  <Route path="marketplace" element={<ProducerDashboard />} />
-                  <Route path="messages" element={<ProducerDashboard />} />
-                  <Route path="projects" element={<ProducerDashboard />} />
-                  <Route path="settings" element={<ProducerDashboard />} />
-                  <Route path="sound-library" element={<ProducerDashboard />} />
-                  <Route path="support" element={<ProducerDashboard />} />
-                  <Route path="website" element={<ProducerDashboard />} />
+                  <Route path="clients" element={<Clients />} />
+                  <Route path="funnels" element={<Funnels />} />
+                  <Route path="marketplace" element={<Marketplace />} />
+                  <Route path="messages" element={<Messages />} />
+                  <Route path="projects" element={<Projects />} />
+                  <Route path="settings" element={<Settings />} />
+                  <Route path="sound-library" element={<SoundLibrary />} />
+                  <Route path="support" element={<Support />} />
+                  <Route path="website" element={<Website />} />
                 </Routes>
               </RoleGuard>
             </AuthGuard>
           }
         />
-
-        {/* Add other routes here */}
       </Routes>
       <Toaster />
     </Router>

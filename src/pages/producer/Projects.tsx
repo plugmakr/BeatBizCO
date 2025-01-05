@@ -1,318 +1,121 @@
-import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { CreateProjectDialog } from "@/components/projects/CreateProjectDialog";
-import { ProjectDetailsDialog } from "@/components/projects/ProjectDetailsDialog";
-import { AddClientDialog } from "@/components/producer/clients/AddClientDialog";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { DataTable } from "@/components/ui/data-table";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Edit2, Eye, Trash2, UserPlus } from "lucide-react";
-import { format } from "date-fns";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Plus } from "lucide-react";
+import { ClientFile } from "@/types/database";
 
-type Project = {
-  id: string;
-  name: string;
-  description: string | null;
-  deadline: string | null;
-  status: string;
-  created_by: string;
-  client_id: string | null;
-  profiles: {
-    full_name: string | null;
-  } | null;
-};
-
-const ProducerProjects = () => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [activeProjects, setActiveProjects] = useState<Project[]>([]);
-  const [completedProjects, setCompletedProjects] = useState<Project[]>([]);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAddingClient, setIsAddingClient] = useState(false);
+export default function Projects() {
+  const [projects, setProjects] = useState<ClientFile[]>([]);
   const { toast } = useToast();
-
-  const fetchProjects = async () => {
-    try {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.session?.user) return;
-
-      const { data: active, error: activeError } = await supabase
-        .from("collaboration_projects")
-        .select(`
-          *,
-          profiles:created_by (
-            full_name
-          )
-        `)
-        .eq("created_by", session.session.user.id)
-        .eq("status", "active");
-
-      const { data: completed, error: completedError } = await supabase
-        .from("collaboration_projects")
-        .select(`
-          *,
-          profiles:created_by (
-            full_name
-          )
-        `)
-        .eq("created_by", session.session.user.id)
-        .eq("status", "completed");
-
-      if (activeError) throw activeError;
-      if (completedError) throw completedError;
-
-      setActiveProjects(active || []);
-      setCompletedProjects(completed || []);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch projects",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteProject = async (projectId: string) => {
-    try {
-      const { error } = await supabase
-        .from("collaboration_projects")
-        .delete()
-        .eq("id", projectId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Project deleted successfully",
-      });
-
-      fetchProjects();
-    } catch (error) {
-      console.error("Error deleting project:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete project",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleCompleteProject = async (projectId: string) => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from("collaboration_projects")
-        .update({ 
-          status: "completed",
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", projectId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Project marked as completed",
-      });
-
-      // Move the project from active to completed list
-      const completedProject = activeProjects.find(p => p.id === projectId);
-      if (completedProject) {
-        setActiveProjects(prev => prev.filter(p => p.id !== projectId));
-        setCompletedProjects(prev => [...prev, { ...completedProject, status: 'completed' }]);
-      }
-    } catch (error: any) {
-      console.error("Error completing project:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to complete project",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchProjects();
   }, []);
 
-  const ProjectTable = ({ projects }: { projects: Project[] }) => (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Project Name</TableHead>
-          <TableHead>Description</TableHead>
-          <TableHead>Deadline</TableHead>
-          <TableHead>Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {projects.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={4} className="text-center">
-              No projects
-            </TableCell>
-          </TableRow>
-        ) : (
-          projects.map((project) => (
-            <TableRow key={project.id}>
-              <TableCell className="font-medium">{project.name}</TableCell>
-              <TableCell>{project.description}</TableCell>
-              <TableCell>
-                {project.deadline
-                  ? format(new Date(project.deadline), "PPP")
-                  : "No deadline"}
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedProject(project);
-                      setDetailsOpen(true);
-                    }}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  {project.status === "active" && (
-                    <>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        disabled={isLoading}
-                        onClick={() => handleCompleteProject(project.id)}
-                      >
-                        {isLoading ? "Completing..." : "Complete"}
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        onClick={() => {
-                          toast({
-                            title: "Coming Soon",
-                            description: "Edit functionality will be added soon",
-                          });
-                        }}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => handleDeleteProject(project.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
-  );
+  const fetchProjects = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data, error } = await supabase
+        .from('client_files')
+        .select('*')
+        .eq('type', 'folder')
+        .eq('uploaded_by', session.user.id)
+        .is('parent_id', null);
+
+      if (error) throw error;
+      setProjects(data || []);
+    } catch (error) {
+      toast({
+        title: "Error fetching projects",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const columns = [
+    {
+      accessorKey: "display_name",
+      header: "Project Name",
+    },
+    {
+      accessorKey: "created_at",
+      header: "Created",
+      cell: ({ row }) => {
+        return new Date(row.original.created_at || "").toLocaleDateString();
+      },
+    },
+    {
+      accessorKey: "updated_at",
+      header: "Last Modified",
+      cell: ({ row }) => {
+        return new Date(row.original.updated_at || "").toLocaleDateString();
+      },
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  // Navigate to project details
+                  window.location.href = `/producer/projects/${row.original.id}`;
+                }}
+              >
+                View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  // Open sharing modal
+                }}
+              >
+                Share
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-red-600"
+                onClick={() => {
+                  // Delete project
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Projects</h1>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              onClick={() => setIsAddingClient(true)}
-              className="flex items-center gap-2"
-            >
-              <UserPlus className="h-4 w-4" />
-              Add Client
-            </Button>
-            <CreateProjectDialog />
-          </div>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Projects</h1>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            New Project
+          </Button>
         </div>
-        
-        <Tabs defaultValue="active" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="active">Active Projects</TabsTrigger>
-            <TabsTrigger value="completed">Completed Projects</TabsTrigger>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="active" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Active Projects</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ProjectTable projects={activeProjects} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="completed" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Completed Projects</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ProjectTable projects={completedProjects} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="calendar" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Project Calendar</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  className="rounded-md border"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        <ProjectDetailsDialog
-          project={selectedProject}
-          open={detailsOpen}
-          onOpenChange={setDetailsOpen}
-        />
-
-        <AddClientDialog
-          isOpen={isAddingClient}
-          onClose={() => setIsAddingClient(false)}
-          onSuccess={() => {
-            toast({
-              title: "Success",
-              description: "Client added successfully",
-            });
-            setIsAddingClient(false);
-          }}
-        />
+        <DataTable columns={columns} data={projects} />
       </div>
     </DashboardLayout>
   );
-};
-
-export default ProducerProjects;
+}
