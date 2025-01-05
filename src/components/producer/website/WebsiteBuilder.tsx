@@ -256,8 +256,28 @@ export const WebsiteBuilder = ({
             onSave={(content) => updateBlockContent(block.id, content)}
           />
         );
+      case "services":
+        return (
+          <ServicesEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
+      case "licensing":
+        return (
+          <LicensingEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
       default:
-        return <div>Editor not implemented for this block type</div>;
+        return (
+          <div className="p-4 text-center">
+            <p className="text-muted-foreground">
+              Editor not yet implemented for {block.type} block type
+            </p>
+          </div>
+        );
     }
   };
 

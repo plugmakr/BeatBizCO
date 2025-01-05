@@ -12,14 +12,14 @@ interface PreviewModeProps {
 export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl h-[90vh]">
-        <div className="flex justify-between items-center mb-2 py-2">
+      <DialogContent className="max-w-6xl h-[90vh] p-0">
+        <div className="flex justify-between items-center px-4 py-2 border-b">
           <h2 className="text-sm font-medium">Preview</h2>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <div className="overflow-y-auto h-full bg-white">
+        <div className="overflow-y-auto h-[calc(100%-3rem)]">
           <iframe
             title="Website Preview"
             className="w-full h-full border-0"
