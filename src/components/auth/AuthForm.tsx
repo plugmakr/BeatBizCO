@@ -17,24 +17,14 @@ const AuthForm = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (sessionError) {
-          console.error("Session error:", sessionError);
-          return;
-        }
-
-        if (session?.user && mounted.current) {
-          const { data: profile, error: profileError } = await supabase
+        if (session?.user) {
+          const { data: profile } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', session.user.id)
             .single();
-
-          if (profileError) {
-            console.error("Profile fetch error:", profileError);
-            return;
-          }
 
           if (profile && mounted.current) {
             handleRoleBasedRedirect(profile.role);
@@ -48,10 +38,7 @@ const AuthForm = () => {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session && mounted.current) {
-        // Add a small delay to ensure the auth session is fully established
-        await new Promise(resolve => setTimeout(resolve, 500));
-
+      if (event === "SIGNED_IN" && session) {
         try {
           const { error: upsertError } = await supabase
             .from("profiles")
@@ -59,14 +46,9 @@ const AuthForm = () => {
               id: session.user.id,
               role: role,
               updated_at: new Date().toISOString(),
-            }, {
-              onConflict: 'id'
             });
 
-          if (upsertError) {
-            console.error("Profile upsert error:", upsertError);
-            throw upsertError;
-          }
+          if (upsertError) throw upsertError;
 
           if (mounted.current) {
             toast({
