@@ -47,12 +47,14 @@ export function AssignToProjectDialog({
 
     try {
       // First check if the sound is already assigned to this project
-      const { data: existingAssignment } = await supabase
+      const { data: existingAssignment, error: checkError } = await supabase
         .from("sound_library_project_files")
         .select("id")
         .eq("sound_id", soundId)
         .eq("project_id", selectedProject)
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
+
+      if (checkError) throw checkError;
 
       if (existingAssignment) {
         toast({
@@ -64,13 +66,27 @@ export function AssignToProjectDialog({
         return;
       }
 
-      const { error } = await supabase.from("sound_library_project_files").insert({
-        sound_id: soundId,
-        project_id: selectedProject,
-        created_by: (await supabase.auth.getSession()).data.session?.user.id,
-      });
+      const session = await supabase.auth.getSession();
+      const userId = session.data.session?.user.id;
 
-      if (error) throw error;
+      if (!userId) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to assign sounds to projects",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error: insertError } = await supabase
+        .from("sound_library_project_files")
+        .insert({
+          sound_id: soundId,
+          project_id: selectedProject,
+          created_by: userId,
+        });
+
+      if (insertError) throw insertError;
 
       toast({
         title: "Success",
