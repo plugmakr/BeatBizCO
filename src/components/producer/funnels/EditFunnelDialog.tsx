@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,6 +90,10 @@ export function EditFunnelDialog({ funnel, open, onOpenChange, onSave }: EditFun
       <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Edit Funnel</DialogTitle>
+          <DialogDescription>
+            A funnel guides visitors through a series of steps toward a specific goal, like making a purchase or signing up.
+            Each step should be designed to move visitors closer to that goal.
+          </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="details" className="h-[600px]">
           <TabsList>
@@ -98,6 +102,11 @@ export function EditFunnelDialog({ funnel, open, onOpenChange, onSave }: EditFun
           </TabsList>
 
           <TabsContent value="details">
+            <div className="mb-4">
+              <p className="text-sm text-muted-foreground">
+                Configure the basic information about your funnel. The status determines whether your funnel is live and accepting visitors.
+              </p>
+            </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Funnel Name</Label>
@@ -141,6 +150,12 @@ export function EditFunnelDialog({ funnel, open, onOpenChange, onSave }: EditFun
           </TabsContent>
 
           <TabsContent value="steps" className="h-full">
+            <div className="mb-4">
+              <p className="text-sm text-muted-foreground">
+                Each step in your funnel serves a specific purpose. Edit each step below to customize its content and appearance.
+                The steps are arranged in order, guiding visitors from the landing page through to conversion.
+              </p>
+            </div>
             <ScrollArea className="h-[500px] pr-4">
               <div className="space-y-6">
                 {steps.map((step) => (

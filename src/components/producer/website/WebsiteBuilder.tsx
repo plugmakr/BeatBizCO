@@ -21,6 +21,7 @@ interface WebsiteBuilderProps {
   onSave: () => void;
   blocks: any[];
   onBlocksChange: (blocks: any[]) => void;
+  allowedBlockTypes?: string[];
 }
 
 const blockTypes = [
@@ -182,6 +183,7 @@ export const WebsiteBuilder = ({
   onSave,
   blocks,
   onBlocksChange,
+  allowedBlockTypes
 }: WebsiteBuilderProps) => {
   const [editingBlock, setEditingBlock] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -239,9 +241,13 @@ export const WebsiteBuilder = ({
     });
   };
 
+  const filteredBlockTypes = allowedBlockTypes 
+    ? blockTypes.filter(block => allowedBlockTypes.includes(block.id))
+    : blockTypes;
+
   return (
     <div className="grid grid-cols-12 gap-6">
-      <BlockList blockTypes={blockTypes} onAddBlock={addBlock} />
+      <BlockList blockTypes={filteredBlockTypes} onAddBlock={addBlock} />
 
       <div className="col-span-9">
         <Card>
