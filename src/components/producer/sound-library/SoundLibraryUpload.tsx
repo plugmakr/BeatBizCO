@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -5,21 +6,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { Database } from "@/integrations/supabase/types";
+import type { Database } from "@/integrations/supabase/types";
+import { SoundLibraryFormFields } from "./SoundLibraryFormFields";
 
 type SoundType = Database["public"]["Enums"]["sound_type"];
 
@@ -123,93 +114,31 @@ export function SoundLibraryUpload({
         <DialogHeader>
           <DialogTitle>Upload Sound</DialogTitle>
         </DialogHeader>
-        <div className="space-y-6">
-          <div>
-            <Label>Audio File</Label>
-            <Input
-              type="file"
-              accept="audio/*"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Title</Label>
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter title"
-              />
-            </div>
-            <div>
-              <Label>Type</Label>
-              <Select value={type} onValueChange={(value: SoundType) => setType(value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="beat">Beat</SelectItem>
-                  <SelectItem value="sound_kit">Sound Kit</SelectItem>
-                  <SelectItem value="midi_kit">MIDI Kit</SelectItem>
-                  <SelectItem value="loop_kit">Loop Kit</SelectItem>
-                  <SelectItem value="drum_kit">Drum Kit</SelectItem>
-                  <SelectItem value="one_shot">One Shot</SelectItem>
-                  <SelectItem value="sample">Sample</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div>
-            <Label>Description</Label>
-            <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter description"
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>BPM</Label>
-              <Input
-                type="number"
-                value={bpm}
-                onChange={(e) => setBpm(e.target.value)}
-                placeholder="Enter BPM"
-              />
-            </div>
-            <div>
-              <Label>Key</Label>
-              <Input
-                value={key}
-                onChange={(e) => setKey(e.target.value)}
-                placeholder="Enter key"
-              />
-            </div>
-            <div>
-              <Label>Genre</Label>
-              <Input
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
-                placeholder="Enter genre"
-              />
-            </div>
-          </div>
-          <div>
-            <Label>Tags (comma-separated)</Label>
-            <Input
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="e.g., dark, trap, melodic"
-            />
-          </div>
-          <Button
-            onClick={handleUpload}
-            disabled={isUploading}
-            className="w-full"
-          >
-            {isUploading ? "Uploading..." : "Upload Sound"}
-          </Button>
-        </div>
+        <SoundLibraryFormFields
+          title={title}
+          setTitle={setTitle}
+          description={description}
+          setDescription={setDescription}
+          type={type}
+          setType={setType}
+          bpm={bpm}
+          setBpm={setBpm}
+          key={key}
+          setKey={setKey}
+          genre={genre}
+          setGenre={setGenre}
+          tags={tags}
+          setTags={setTags}
+          file={file}
+          setFile={setFile}
+        />
+        <Button
+          onClick={handleUpload}
+          disabled={isUploading}
+          className="w-full mt-6"
+        >
+          {isUploading ? "Uploading..." : "Upload Sound"}
+        </Button>
       </DialogContent>
     </Dialog>
   );
