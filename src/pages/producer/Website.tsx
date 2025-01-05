@@ -10,7 +10,7 @@ import { Globe, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { templates } from "@/components/producer/website/data/templates";
 
-const ProducerWebsite = () => {
+const Website = () => {
   const [currentTemplate, setCurrentTemplate] = useState<string | null>(null);
   const [blocks, setBlocks] = useState<any[]>([]);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -20,9 +20,13 @@ const ProducerWebsite = () => {
     const selectedTemplate = templates.find(t => t.id === templateId);
     if (selectedTemplate) {
       setCurrentTemplate(templateId);
-      // Ensure we set all blocks from the template
       setBlocks([...selectedTemplate.blocks]);
       console.log(`Loading template ${templateId} with ${selectedTemplate.blocks.length} blocks`);
+      
+      toast({
+        title: "Template Applied",
+        description: `${selectedTemplate.name} template has been loaded with ${selectedTemplate.blocks.length} sections.`,
+      });
     }
   };
 
@@ -93,4 +97,4 @@ const ProducerWebsite = () => {
   );
 };
 
-export default ProducerWebsite;
+export default Website;

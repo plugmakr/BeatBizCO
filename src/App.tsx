@@ -11,7 +11,7 @@ import ProducerFinances from "@/pages/producer/Finances";
 import ProducerMarketplace from "@/pages/producer/Marketplace";
 import ProducerSoundLibrary from "@/pages/producer/SoundLibrary";
 import ProducerSupport from "@/pages/producer/Support";
-import ProducerWebsite from "@/pages/producer/Website";
+import Website from "@/pages/producer/Website";
 import ArtistDashboard from "@/pages/artist/Dashboard";
 import ArtistProfile from "@/pages/ArtistProfile";
 import ArtistAnalytics from "@/pages/artist/Analytics";
@@ -38,7 +38,7 @@ function App() {
         <Route path="/producer/marketplace" element={<ProducerMarketplace />} />
         <Route path="/producer/sound-library" element={<ProducerSoundLibrary />} />
         <Route path="/producer/support" element={<ProducerSupport />} />
-        <Route path="/producer/website" element={<ProducerWebsite />} />
+        <Route path="/producer/website" element={<Website />} />
         
         {/* Artist Routes */}
         <Route path="/artist" element={<ArtistDashboard />} />
