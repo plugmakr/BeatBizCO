@@ -42,13 +42,21 @@ export function ClientFiles({ client }: ClientFilesProps) {
   } = useClientFileUpload(client, fetchFiles);
 
   async function fetchFiles() {
-    const { data, error } = await supabase
+    let query = supabase
       .from('client_files')
       .select('*')
       .eq('client_id', client.id)
-      .eq('parent_id', currentFolder)
       .order('type', { ascending: false })
       .order('created_at', { ascending: false });
+
+    // Handle parent_id filtering
+    if (currentFolder === null) {
+      query = query.is('parent_id', null);
+    } else {
+      query = query.eq('parent_id', currentFolder);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching files:', error);
