@@ -5,8 +5,6 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 
 type UserRole = "producer" | "artist" | "buyer" | "admin";
 
@@ -77,9 +75,6 @@ const AuthForm = () => {
       case "artist":
         navigate("/artist");
         break;
-      case "producer":
-        navigate("/producer");
-        break;
       default:
         navigate("/"); // Default route for other roles
         break;
@@ -97,21 +92,25 @@ const AuthForm = () => {
       <CardContent>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>I am a...</Label>
-            <RadioGroup
-              defaultValue={role}
-              onValueChange={(value) => setRole(value as UserRole)}
-              className="grid grid-cols-2 gap-4"
-            >
-              {(["admin", "producer", "artist", "buyer"] as const).map((option) => (
-                <div key={option} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option} id={option} />
-                  <Label htmlFor={option} className="capitalize">
-                    {option}
-                  </Label>
-                </div>
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              I am a...
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["producer", "artist", "buyer"] as const).map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setRole(option)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
+                    ${
+                      role === option
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary hover:bg-secondary/80"
+                    }`}
+                >
+                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                </button>
               ))}
-            </RadioGroup>
+            </div>
           </div>
           <Auth
             supabaseClient={supabase}
