@@ -79,10 +79,10 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         navigate("/admin");
         break;
       case "producer":
-        navigate("/producer");
+        navigate("/producer/dashboard");
         break;
       case "artist":
-        navigate("/artist");
+        navigate("/artist/dashboard");
         break;
       case "buyer":
         navigate("/marketplace");
