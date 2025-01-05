@@ -80,17 +80,17 @@ export function SoundLibraryGrid({ sounds, isLoading }: SoundLibraryGridProps) {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {sounds.map((sound) => (
         <Card key={sound.id} className="p-4 space-y-4">
-          <div className="relative">
-            <AudioPlayer src={sound.file_path} title={sound.title} />
+          <div className="flex justify-end mb-2">
             <Button
               variant="destructive"
               size="icon"
-              className="absolute top-0 right-0 -mt-2 -mr-2"
+              className="h-8 w-8"
               onClick={() => handleDelete(sound)}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
+          <AudioPlayer src={sound.file_path} title={sound.title} />
           <div>
             <h3 className="font-semibold">{sound.title}</h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
