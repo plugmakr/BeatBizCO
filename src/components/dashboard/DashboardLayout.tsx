@@ -12,14 +12,22 @@ import {
   SidebarMenuItem 
 } from "@/components/ui/sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { LogOut } from "lucide-react";
+import { LogOut, UserCog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getProducerMenuItems, getArtistMenuItems, getAdminMenuItems } from "@/config/producerMenuItems";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [role, setRole] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeRole, setActiveRole] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -33,6 +41,8 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         
         if (profile) {
           setRole(profile.role);
+          setIsAdmin(profile.role === 'admin');
+          setActiveRole(profile.role);
         }
       }
     };
@@ -57,7 +67,29 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
     }
   };
 
+  const handleRoleSwitch = (newRole: string) => {
+    setActiveRole(newRole);
+    toast({
+      title: "Role Switched",
+      description: `Viewing dashboard as ${newRole}`,
+    });
+  };
+
   const getMenuItems = () => {
+    // For admins, use the active role to determine menu items
+    if (isAdmin) {
+      switch (activeRole) {
+        case "producer":
+          return getProducerMenuItems();
+        case "artist":
+          return getArtistMenuItems();
+        case "admin":
+          return getAdminMenuItems();
+        default:
+          return getAdminMenuItems();
+      }
+    }
+    // For non-admins, use their assigned role
     switch (role) {
       case "producer":
         return getProducerMenuItems();
@@ -79,6 +111,29 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
               <SidebarGroupLabel>Menu</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
+                  {isAdmin && (
+                    <SidebarMenuItem>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <SidebarMenuButton className="flex items-center gap-2 w-full">
+                            <UserCog className="h-4 w-4" />
+                            <span>View as: {activeRole}</span>
+                          </SidebarMenuButton>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => handleRoleSwitch('admin')}>
+                            Admin
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleRoleSwitch('producer')}>
+                            Producer
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleRoleSwitch('artist')}>
+                            Artist
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </SidebarMenuItem>
+                  )}
                   {getMenuItems().map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
