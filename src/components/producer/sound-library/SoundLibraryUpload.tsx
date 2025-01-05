@@ -19,6 +19,9 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { Database } from "@/integrations/supabase/types";
+
+type SoundType = Database["public"]["Enums"]["sound_type"];
 
 interface SoundLibraryUploadProps {
   open: boolean;
@@ -35,7 +38,7 @@ export function SoundLibraryUpload({
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState<string>("");
+  const [type, setType] = useState<SoundType | "">("");
   const [bpm, setBpm] = useState("");
   const [key, setKey] = useState("");
   const [genre, setGenre] = useState("");
@@ -70,7 +73,7 @@ export function SoundLibraryUpload({
         producer_id: userId,
         title,
         description,
-        type,
+        type: type as SoundType,
         bpm: bpm ? parseInt(bpm) : null,
         key,
         genre,
@@ -140,7 +143,7 @@ export function SoundLibraryUpload({
             </div>
             <div>
               <Label>Type</Label>
-              <Select value={type} onValueChange={setType}>
+              <Select value={type} onValueChange={(value: SoundType) => setType(value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
