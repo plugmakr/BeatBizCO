@@ -8,6 +8,7 @@ import { PreviewMode } from "@/components/producer/website/PreviewMode";
 import { Button } from "@/components/ui/button";
 import { Globe, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { templates } from "@/components/producer/website/data/templates";
 
 const ProducerWebsite = () => {
   const [currentTemplate, setCurrentTemplate] = useState<string | null>(null);
@@ -15,15 +16,19 @@ const ProducerWebsite = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const { toast } = useToast();
 
+  const handleTemplateSelect = (templateId: string) => {
+    setCurrentTemplate(templateId);
+    const selectedTemplate = templates.find(t => t.id === templateId);
+    if (selectedTemplate) {
+      setBlocks(selectedTemplate.blocks);
+    }
+  };
+
   const handleSave = () => {
     toast({
       title: "Changes saved",
       description: "Your website changes have been saved successfully.",
     });
-  };
-
-  const handlePreview = () => {
-    setIsPreviewOpen(true);
   };
 
   return (
@@ -41,7 +46,7 @@ const ProducerWebsite = () => {
               <Save className="mr-2 h-4 w-4" />
               Save Changes
             </Button>
-            <Button onClick={handlePreview}>
+            <Button onClick={() => setIsPreviewOpen(true)}>
               <Globe className="mr-2 h-4 w-4" />
               Preview Site
             </Button>
@@ -66,7 +71,7 @@ const ProducerWebsite = () => {
 
           <TabsContent value="templates" className="space-y-6">
             <TemplateLibrary
-              onSelectTemplate={setCurrentTemplate}
+              onSelectTemplate={handleTemplateSelect}
               currentTemplate={currentTemplate}
             />
           </TabsContent>
