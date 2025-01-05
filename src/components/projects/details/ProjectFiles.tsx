@@ -32,15 +32,25 @@ interface ProjectFilesProps {
   projectId: string;
 }
 
+interface PreviewFile {
+  url: string;
+  type: string;
+  filename: string;
+  metadata?: {
+    title?: string;
+    description?: string;
+    bpm?: number;
+    key?: string;
+    genre?: string;
+    tags?: string[];
+  };
+}
+
 export default function ProjectFiles({ projectId }: ProjectFilesProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentUpload, setCurrentUpload] = useState<string | null>(null);
-  const [previewFile, setPreviewFile] = useState<{
-    url: string;
-    type: string;
-    filename: string;
-  } | null>(null);
+  const [previewFile, setPreviewFile] = useState<PreviewFile | null>(null);
   const [selectedFile, setSelectedFile] = useState<CombinedProjectFile | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { toast } = useToast();
