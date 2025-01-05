@@ -17,18 +17,9 @@ import { FolderSelectDialog } from "./FolderSelectDialog";
 import { SoundEditDialog } from "./SoundEditDialog";
 import { AssignToProjectDialog } from "./AssignToProjectDialog";
 import { useState } from "react";
+import { Tables } from "@/integrations/supabase/types";
 
-interface Sound {
-  id: string;
-  title: string;
-  type: string;
-  bpm?: number;
-  key?: string;
-  genre?: string;
-  tags?: string[];
-  file_path: string;
-  original_filename?: string;
-}
+type Sound = Tables<"sound_library">;
 
 interface SoundLibraryGridProps {
   sounds: Sound[];
