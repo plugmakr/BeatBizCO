@@ -244,10 +244,24 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
 
       if (error) throw error;
 
+      let metadata = undefined;
+      
+      if (file.type === 'sound_library') {
+        metadata = {
+          title: file.file.title,
+          description: file.file.description,
+          bpm: file.file.bpm,
+          key: file.file.key,
+          genre: file.file.genre,
+          tags: file.file.tags,
+        };
+      }
+
       setPreviewFile({
         url: data.signedUrl,
         type: getFileType(file),
-        filename: getFileName(file)
+        filename: getFileName(file),
+        metadata
       });
     } catch (error) {
       toast({
