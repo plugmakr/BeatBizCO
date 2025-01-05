@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, Volume2, VolumeX, AlertCircle } from "lucide-react";
@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface AudioPlayerProps {
   src: string;
-  title: string;
+  title?: string;
 }
 
 export function AudioPlayer({ src, title }: AudioPlayerProps) {
@@ -22,20 +22,20 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Reset states when src changes
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
     setError(null);
-    
-    // Get the signed URL for the audio file
+
     const loadAudioUrl = async () => {
       try {
-        const { data: { publicUrl } } = supabase.storage
+        const { data, error } = await supabase.storage
           .from('sound_library')
-          .getPublicUrl(src);
-          
-        setAudioUrl(publicUrl);
+          .createSignedUrl(src, 3600); // 1 hour expiry
+
+        if (error) throw error;
+        
+        setAudioUrl(data.signedUrl);
         setError(null);
       } catch (err) {
         console.error("Error getting audio URL:", err);
@@ -60,25 +60,15 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
       if (isPlaying) {
         await audioRef.current.pause();
       } else {
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.error("Playback error:", error);
-            toast({
-              variant: "destructive",
-              title: "Playback Error",
-              description: "Unable to play this audio file. Please try again later.",
-            });
-          });
-        }
+        await audioRef.current.play();
       }
       setIsPlaying(!isPlaying);
     } catch (err) {
-      console.error("Audio playback error:", err);
+      console.error("Playback error:", err);
       toast({
         variant: "destructive",
-        title: "Playback Error",
-        description: "Unable to play this audio file. Please try again later.",
+        title: "Error",
+        description: "Failed to play audio",
       });
     }
   };
@@ -92,7 +82,29 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
-      setError(null);
+    }
+  };
+
+  const handleSeek = (value: number[]) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = value[0];
+      setCurrentTime(value[0]);
+    }
+  };
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleVolumeChange = (value: number[]) => {
+    if (audioRef.current) {
+      const newVolume = value[0];
+      audioRef.current.volume = newVolume;
+      setVolume(newVolume);
+      setIsMuted(newVolume === 0);
     }
   };
 
@@ -102,46 +114,21 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
     toast({
       variant: "destructive",
       title: "Audio Error",
-      description: "Failed to load the audio file. Please try again later.",
+      description: "Failed to load audio file",
     });
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-    }
-    setIsMuted(newVolume === 0);
-  };
-
-  const toggleMute = () => {
-    if (audioRef.current) {
-      const newMuted = !isMuted;
-      setIsMuted(newMuted);
-      audioRef.current.volume = newMuted ? 0 : volume;
-    }
   };
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const handleSeek = (value: number[]) => {
-    const newTime = value[0];
-    setCurrentTime(newTime);
-    if (audioRef.current) {
-      audioRef.current.currentTime = newTime;
-    }
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   if (error) {
     return (
-      <div className="w-full p-4 border border-destructive rounded-lg flex items-center gap-2 text-destructive">
+      <div className="flex items-center justify-center p-4 text-destructive gap-2">
         <AlertCircle className="h-4 w-4" />
-        <span className="text-sm">Failed to load audio</span>
+        <span>{error}</span>
       </div>
     );
   }
@@ -173,25 +160,26 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
           )}
         </Button>
         <div className="flex-1">
-          <p className="text-sm font-medium">{title}</p>
+          {title && (
+            <div className="text-sm font-medium mb-1 truncate">{title}</div>
+          )}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground min-w-[40px]">
               {formatTime(currentTime)}
             </span>
             <Slider
               value={[currentTime]}
-              min={0}
               max={duration}
-              step={1}
+              step={0.1}
               onValueChange={handleSeek}
               className="flex-1"
             />
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-muted-foreground min-w-[40px]">
               {formatTime(duration)}
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-[100px]">
           <Button
             variant="ghost"
             size="icon"
@@ -206,11 +194,10 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
           </Button>
           <Slider
             value={[isMuted ? 0 : volume]}
-            min={0}
             max={1}
-            step={0.1}
+            step={0.01}
             onValueChange={handleVolumeChange}
-            className="w-24"
+            className="w-20"
           />
         </div>
       </div>
