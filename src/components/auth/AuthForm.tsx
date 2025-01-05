@@ -48,7 +48,7 @@ const AuthForm = () => {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session && mounted.current) {
+      if (event === 'SIGNED_IN' && session && mounted.current) {
         try {
           // First check if profile exists
           const { data: existingProfile, error: profileError } = await supabase
@@ -95,7 +95,7 @@ const AuthForm = () => {
             });
           }
         }
-      } else if (event === "USER_DELETED" || event === "SIGNED_OUT") {
+      } else if (event === 'SIGNED_OUT') {
         navigate("/auth");
       }
     });
