@@ -758,6 +758,157 @@ export type Database = {
           },
         ]
       }
+      sound_library: {
+        Row: {
+          bpm: number | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          file_path: string
+          folder_path: string | null
+          genre: string | null
+          id: string
+          is_favorite: boolean | null
+          key: string | null
+          metadata: Json | null
+          original_filename: string | null
+          producer_id: string | null
+          size: number | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["sound_type"]
+          updated_at: string | null
+          waveform_path: string | null
+        }
+        Insert: {
+          bpm?: number | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          file_path: string
+          folder_path?: string | null
+          genre?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          key?: string | null
+          metadata?: Json | null
+          original_filename?: string | null
+          producer_id?: string | null
+          size?: number | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["sound_type"]
+          updated_at?: string | null
+          waveform_path?: string | null
+        }
+        Update: {
+          bpm?: number | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          file_path?: string
+          folder_path?: string | null
+          genre?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          key?: string | null
+          metadata?: Json | null
+          original_filename?: string | null
+          producer_id?: string | null
+          size?: number | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          type?: Database["public"]["Enums"]["sound_type"]
+          updated_at?: string | null
+          waveform_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sound_library_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sound_library_folders: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          parent_id: string | null
+          producer_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          parent_id?: string | null
+          producer_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          parent_id?: string | null
+          producer_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sound_library_folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "sound_library_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sound_library_folders_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sound_library_tags: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          id: string
+          name: string
+          producer_id: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          producer_id?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          producer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sound_library_tags_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -811,6 +962,14 @@ export type Database = {
     }
     Enums: {
       client_item_type: "folder" | "file"
+      sound_type:
+        | "beat"
+        | "sound_kit"
+        | "midi_kit"
+        | "loop_kit"
+        | "drum_kit"
+        | "one_shot"
+        | "sample"
       user_role: "producer" | "artist" | "buyer" | "admin"
     }
     CompositeTypes: {
