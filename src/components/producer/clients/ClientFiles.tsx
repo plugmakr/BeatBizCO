@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Client, ClientFile } from "@/types/database";
 import { FileUploadButton } from "./FileUploadButton";
-import { FilePreviewDialog } from "./FilePreviewDialog";
+import { FilePreviewDialog } from "./files/FilePreviewDialog";
 import { FileList } from "./FileList";
 import { UploadProgress } from "@/components/shared/media/UploadProgress";
+import { useClientFileUpload } from "@/hooks/use-client-file-upload";
+import { useToast } from "@/hooks/use-toast";
 
 interface ClientFilesProps {
   client: Client;
@@ -14,9 +15,6 @@ interface ClientFilesProps {
 
 export function ClientFiles({ client }: ClientFilesProps) {
   const [files, setFiles] = useState<ClientFile[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [currentUpload, setCurrentUpload] = useState<string | null>(null);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
     type: string;
@@ -24,7 +22,14 @@ export function ClientFiles({ client }: ClientFilesProps) {
   } | null>(null);
   const { toast } = useToast();
 
-  const fetchFiles = async () => {
+  const { 
+    isUploading, 
+    uploadProgress, 
+    currentUpload, 
+    uploadFile 
+  } = useClientFileUpload(client, fetchFiles);
+
+  async function fetchFiles() {
     const { data, error } = await supabase
       .from('client_files')
       .select('*')
@@ -37,7 +42,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
     }
 
     setFiles(data as ClientFile[]);
-  };
+  }
 
   useEffect(() => {
     fetchFiles();
@@ -46,94 +51,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
-    setIsUploading(true);
-    setUploadProgress(0);
-    setCurrentUpload(file.name);
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('clientId', client.id);
-
-    try {
-      const session = await supabase.auth.getSession();
-      if (!session.data.session?.access_token) {
-        throw new Error('No authentication token found');
-      }
-
-      const xhr = new XMLHttpRequest();
-      
-      xhr.upload.addEventListener('progress', (event) => {
-        if (event.lengthComputable) {
-          const progress = (event.loaded / event.total) * 100;
-          setUploadProgress(progress);
-        }
-      });
-
-      xhr.onerror = () => {
-        console.error('Network error during upload');
-        toast({
-          title: "Error",
-          description: "Network error occurred during upload",
-          variant: "destructive",
-        });
-        setIsUploading(false);
-        setCurrentUpload(null);
-        setUploadProgress(0);
-      };
-
-      xhr.onload = async () => {
-        try {
-          if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            if (response.error) {
-              throw new Error(response.error);
-            }
-            toast({
-              title: "Success",
-              description: "File uploaded successfully",
-            });
-            await fetchFiles();
-          } else {
-            let errorMessage = 'Upload failed';
-            try {
-              const response = JSON.parse(xhr.responseText);
-              errorMessage = response.error || errorMessage;
-              console.error('Upload error response:', response);
-            } catch (parseError) {
-              console.error('Error parsing error response:', parseError);
-            }
-            throw new Error(errorMessage);
-          }
-        } catch (error) {
-          console.error('Error processing upload response:', error);
-          toast({
-            title: "Error",
-            description: error instanceof Error ? error.message : "Failed to process upload response",
-            variant: "destructive",
-          });
-        } finally {
-          setIsUploading(false);
-          setCurrentUpload(null);
-          setUploadProgress(0);
-        }
-      };
-
-      console.log('Starting file upload to:', `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-client-file`);
-      xhr.open('POST', `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-client-file`);
-      xhr.setRequestHeader('Authorization', `Bearer ${session.data.session.access_token}`);
-      xhr.send(formData);
-    } catch (error) {
-      console.error('Error initiating upload:', error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to initiate upload",
-        variant: "destructive",
-      });
-      setIsUploading(false);
-      setCurrentUpload(null);
-      setUploadProgress(0);
-    }
+    await uploadFile(file);
   };
 
   const handlePreview = async (filePath: string, filename: string, fileType: string) => {
