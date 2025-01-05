@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { ArrowRight, Download, Gift, Music2, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { FunnelStepPreviewDialog } from "./FunnelStepPreviewDialog";
 
 const funnelTemplates = [
   {
@@ -242,6 +243,7 @@ const funnelTemplates = [
 
 export function FunnelTemplates() {
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
+  const [previewStep, setPreviewStep] = useState<any>(null);
   const { toast } = useToast();
 
   const handleTemplateSelect = async (templateId: number) => {
@@ -341,7 +343,13 @@ export function FunnelTemplates() {
             <div className="flex items-center space-x-2">
               {template.steps.map((step, index) => (
                 <div key={index} className="flex items-center">
-                  <div className="px-3 py-1 bg-muted rounded-md text-sm">
+                  <div 
+                    className="px-3 py-1 bg-muted rounded-md text-sm cursor-pointer hover:bg-primary/10"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPreviewStep(step);
+                    }}
+                  >
                     {step.name}
                   </div>
                   {index < template.steps.length - 1 && (
@@ -353,6 +361,12 @@ export function FunnelTemplates() {
           </CardContent>
         </Card>
       ))}
+
+      <FunnelStepPreviewDialog
+        step={previewStep}
+        open={!!previewStep}
+        onOpenChange={(open) => !open && setPreviewStep(null)}
+      />
     </div>
   );
 }
