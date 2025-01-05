@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, Image } from "lucide-react";
+import { Edit2, Image, Music, Key, Tag, DollarSign, FileText, Package } from "lucide-react";
 
 export function EditProduct() {
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
@@ -73,26 +74,99 @@ export function EditProduct() {
             <div className="mt-4 space-y-4">
               <div>
                 <Label>Title</Label>
-                <Input
-                  defaultValue={product.title}
-                  onChange={(e) => handleUpdate(product.id, { title: e.target.value })}
-                />
+                <div className="flex items-center space-x-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    defaultValue={product.title}
+                    onChange={(e) => handleUpdate(product.id, { title: e.target.value })}
+                  />
+                </div>
               </div>
+
               <div>
                 <Label>Description</Label>
-                <Textarea
-                  defaultValue={product.description || ""}
-                  onChange={(e) => handleUpdate(product.id, { description: e.target.value })}
-                />
+                <div className="flex items-center space-x-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <Textarea
+                    defaultValue={product.description || ""}
+                    onChange={(e) => handleUpdate(product.id, { description: e.target.value })}
+                  />
+                </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>BPM</Label>
+                  <div className="flex items-center space-x-2">
+                    <Music className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      defaultValue={product.bpm || ""}
+                      onChange={(e) => handleUpdate(product.id, { bpm: parseInt(e.target.value) })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Key</Label>
+                  <div className="flex items-center space-x-2">
+                    <Key className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      defaultValue={product.key || ""}
+                      onChange={(e) => handleUpdate(product.id, { key: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Genre</Label>
+                  <div className="flex items-center space-x-2">
+                    <Tag className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      defaultValue={product.genre || ""}
+                      onChange={(e) => handleUpdate(product.id, { genre: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Price</Label>
+                  <div className="flex items-center space-x-2">
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      defaultValue={product.price}
+                      onChange={(e) => handleUpdate(product.id, { price: parseFloat(e.target.value) })}
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
-                <Label>Price</Label>
-                <Input
-                  type="number"
-                  defaultValue={product.price}
-                  onChange={(e) => handleUpdate(product.id, { price: parseFloat(e.target.value) })}
-                />
+                <Label>Category</Label>
+                <div className="flex items-center space-x-2">
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                  <Select
+                    defaultValue={product.category || "Beats"}
+                    onValueChange={(value) => handleUpdate(product.id, { category: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Beats">Beats</SelectItem>
+                      <SelectItem value="Loops">Loops</SelectItem>
+                      <SelectItem value="Midi Kits">Midi Kits</SelectItem>
+                      <SelectItem value="Sample Kits">Sample Kits</SelectItem>
+                      <SelectItem value="Drum Kits">Drum Kits</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
+
               <Button variant="outline" className="w-full">
                 <Image className="h-4 w-4 mr-2" />
                 Change Thumbnail
