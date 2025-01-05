@@ -31,6 +31,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { NavigationEditor } from "./block-editors/NavigationEditor";
 import { HeroEditor } from "./block-editors/HeroEditor";
 import { ProductsEditor } from "./block-editors/ProductsEditor";
+import { ServicesEditor } from "./block-editors/ServicesEditor";
+import { LicensingEditor } from "./block-editors/LicensingEditor";
 
 interface WebsiteBuilderProps {
   currentTemplate: string | null;
@@ -387,3 +389,4 @@ export const WebsiteBuilder = ({
     </div>
   );
 };
+
