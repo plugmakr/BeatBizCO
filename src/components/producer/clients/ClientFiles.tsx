@@ -73,10 +73,9 @@ export function ClientFiles({ client }: ClientFilesProps) {
                 id,
                 title,
                 file_path,
-                file_type,
+                type,
                 size,
-                created_at,
-                type
+                created_at
               )
             )
           `)
@@ -111,10 +110,9 @@ export function ClientFiles({ client }: ClientFilesProps) {
               id,
               title,
               file_path,
-              file_type,
+              type,
               size,
-              created_at,
-              type
+              created_at
             ),
             project:collaboration_projects(name)
           `)
@@ -128,7 +126,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
           filename: pf.sound_library.title,
           display_name: pf.sound_library.title,
           file_path: pf.sound_library.file_path,
-          file_type: pf.sound_library.file_type,
+          file_type: pf.sound_library.type,
           size: pf.sound_library.size,
           type: 'file',
           created_at: pf.sound_library.created_at,
