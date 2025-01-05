@@ -8,10 +8,10 @@ export function useDefaultFolders(clientId: string, onFoldersCreated: () => void
   useEffect(() => {
     const createDefaultFolders = async () => {
       const defaultFolders = [
-        { name: "Documents", type: "folder" },
-        { name: "Audio", type: "folder" },
-        { name: "Video", type: "folder" },
-        { name: "Zip", type: "folder" },
+        { name: "Documents", type: "folder" as const },
+        { name: "Audio", type: "folder" as const },
+        { name: "Video", type: "folder" as const },
+        { name: "Zip", type: "folder" as const },
       ];
 
       const { data: existingFolders } = await supabase
@@ -39,7 +39,7 @@ export function useDefaultFolders(clientId: string, onFoldersCreated: () => void
           file_path: "",
           file_type: "folder",
           size: 0,
-          type: "folder",
+          type: folder.type,
         }))
       );
 
