@@ -230,6 +230,16 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
   const handlePreview = async (filePath: string, filename: string, fileType: string) => {
     try {
+      // If the filePath is already a full URL, don't try to create a signed URL
+      if (filePath.startsWith('http')) {
+        setPreviewFile({
+          url: filePath,
+          type: fileType,
+          filename,
+        });
+        return;
+      }
+
       const { data, error } = await supabase.storage
         .from('client_files')
         .createSignedUrl(filePath, 3600);
@@ -242,6 +252,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
         filename,
       });
     } catch (error) {
+      console.error('Error getting preview URL:', error);
       toast({
         title: "Error",
         description: "Failed to preview file",

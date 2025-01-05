@@ -151,7 +151,11 @@ export function FileList({
                   ) : (
                     <button
                       onClick={() =>
-                        onPreview(file.file_path, file.filename, file.file_type)
+                        onPreview(
+                          file.fromSoundLibrary ? file.file_path : file.file_path,
+                          file.display_name || file.filename,
+                          file.file_type
+                        )
                       }
                       className="focus:outline-none"
                     >
