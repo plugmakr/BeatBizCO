@@ -84,18 +84,38 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
     try {
       setPlayingId(id);
       
-      // First check if the preview URL is valid
       if (!previewUrl) {
         throw new Error("No preview URL available");
       }
 
-      // Get the signed URL for the preview audio
+      // First check if the file exists in the temp_audio bucket
+      const { data: fileExists, error: checkError } = await supabase
+        .storage
+        .from('temp_audio')
+        .list('', {
+          search: previewUrl,
+          limit: 1
+        });
+
+      if (checkError) {
+        console.error("Error checking file existence:", checkError);
+        throw new Error("Failed to verify preview file");
+      }
+
+      if (!fileExists || fileExists.length === 0) {
+        throw new Error("Preview file not found in storage");
+      }
+
+      // Get the signed URL for the preview audio from temp_audio bucket
       const { data, error } = await supabase
         .storage
-        .from('marketplace')
-        .createSignedUrl(previewUrl, 3600); // 1 hour expiry
+        .from('temp_audio')
+        .createSignedUrl(previewUrl, 3600);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error creating signed URL:", error);
+        throw error;
+      }
 
       if (data?.signedUrl) {
         setAudioPreviewUrl(data.signedUrl);
@@ -112,7 +132,7 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
       console.error("Play analytics error:", error);
       toast({
         title: "Error",
-        description: "Unable to play audio preview. The file might be missing or inaccessible.",
+        description: error.message || "Unable to play audio preview",
         variant: "destructive",
       });
       setPlayingId(null);
