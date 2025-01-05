@@ -3,12 +3,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent } from "@/components/ui/card";
-import { format } from "date-fns";
-import { Upload, Trash2, Loader2 } from "lucide-react";
-import { MediaThumbnail } from "@/components/shared/media/MediaThumbnail";
+import { Upload, Loader2 } from "lucide-react";
 import { FilePreviewDialog } from "@/components/producer/clients/FilePreviewDialog";
 import { UploadProgress } from "@/components/shared/media/UploadProgress";
+import { ProjectFileList } from "./ProjectFileList";
+import { CombinedProjectFile } from "./types/ProjectFileTypes";
 
 const ALLOWED_FILE_TYPES = [
   "application/zip",
@@ -44,17 +43,46 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: files, isLoading } = useQuery({
+  // Fetch both regular project files and sound library files
+  const { data: combinedFiles, isLoading } = useQuery({
     queryKey: ["project-files", projectId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("project_files")
-        .select("*")
-        .eq("project_id", projectId)
-        .order("created_at", { ascending: false });
+      const [projectFilesResult, soundLibraryFilesResult] = await Promise.all([
+        supabase
+          .from("project_files")
+          .select("*")
+          .eq("project_id", projectId)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("sound_library_project_files")
+          .select(`
+            id,
+            sound_library (*)
+          `)
+          .eq("project_id", projectId)
+      ]);
 
-      if (error) throw error;
-      return data;
+      if (projectFilesResult.error) throw projectFilesResult.error;
+      if (soundLibraryFilesResult.error) throw soundLibraryFilesResult.error;
+
+      const regularFiles: CombinedProjectFile[] = (projectFilesResult.data || []).map(file => ({
+        type: 'regular',
+        file: file
+      }));
+
+      const soundLibraryFiles: CombinedProjectFile[] = (soundLibraryFilesResult.data || []).map(record => ({
+        type: 'sound_library',
+        file: {
+          ...record.sound_library,
+          assignment_id: record.id
+        }
+      }));
+
+      return [...regularFiles, ...soundLibraryFiles].sort((a, b) => {
+        const dateA = new Date(a.file.created_at || '');
+        const dateB = new Date(b.file.created_at || '');
+        return dateB.getTime() - dateA.getTime();
+      });
     },
   });
 
@@ -160,18 +188,64 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
     }
   };
 
-  const handlePreview = async (filePath: string, filename: string, fileType: string) => {
+  const handleDelete = async (file: CombinedProjectFile) => {
     try {
+      if (file.type === 'regular') {
+        const { error: storageError } = await supabase.storage
+          .from("project_files")
+          .remove([file.file.file_path]);
+
+        if (storageError) throw storageError;
+
+        const { error: dbError } = await supabase
+          .from("project_files")
+          .delete()
+          .eq("id", file.file.id);
+
+        if (dbError) throw dbError;
+      } else {
+        // For sound library files, just remove the assignment
+        const { error } = await supabase
+          .from("sound_library_project_files")
+          .delete()
+          .eq("id", (file.file as any).assignment_id);
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "File removed successfully",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["project-files", projectId] });
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove file",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePreview = async (file: CombinedProjectFile) => {
+    try {
+      const bucket = file.type === 'regular' ? 'project_files' : 'sound_library';
+      const filePath = file.type === 'regular' 
+        ? file.file.file_path 
+        : (file.file as any).file_path;
+
       const { data, error } = await supabase.storage
-        .from("project_files")
+        .from(bucket)
         .createSignedUrl(filePath, 3600);
 
       if (error) throw error;
 
       setPreviewFile({
         url: data.signedUrl,
-        type: fileType,
-        filename,
+        type: file.type === 'regular' ? file.file.file_type : 'audio',
+        filename: file.type === 'regular' ? file.file.filename : (file.file as any).title
       });
     } catch (error) {
       toast({
@@ -223,41 +297,11 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
         </div>
       )}
 
-      <div className="space-y-2">
-        {files?.map((file) => (
-          <Card key={file.id} className="bg-[#2A2F3C] border-[#9b87f5]/20">
-            <CardContent className="pt-4">
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => handlePreview(file.file_path, file.filename, file.file_type)}
-                  className="focus:outline-none"
-                >
-                  <MediaThumbnail type={file.file_type} />
-                </button>
-                <div className="flex-1">
-                  <p className="text-white">{file.filename}</p>
-                  <p className="text-sm text-gray-400">
-                    {format(new Date(file.created_at), "PPP")}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() =>
-                    deleteFileMutation.mutate({
-                      id: file.id,
-                      filePath: file.file_path,
-                    })
-                  }
-                  className="text-gray-400 hover:text-white"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <ProjectFileList 
+        files={combinedFiles || []}
+        onPreview={handlePreview}
+        onDelete={handleDelete}
+      />
 
       <FilePreviewDialog
         file={previewFile}
