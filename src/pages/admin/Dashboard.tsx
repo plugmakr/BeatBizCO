@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminLayout } from "@/components/admin/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, ShoppingBag, DollarSign, Activity } from "lucide-react";
+import { Users, ShoppingBag, DollarSign, Activity, Server } from "lucide-react";
 
 interface DashboardStats {
   activeUsers: number;
