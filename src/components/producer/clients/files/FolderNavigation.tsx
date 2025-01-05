@@ -1,7 +1,7 @@
 import { ChevronRight, FolderIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface Breadcrumb {
+export interface Breadcrumb {
   id: string | null;
   name: string;
 }

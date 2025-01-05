@@ -9,7 +9,7 @@ import { FileList } from "./FileList";
 import { UploadProgress } from "@/components/shared/media/UploadProgress";
 import { useClientFileUpload } from "@/hooks/use-client-file-upload";
 import { useToast } from "@/hooks/use-toast";
-import { FolderNavigation } from "./files/FolderNavigation";
+import { FolderNavigation, type Breadcrumb } from "./files/FolderNavigation";
 import { CreateFolderDialog } from "./files/CreateFolderDialog";
 import { FolderPlus } from "lucide-react";
 import { FileExplanation } from "./files/FileExplanation";
