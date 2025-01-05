@@ -79,20 +79,6 @@ const AuthForm = () => {
     };
   }, [navigate, toast]);
 
-  const handleAuthError = (error: Error) => {
-    console.error('Auth error:', error);
-    const errorMessage = error.message === "Database error granting user" 
-      ? "There was an issue with authentication. Please try again or contact support if the problem persists."
-      : error.message;
-    
-    setError(errorMessage);
-    toast({
-      title: "Error",
-      description: errorMessage,
-      variant: "destructive",
-    });
-  };
-
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
@@ -134,7 +120,6 @@ const AuthForm = () => {
           showLinks={true}
           redirectTo={`${window.location.origin}/auth/callback`}
           magicLink={false}
-          onError={handleAuthError}
         />
       </CardContent>
     </Card>
