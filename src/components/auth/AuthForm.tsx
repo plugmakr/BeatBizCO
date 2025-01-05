@@ -37,6 +37,11 @@ const AuthForm = () => {
         }
       } catch (error) {
         console.error("Session check error:", error);
+        toast({
+          title: "Error",
+          description: "Failed to check session. Please try again.",
+          variant: "destructive",
+        });
       }
     };
 
@@ -45,17 +50,32 @@ const AuthForm = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session && mounted.current) {
         try {
-          const { error: upsertError } = await supabase
+          // First check if profile exists
+          const { data: existingProfile, error: profileError } = await supabase
             .from("profiles")
-            .upsert({
-              id: session.user.id,
-              role: role,
-              updated_at: new Date().toISOString(),
-            });
+            .select("id, role")
+            .eq("id", session.user.id)
+            .single();
 
-          if (upsertError) {
-            console.error("Profile upsert error:", upsertError);
-            throw upsertError;
+          if (profileError && profileError.code !== 'PGRST116') {
+            console.error("Profile check error:", profileError);
+            throw profileError;
+          }
+
+          // If profile doesn't exist or role is different, upsert
+          if (!existingProfile || existingProfile.role !== role) {
+            const { error: upsertError } = await supabase
+              .from("profiles")
+              .upsert({
+                id: session.user.id,
+                role: role,
+                updated_at: new Date().toISOString(),
+              });
+
+            if (upsertError) {
+              console.error("Profile upsert error:", upsertError);
+              throw upsertError;
+            }
           }
 
           if (mounted.current) {
@@ -65,16 +85,18 @@ const AuthForm = () => {
             });
             handleRoleBasedRedirect(role);
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Error updating role:", error);
           if (mounted.current) {
             toast({
               title: "Error",
-              description: "Failed to set user role. Please try again.",
+              description: error.message || "Failed to set user role. Please try again.",
               variant: "destructive",
             });
           }
         }
+      } else if (event === "USER_DELETED" || event === "SIGNED_OUT") {
+        navigate("/auth");
       }
     });
 
