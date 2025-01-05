@@ -19,7 +19,7 @@ export function BookingEditor({ content, onSave }: BookingEditorProps) {
   const [description, setDescription] = useState(
     content.description || "Schedule your next session"
   );
-  const [showCalendar, setShowCalendar] = useState(content.showCalendar || true);
+  const [showCalendar, setShowCalendar] = useState<boolean>(content.showCalendar || true);
 
   const handleSave = () => {
     onSave({
@@ -55,7 +55,7 @@ export function BookingEditor({ content, onSave }: BookingEditorProps) {
         <Switch
           id="showCalendar"
           checked={showCalendar}
-          onCheckedChange={setShowCalendar}
+          onCheckedChange={(checked: boolean) => setShowCalendar(checked)}
         />
         <Label htmlFor="showCalendar">Show Booking Calendar</Label>
       </div>

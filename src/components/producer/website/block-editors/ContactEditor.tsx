@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +15,7 @@ interface ContactEditorProps {
 
 export function ContactEditor({ content, onSave }: ContactEditorProps) {
   const [heading, setHeading] = useState(content.heading || "Get in Touch");
-  const [showSocials, setShowSocials] = useState(content.showSocials || false);
+  const [showSocials, setShowSocials] = useState<boolean>(content.showSocials || false);
   const [fields, setFields] = useState<string[]>(
     content.fields || ["name", "email", "message"]
   );
@@ -77,7 +78,7 @@ export function ContactEditor({ content, onSave }: ContactEditorProps) {
         <Switch
           id="showSocials"
           checked={showSocials}
-          onCheckedChange={setShowSocials}
+          onCheckedChange={(checked: boolean) => setShowSocials(checked)}
         />
         <Label htmlFor="showSocials">Show Social Media Links</Label>
       </div>
