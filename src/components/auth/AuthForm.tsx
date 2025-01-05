@@ -18,6 +18,9 @@ const AuthForm = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted.current) return;
 
+      console.log("Auth state change event:", event);
+      console.log("Session:", session);
+
       if (event === 'SIGNED_IN' && session?.user) {
         try {
           const { data: profile, error: profileError } = await supabase
@@ -54,13 +57,19 @@ const AuthForm = () => {
           }
         } catch (error: any) {
           console.error('Auth state change error:', error);
-          setError(error.message);
+          const errorMessage = error.message === "Database error granting user" 
+            ? "There was an issue with authentication. Please try again or contact support if the problem persists."
+            : error.message;
+          
+          setError(errorMessage);
           toast({
-            title: "Error",
-            description: error.message,
+            title: "Authentication Error",
+            description: errorMessage,
             variant: "destructive",
           });
         }
+      } else if (event === 'SIGNED_OUT') {
+        console.log('User signed out');
       }
     });
 
@@ -69,6 +78,20 @@ const AuthForm = () => {
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
+
+  const handleAuthError = (error: Error) => {
+    console.error('Auth error:', error);
+    const errorMessage = error.message === "Database error granting user" 
+      ? "There was an issue with authentication. Please try again or contact support if the problem persists."
+      : error.message;
+    
+    setError(errorMessage);
+    toast({
+      title: "Error",
+      description: errorMessage,
+      variant: "destructive",
+    });
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -111,6 +134,7 @@ const AuthForm = () => {
           showLinks={true}
           redirectTo={`${window.location.origin}/auth/callback`}
           magicLink={false}
+          onError={handleAuthError}
         />
       </CardContent>
     </Card>
