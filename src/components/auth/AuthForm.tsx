@@ -13,20 +13,79 @@ const AuthForm = () => {
   const { toast } = useToast();
   const mounted = useRef(true);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user && mounted.current) {
-        handleExistingUser(session.user.id);
+    // Check active session on mount
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user && mounted.current) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profile) {
+            handleRoleBasedRedirect(profile.role);
+          }
+        }
+      } catch (error: any) {
+        console.error('Session check error:', error);
+        setError(error.message);
       }
-    });
+    };
+
+    checkSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user && mounted.current) {
-        handleNewSignIn(session.user.id);
+        try {
+          // Check if profile exists
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileError) throw profileError;
+
+          if (profile) {
+            toast({
+              title: "Welcome back!",
+              description: "You've successfully signed in.",
+            });
+            handleRoleBasedRedirect(profile.role);
+            return;
+          }
+
+          // Create new profile if none exists
+          const { error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: session.user.id,
+              role: 'buyer',
+              updated_at: new Date().toISOString(),
+            });
+
+          if (createError) throw createError;
+
+          toast({
+            title: "Welcome to BeatBiz!",
+            description: "Your account has been created successfully.",
+          });
+          handleRoleBasedRedirect('buyer');
+
+        } catch (error: any) {
+          console.error('Auth state change error:', error);
+          setError(error.message);
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
       }
     });
 
@@ -34,95 +93,7 @@ const AuthForm = () => {
       mounted.current = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
-
-  const handleExistingUser = async (userId: string) => {
-    setIsLoading(true);
-    try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (profile) {
-        handleRoleBasedRedirect(profile.role);
-      }
-    } catch (error: any) {
-      console.error('Error checking existing user:', error);
-      setError(error.message || "Failed to check user profile");
-      toast({
-        title: "Error",
-        description: error.message || "Failed to check user profile",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleNewSignIn = async (userId: string) => {
-    setIsLoading(true);
-    try {
-      // Check if profile exists
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
-
-      // If profile exists, redirect based on role
-      if (profile) {
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in.",
-        });
-        handleRoleBasedRedirect(profile.role);
-        return;
-      }
-
-      // If no profile exists, create one with default role
-      const { error: createError } = await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          role: 'buyer',
-          updated_at: new Date().toISOString(),
-        });
-
-      if (createError) throw createError;
-
-      toast({
-        title: "Welcome to BeatBiz!",
-        description: "Your account has been created successfully.",
-      });
-      handleRoleBasedRedirect('buyer');
-
-    } catch (error: any) {
-      console.error('Error handling sign in:', error);
-      let errorMessage = error.message || "Failed to complete sign in";
-      
-      // Handle specific error cases
-      if (error.status === 500) {
-        errorMessage = "Our authentication service is temporarily unavailable. Please try again in a few minutes.";
-      } else if (error.message?.includes("Database error")) {
-        errorMessage = "There was an issue with your account creation. Please try again or contact support.";
-      }
-      
-      setError(errorMessage);
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [navigate, toast]);
 
   const handleRoleBasedRedirect = (role: string) => {
     if (!mounted.current) return;
@@ -142,9 +113,6 @@ const AuthForm = () => {
         break;
     }
   };
-
-  // Get the current URL for redirect
-  const redirectTo = typeof window !== 'undefined' ? window.location.origin : '';
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -177,12 +145,13 @@ const AuthForm = () => {
               },
             },
             className: {
-              input: "text-white placeholder-gray-400",
+              input: "text-white bg-[#2A2F3C] placeholder-gray-400",
               label: "text-gray-200",
+              button: "bg-primary hover:bg-primary/90",
             },
           }}
           providers={[]}
-          redirectTo={redirectTo}
+          redirectTo={window.location.origin}
         />
       </CardContent>
     </Card>
