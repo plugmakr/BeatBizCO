@@ -122,8 +122,8 @@ const AuthForm = () => {
     }
   };
 
-  // Get the current URL for redirect
-  const redirectTo = typeof window !== 'undefined' ? window.location.origin : '';
+  // Set the redirect URL to the Lovable project URL
+  const redirectTo = 'https://bb7d3afc-b650-443e-97d1-029fc453a31c.lovableproject.com';
 
   return (
     <Card className="w-full max-w-md mx-auto">
