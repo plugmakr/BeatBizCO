@@ -42,7 +42,9 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         if (profile) {
           setRole(profile.role);
           setIsAdmin(profile.role === 'admin');
-          setActiveRole(profile.role);
+          // Get active role from localStorage or default to profile role
+          const savedActiveRole = localStorage.getItem('activeRole');
+          setActiveRole(savedActiveRole || profile.role);
         }
       }
     };
@@ -59,6 +61,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         variant: "destructive",
       });
     } else {
+      localStorage.removeItem('activeRole'); // Clear active role on logout
       toast({
         title: "Signed out",
         description: "You've been successfully signed out.",
@@ -69,6 +72,7 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
 
   const handleRoleSwitch = (newRole: string) => {
     setActiveRole(newRole);
+    localStorage.setItem('activeRole', newRole); // Persist active role
     toast({
       title: "Role Switched",
       description: `Viewing dashboard as ${newRole}`,
