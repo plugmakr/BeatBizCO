@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
@@ -12,26 +12,34 @@ const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [role, setRole] = useState<UserRole>("buyer");
+  const mounted = useRef(true);
 
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session && mounted.current) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
 
-        if (profile) {
-          handleRoleBasedRedirect(profile.role);
+          if (profile && mounted.current) {
+            handleRoleBasedRedirect(profile.role);
+          }
         }
+      } catch (error) {
+        console.error("Session check error:", error);
       }
-    });
+    };
+
+    checkSession();
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session) {
+      if (event === "SIGNED_IN" && session && mounted.current) {
         try {
           const { error } = await supabase
             .from("profiles")
@@ -45,29 +53,36 @@ const AuthForm = () => {
 
           if (error) throw error;
 
-          toast({
-            title: "Welcome to BeatBiz!",
-            description: "You've successfully signed in.",
-          });
-          
-          handleRoleBasedRedirect(role);
+          if (mounted.current) {
+            toast({
+              title: "Welcome to BeatBiz!",
+              description: "You've successfully signed in.",
+            });
+            
+            handleRoleBasedRedirect(role);
+          }
         } catch (error) {
           console.error("Error updating role:", error);
-          toast({
-            title: "Error",
-            description: "Failed to set user role. Please try again.",
-            variant: "destructive",
-          });
+          if (mounted.current) {
+            toast({
+              title: "Error",
+              description: "Failed to set user role. Please try again.",
+              variant: "destructive",
+            });
+          }
         }
       }
     });
 
     return () => {
+      mounted.current = false;
       subscription.unsubscribe();
     };
   }, [navigate, role, toast]);
 
   const handleRoleBasedRedirect = (userRole: string) => {
+    if (!mounted.current) return;
+
     switch (userRole) {
       case "admin":
         navigate("/admin");
@@ -75,8 +90,11 @@ const AuthForm = () => {
       case "artist":
         navigate("/artist");
         break;
+      case "producer":
+        navigate("/producer");
+        break;
       default:
-        navigate("/"); // Default route for other roles
+        navigate("/");
         break;
     }
   };
