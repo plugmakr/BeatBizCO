@@ -17,10 +17,12 @@ const ProducerWebsite = () => {
   const { toast } = useToast();
 
   const handleTemplateSelect = (templateId: string) => {
-    setCurrentTemplate(templateId);
     const selectedTemplate = templates.find(t => t.id === templateId);
     if (selectedTemplate) {
-      setBlocks(selectedTemplate.blocks);
+      setCurrentTemplate(templateId);
+      // Ensure we set all blocks from the template
+      setBlocks([...selectedTemplate.blocks]);
+      console.log(`Loading template ${templateId} with ${selectedTemplate.blocks.length} blocks`);
     }
   };
 
