@@ -73,6 +73,24 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
       title: "Role Switched",
       description: `Viewing dashboard as ${newRole}`,
     });
+
+    // Navigate to the appropriate dashboard based on the selected role
+    switch (newRole) {
+      case "admin":
+        navigate("/admin");
+        break;
+      case "producer":
+        navigate("/producer/dashboard");
+        break;
+      case "artist":
+        navigate("/artist/dashboard");
+        break;
+      case "buyer":
+        navigate("/marketplace");
+        break;
+      default:
+        navigate("/");
+    }
   };
 
   const getMenuItems = () => {
