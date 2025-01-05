@@ -26,6 +26,7 @@ import {
   Mail,
   Edit2,
   Trash2,
+  Save,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { NavigationEditor } from "./block-editors/NavigationEditor";
@@ -33,6 +34,9 @@ import { HeroEditor } from "./block-editors/HeroEditor";
 import { ProductsEditor } from "./block-editors/ProductsEditor";
 import { ServicesEditor } from "./block-editors/ServicesEditor";
 import { LicensingEditor } from "./block-editors/LicensingEditor";
+import { SaveTemplateDialog } from "./SaveTemplateDialog";
+import { musicPlayerTemplate } from "./block-templates/MusicPlayerTemplate";
+import { useToast } from "@/hooks/use-toast";
 
 interface WebsiteBuilderProps {
   currentTemplate: string | null;
@@ -195,6 +199,8 @@ export const WebsiteBuilder = ({
   onBlocksChange,
 }: WebsiteBuilderProps) => {
   const [editingBlock, setEditingBlock] = useState<any>(null);
+  const [isSaveTemplateOpen, setIsSaveTemplateOpen] = useState(false);
+  const { toast } = useToast();
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -283,11 +289,30 @@ export const WebsiteBuilder = ({
     }
   };
 
+  const handleSaveTemplate = (templateName: string) => {
+    // Here you would typically save the template to your backend
+    // For now, we'll just show a success message
+    toast({
+      title: "Template saved",
+      description: `Template "${templateName}" has been saved successfully.`,
+    });
+  };
+
   return (
     <div className="grid grid-cols-12 gap-6">
       <Card className="col-span-3">
         <CardContent className="p-4">
-          <h3 className="font-semibold mb-4">Available Blocks</h3>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="font-semibold">Available Blocks</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSaveTemplateOpen(true)}
+            >
+              <Save className="w-4 h-4 mr-2" />
+              Save Template
+            </Button>
+          </div>
           <ScrollArea className="h-[calc(100vh-300px)]">
             <div className="space-y-3">
               {blockTypes.map((block) => (
@@ -386,7 +411,12 @@ export const WebsiteBuilder = ({
           </CardContent>
         </Card>
       </div>
+
+      <SaveTemplateDialog
+        isOpen={isSaveTemplateOpen}
+        onClose={() => setIsSaveTemplateOpen(false)}
+        onSave={handleSaveTemplate}
+      />
     </div>
   );
 };
-

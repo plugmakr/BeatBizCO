@@ -192,6 +192,21 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                                     </button>
                                   </div>
                                 </div>
+                                <div class="max-w-7xl mx-auto mt-4">
+                                  <div class="grid grid-cols-5 gap-4">
+                                    ${(block.content?.playlist || []).map((track: any) => `
+                                      <div class="bg-white/5 p-3 rounded-lg hover:bg-white/10 transition-colors">
+                                        <a href="#/tracks/${track.id}" class="text-white hover:text-white/80">
+                                          <h4 class="font-medium text-sm">${track.title}</h4>
+                                          <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-xs text-white/60">${track.bpm} BPM</span>
+                                            <span class="text-xs text-white/60">Key: ${track.key}</span>
+                                          </div>
+                                        </a>
+                                      </div>
+                                    `).join('')}
+                                  </div>
+                                </div>
                               </div>
                             `;
                           default:
