@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { FolderNavigation } from "./files/FolderNavigation";
 import { CreateFolderDialog } from "./files/CreateFolderDialog";
 import { FolderPlus } from "lucide-react";
+import { FileExplanation } from "./files/FileExplanation";
+import { useDefaultFolders } from "./files/useDefaultFolders";
 
 interface ClientFilesProps {
   client: Client;
@@ -25,7 +27,9 @@ interface Breadcrumb {
 export function ClientFiles({ client }: ClientFilesProps) {
   const [files, setFiles] = useState<ClientFile[]>([]);
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
-  const [breadcrumbs, setBreadcrumbs] = useState<Breadcrumb[]>([{ id: null, name: "Root" }]);
+  const [breadcrumbs, setBreadcrumbs] = useState<Breadcrumb[]>([
+    { id: null, name: "Root" },
+  ]);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState<{
     url: string;
@@ -34,12 +38,11 @@ export function ClientFiles({ client }: ClientFilesProps) {
   } | null>(null);
   const { toast } = useToast();
 
-  const { 
-    isUploading, 
-    uploadProgress, 
-    currentUpload, 
-    uploadFile 
-  } = useClientFileUpload(client, fetchFiles);
+  const { isUploading, uploadProgress, currentUpload, uploadFile } =
+    useClientFileUpload(client, fetchFiles);
+
+  // Initialize default folders
+  useDefaultFolders(client.id, fetchFiles);
 
   async function fetchFiles() {
     let query = supabase
@@ -220,17 +223,13 @@ export function ClientFiles({ client }: ClientFilesProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <FolderNavigation
-          breadcrumbs={breadcrumbs}
-          onNavigate={handleNavigate}
-        />
+        <FileExplanation />
+        
+        <FolderNavigation breadcrumbs={breadcrumbs} onNavigate={handleNavigate} />
 
         {isUploading && currentUpload && (
           <div className="mb-4">
-            <UploadProgress
-              progress={uploadProgress}
-              fileName={currentUpload}
-            />
+            <UploadProgress progress={uploadProgress} fileName={currentUpload} />
           </div>
         )}
 
@@ -251,10 +250,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
         onConfirm={handleCreateFolder}
       />
 
-      <FilePreviewDialog
-        file={previewFile}
-        onClose={() => setPreviewFile(null)}
-      />
+      <FilePreviewDialog file={previewFile} onClose={() => setPreviewFile(null)} />
     </Card>
   );
 }
