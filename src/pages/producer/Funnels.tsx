@@ -72,7 +72,7 @@ const activeFunnels = [
   }
 ];
 
-export default function ProducerFunnels() {
+const ProducerFunnels = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
 
   return (
@@ -263,4 +263,6 @@ export default function ProducerFunnels() {
       </div>
     </DashboardLayout>
   );
-}
+};
+
+export default ProducerFunnels;
