@@ -12,10 +12,11 @@ const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [role, setRole] = useState<UserRole>("buyer");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         const { data: profile } = await supabase
           .from('profiles')
@@ -27,37 +28,40 @@ const AuthForm = () => {
           handleRoleBasedRedirect(profile.role);
         }
       }
-    });
+    };
 
-    // Listen for auth state changes
+    checkSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session) {
+        setIsLoading(true);
         try {
-          const { error } = await supabase
+          // Add a small delay to allow the trigger to complete
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const { data: profile, error: profileError } = await supabase
             .from("profiles")
-            .upsert({
-              id: session.user.id,
-              role: role,
-              updated_at: new Date().toISOString(),
-            }, {
-              onConflict: 'id'
-            });
+            .select("role")
+            .eq("id", session.user.id)
+            .single();
 
-          if (error) throw error;
+          if (profileError) throw profileError;
 
           toast({
             title: "Welcome to BeatBiz!",
             description: "You've successfully signed in.",
           });
           
-          handleRoleBasedRedirect(role);
+          handleRoleBasedRedirect(profile?.role || role);
         } catch (error) {
-          console.error("Error updating role:", error);
+          console.error("Error during sign in:", error);
           toast({
             title: "Error",
-            description: "Failed to set user role. Please try again.",
+            description: "There was a problem signing you in. Please try again.",
             variant: "destructive",
           });
+        } finally {
+          setIsLoading(false);
         }
       }
     });
@@ -75,8 +79,11 @@ const AuthForm = () => {
       case "artist":
         navigate("/artist");
         break;
+      case "producer":
+        navigate("/producer");
+        break;
       default:
-        navigate("/"); // Default route for other roles
+        navigate("/");
         break;
     }
   };
@@ -100,12 +107,12 @@ const AuthForm = () => {
                 <button
                   key={option}
                   onClick={() => setRole(option)}
+                  disabled={isLoading}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                    ${
-                      role === option
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary hover:bg-secondary/80"
-                    }`}
+                    ${role === option
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary hover:bg-secondary/80"
+                    } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   {option.charAt(0).toUpperCase() + option.slice(1)}
                 </button>
@@ -127,6 +134,9 @@ const AuthForm = () => {
             }}
             providers={[]}
             redirectTo={window.location.origin}
+            additionalData={{
+              role: role
+            }}
           />
         </div>
       </CardContent>
