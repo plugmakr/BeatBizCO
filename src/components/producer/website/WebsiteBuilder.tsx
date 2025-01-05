@@ -33,6 +33,33 @@ interface WebsiteBuilderProps {
   onBlocksChange: (blocks: any[]) => void;
 }
 
+const getDefaultContent = (blockType: string) => {
+  switch (blockType) {
+    case "navigation":
+      return { links: [] };
+    case "hero":
+      return { title: "Welcome", subtitle: "", imageUrl: "" };
+    case "products":
+      return { title: "My Beats", items: [] };
+    case "services":
+      return { title: "Services", services: [] };
+    case "licensing":
+      return { title: "Licensing Options", licenses: [] };
+    case "music-player":
+      return { title: "Featured Tracks", tracks: [] };
+    case "testimonials":
+      return { title: "What People Say", testimonials: [] };
+    case "booking":
+      return { title: "Book a Session", description: "", showCalendar: true };
+    case "social":
+      return { title: "Connect With Me", links: [] };
+    case "contact":
+      return { heading: "Get in Touch", fields: ["name", "email", "message"], showSocials: false };
+    default:
+      return {};
+  }
+}
+
 const blockTypes = [
   {
     id: "navigation",
@@ -124,7 +151,7 @@ export const WebsiteBuilder = ({
       {
         id: `${blockType}-${Date.now()}`,
         type: blockType,
-        content: {},
+        content: getDefaultContent(blockType),
       },
     ]);
   };
