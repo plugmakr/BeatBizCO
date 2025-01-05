@@ -47,7 +47,14 @@ export default function ProducerMarketplace() {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      
+      // Ensure each item has a valid category
+      return data?.map(item => ({
+        ...item,
+        category: ['Loops', 'Midi Kits', 'Sample Kits', 'Drum Kits', 'Beats'].includes(item.category) 
+          ? item.category 
+          : 'Beats'
+      })) || [];
     },
   });
 

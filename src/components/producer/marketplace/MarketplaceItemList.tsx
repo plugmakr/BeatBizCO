@@ -5,6 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { AudioPlayer } from "@/components/shared/media/AudioPlayer";
 import { MarketplaceItemCard } from "./MarketplaceItemCard";
 
+type ValidCategory = 'Loops' | 'Midi Kits' | 'Sample Kits' | 'Drum Kits' | 'Beats';
+
+const isValidCategory = (category: string): category is ValidCategory => {
+  return ['Loops', 'Midi Kits', 'Sample Kits', 'Drum Kits', 'Beats'].includes(category);
+};
+
 interface MarketplaceItem {
   id: string;
   title: string;
@@ -17,7 +23,7 @@ interface MarketplaceItem {
   tags?: string[];
   preview_url: string;
   thumbnail_url: string;
-  category: 'Loops' | 'Midi Kits' | 'Sample Kits' | 'Drum Kits' | 'Beats';
+  category: ValidCategory;
   total_sales: number;
   total_downloads: number;
   total_plays: number;
@@ -89,7 +95,6 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
         throw new Error("No preview URL available");
       }
 
-      // First check if the file exists in the temp_audio bucket
       const { data: fileExists, error: checkError } = await supabase
         .storage
         .from('temp_audio')
@@ -107,7 +112,6 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
         throw new Error("Preview file not found in storage");
       }
 
-      // Get the signed URL for the preview audio from temp_audio bucket
       const { data, error } = await supabase
         .storage
         .from('temp_audio')
@@ -121,7 +125,6 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
       if (data?.signedUrl) {
         setAudioPreviewUrl(data.signedUrl);
         
-        // Log the play event
         await supabase.from("marketplace_analytics").insert({
           item_id: id,
           event_type: "play",
@@ -144,15 +147,23 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
   return (
     <>
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-        {items.map((item) => (
-          <MarketplaceItemCard
-            key={item.id}
-            item={item}
-            thumbnailUrl={thumbnailUrls[item.id] || ''}
-            onPlay={handlePlay}
-            onDelete={handleDelete}
-          />
-        ))}
+        {items.map((item) => {
+          // Ensure category is valid, fallback to 'Beats' if not
+          const safeItem = {
+            ...item,
+            category: isValidCategory(item.category) ? item.category : 'Beats'
+          };
+          
+          return (
+            <MarketplaceItemCard
+              key={safeItem.id}
+              item={safeItem}
+              thumbnailUrl={thumbnailUrls[safeItem.id] || ''}
+              onPlay={handlePlay}
+              onDelete={handleDelete}
+            />
+          );
+        })}
       </div>
 
       <Dialog open={!!audioPreviewUrl} onOpenChange={() => setAudioPreviewUrl(null)}>
