@@ -1,91 +1,83 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { MessageSquare, Phone, Mail, HelpCircle } from "lucide-react";
+import { MessageSquare, Phone, Mail } from "lucide-react";
+import { TicketsList } from "./tickets/TicketsList";
+import { CannedResponses } from "./canned-responses/CannedResponses";
+import { LiveChatCard } from "./live-chat/LiveChatCard";
 
 export function CustomerSupportTab() {
   return (
-    <div className="space-y-4">
-      {/* Quick Actions */}
+    <div className="space-y-6">
+      {/* Quick Stats */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-lg">Customer Messages</CardTitle>
-            <CardDescription>View and manage customer inquiries</CardDescription>
+            <CardTitle className="text-2xl">24</CardTitle>
+            <CardDescription>Total Active Tickets</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" variant="outline">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              View Messages
-            </Button>
+            <div className="text-xs text-muted-foreground">
+              12% increase from last week
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-lg">Support Hours</CardTitle>
-            <CardDescription>Set your availability</CardDescription>
+            <CardTitle className="text-2xl">2.5h</CardTitle>
+            <CardDescription>Average Response Time</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" variant="outline">
-              <Phone className="mr-2 h-4 w-4" />
-              Manage Hours
-            </Button>
+            <div className="text-xs text-muted-foreground">
+              30min faster than last week
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-lg">Auto-Responses</CardTitle>
-            <CardDescription>Configure automatic replies</CardDescription>
+            <CardTitle className="text-2xl">98%</CardTitle>
+            <CardDescription>Customer Satisfaction</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" variant="outline">
-              <Mail className="mr-2 h-4 w-4" />
-              Setup Responses
-            </Button>
+            <div className="text-xs text-muted-foreground">
+              Based on last 100 responses
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* FAQ Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Customer FAQ Management</CardTitle>
-          <CardDescription>
-            Manage frequently asked questions that appear on your website
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1">
-              <AccordionTrigger>
-                How do I add new FAQs to my website?
-              </AccordionTrigger>
-              <AccordionContent>
-                Use the FAQ manager to add, edit, or remove questions that your customers
-                commonly ask. These will be displayed on your website's support section.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-2">
-              <AccordionTrigger>
-                Can I customize response templates?
-              </AccordionTrigger>
-              <AccordionContent>
-                Yes! Create templates for common responses to save time when replying
-                to customer inquiries. Access this feature in the Auto-Responses section.
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-3">
-              <AccordionTrigger>
-                How do I set up automated responses?
-              </AccordionTrigger>
-              <AccordionContent>
-                Configure automated responses for common questions or during off-hours.
-                This helps maintain quick response times for your customers.
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </CardContent>
-      </Card>
+      {/* Support Tools */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="space-y-6">
+          <TicketsList />
+          <CannedResponses />
+        </div>
+        <div className="space-y-6">
+          <LiveChatCard />
+          
+          {/* Support Hours */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold">Support Hours</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Monday - Friday</span>
+                  <span className="font-medium">9:00 AM - 5:00 PM EST</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Saturday</span>
+                  <span className="font-medium">10:00 AM - 2:00 PM EST</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sunday</span>
+                  <span className="font-medium">Closed</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
