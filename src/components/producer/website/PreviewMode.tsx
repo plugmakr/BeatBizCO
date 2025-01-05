@@ -145,12 +145,36 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                                       </svg>
                                     </button>
                                     <div class="text-white">
-                                      <h3 class="font-semibold">${block.content?.currentTrack?.title || "Select a track"}</h3>
-                                      <p class="text-sm text-white/60">${block.content?.artistName || "Artist Name"}</p>
+                                      <a href="#/tracks/${block.content?.currentTrack?.id || ''}" class="hover:text-white/80">
+                                        <h3 class="font-semibold">${block.content?.currentTrack?.title || "Select a track"}</h3>
+                                      </a>
+                                      <div class="flex items-center gap-2 text-sm text-white/60">
+                                        <span>${block.content?.artistName || "Artist Name"}</span>
+                                        ${block.content?.currentTrack?.bpm ? 
+                                          `<span class="px-2 py-0.5 bg-white/10 rounded-full text-xs">${block.content?.currentTrack?.bpm} BPM</span>` : 
+                                          ''
+                                        }
+                                        ${block.content?.currentTrack?.key ? 
+                                          `<span class="px-2 py-0.5 bg-white/10 rounded-full text-xs">Key: ${block.content?.currentTrack?.key}</span>` : 
+                                          ''
+                                        }
+                                      </div>
                                     </div>
                                   </div>
-                                  <div class="w-1/2 h-1 bg-white/20 rounded-full">
-                                    <div class="w-1/3 h-full bg-white rounded-full"></div>
+                                  <div class="flex-1 mx-8">
+                                    <div class="relative w-full h-12">
+                                      <div class="absolute inset-0 opacity-50">
+                                        <svg viewBox="0 0 1000 200" class="w-full h-full text-white/20">
+                                          <path d="M0 100 Q 250 50, 500 100 T 1000 100" stroke="currentColor" fill="none" stroke-width="2"/>
+                                          <path d="M0 100 Q 250 150, 500 100 T 1000 100" stroke="currentColor" fill="none" stroke-width="2"/>
+                                        </svg>
+                                      </div>
+                                      <div class="absolute bottom-0 left-0 right-0">
+                                        <div class="w-1/2 h-1 bg-white/20 rounded-full">
+                                          <div class="w-1/3 h-full bg-white rounded-full"></div>
+                                        </div>
+                                      </div>
+                                    </div>
                                   </div>
                                   <div class="flex items-center gap-4">
                                     <button class="text-white hover:text-white/80">
