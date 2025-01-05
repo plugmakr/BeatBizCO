@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   DragDropContext,
@@ -13,18 +12,9 @@ import {
   Menu,
   Plus,
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { NavigationEditor } from "./block-editors/NavigationEditor";
-import { HeroEditor } from "./block-editors/HeroEditor";
-import { ProductsEditor } from "./block-editors/ProductsEditor";
-import { ServicesEditor } from "./block-editors/ServicesEditor";
-import { LicensingEditor } from "./block-editors/LicensingEditor";
-import { MusicPlayerEditor } from "./block-editors/MusicPlayerEditor";
-import { ContactEditor } from "./block-editors/ContactEditor";
-import { TestimonialsEditor } from "./block-editors/TestimonialsEditor";
-import { BookingEditor } from "./block-editors/BookingEditor";
-import { SocialLinksEditor } from "./block-editors/SocialLinksEditor";
 import { useToast } from "@/hooks/use-toast";
+import { BlockList } from "./components/BlockList";
+import { BlockEditorDialog } from "./components/BlockEditorDialog";
 
 interface WebsiteBuilderProps {
   currentTemplate: string | null;
@@ -32,6 +22,69 @@ interface WebsiteBuilderProps {
   blocks: any[];
   onBlocksChange: (blocks: any[]) => void;
 }
+
+const blockTypes = [
+  {
+    id: "navigation",
+    name: "Navigation Menu",
+    icon: Menu,
+    description: "Add a navigation menu to your site",
+  },
+  {
+    id: "hero",
+    name: "Hero Section",
+    icon: LayoutTemplate,
+    description: "Add a hero section with image and text",
+  },
+  {
+    id: "products",
+    name: "Beat Store",
+    icon: LayoutTemplate,
+    description: "Display your beats and products",
+  },
+  {
+    id: "services",
+    name: "Services",
+    icon: LayoutTemplate,
+    description: "Showcase your production services",
+  },
+  {
+    id: "licensing",
+    name: "Licensing Options",
+    icon: LayoutTemplate,
+    description: "Show your licensing terms and prices",
+  },
+  {
+    id: "music-player",
+    name: "Music Player",
+    icon: LayoutTemplate,
+    description: "Add an embedded music player",
+  },
+  {
+    id: "testimonials",
+    name: "Testimonials",
+    icon: LayoutTemplate,
+    description: "Display client testimonials",
+  },
+  {
+    id: "booking",
+    name: "Studio Booking",
+    icon: LayoutTemplate,
+    description: "Add studio booking calendar",
+  },
+  {
+    id: "social",
+    name: "Social Links",
+    icon: LayoutTemplate,
+    description: "Add social media links",
+  },
+  {
+    id: "contact",
+    name: "Contact Form",
+    icon: LayoutTemplate,
+    description: "Add a contact form",
+  },
+];
 
 const getDefaultContent = (blockType: string) => {
   switch (blockType) {
@@ -124,69 +177,6 @@ const getDefaultContent = (blockType: string) => {
   }
 }
 
-const blockTypes = [
-  {
-    id: "navigation",
-    name: "Navigation Menu",
-    icon: Menu,
-    description: "Add a navigation menu to your site",
-  },
-  {
-    id: "hero",
-    name: "Hero Section",
-    icon: LayoutTemplate,
-    description: "Add a hero section with image and text",
-  },
-  {
-    id: "products",
-    name: "Beat Store",
-    icon: LayoutTemplate,
-    description: "Display your beats and products",
-  },
-  {
-    id: "services",
-    name: "Services",
-    icon: LayoutTemplate,
-    description: "Showcase your production services",
-  },
-  {
-    id: "licensing",
-    name: "Licensing Options",
-    icon: LayoutTemplate,
-    description: "Show your licensing terms and prices",
-  },
-  {
-    id: "music-player",
-    name: "Music Player",
-    icon: LayoutTemplate,
-    description: "Add an embedded music player",
-  },
-  {
-    id: "testimonials",
-    name: "Testimonials",
-    icon: LayoutTemplate,
-    description: "Display client testimonials",
-  },
-  {
-    id: "booking",
-    name: "Studio Booking",
-    icon: LayoutTemplate,
-    description: "Add studio booking calendar",
-  },
-  {
-    id: "social",
-    name: "Social Links",
-    icon: LayoutTemplate,
-    description: "Add social media links",
-  },
-  {
-    id: "contact",
-    name: "Contact Form",
-    icon: LayoutTemplate,
-    description: "Add a contact form",
-  },
-];
-
 export const WebsiteBuilder = ({
   currentTemplate,
   onSave,
@@ -249,121 +239,9 @@ export const WebsiteBuilder = ({
     });
   };
 
-  const renderBlockEditor = (block: any) => {
-    switch (block.type) {
-      case "navigation":
-        return (
-          <NavigationEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      case "hero":
-        return (
-          <HeroEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      case "products":
-        return (
-          <ProductsEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      case "services":
-        return (
-          <ServicesEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      case "licensing":
-        return (
-          <LicensingEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      case "music-player":
-        return (
-          <MusicPlayerEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      case "testimonials":
-        return (
-          <TestimonialsEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      case "booking":
-        return (
-          <BookingEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      case "social":
-        return (
-          <SocialLinksEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      case "contact":
-        return (
-          <ContactEditor
-            content={block.content}
-            onSave={(content) => updateBlockContent(block.id, content)}
-          />
-        );
-      default:
-        return (
-          <div className="p-4 text-center">
-            <p className="text-muted-foreground">
-              Editor not yet implemented for {block.type} block type
-            </p>
-          </div>
-        );
-    }
-  };
-
   return (
     <div className="grid grid-cols-12 gap-6">
-      <Card className="col-span-3">
-        <CardContent className="p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold">Available Blocks</h3>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onSave}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Save Template
-            </Button>
-          </div>
-          <ScrollArea className="h-[calc(100vh-300px)]">
-            <div className="space-y-3">
-              {blockTypes.map((block) => (
-                <Button
-                  key={block.id}
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => addBlock(block.id)}
-                >
-                  <block.icon className="mr-2 h-4 w-4" />
-                  {block.name}
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+      <BlockList blockTypes={blockTypes} onAddBlock={addBlock} />
 
       <div className="col-span-9">
         <Card>
@@ -395,27 +273,16 @@ export const WebsiteBuilder = ({
                                 {blockTypes.find((b) => b.id === block.type)?.name}
                               </div>
                               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                                  <DialogTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => setEditingBlock(block)}
-                                    >
-                                      <Plus className="h-4 w-4" />
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogContent className="max-w-2xl">
-                                    <DialogHeader>
-                                      <DialogTitle>
-                                        Edit {blockTypes.find((b) => b.id === block.type)?.name}
-                                      </DialogTitle>
-                                    </DialogHeader>
-                                    <div className="py-4">
-                                      {renderBlockEditor(block)}
-                                    </div>
-                                  </DialogContent>
-                                </Dialog>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingBlock(block);
+                                    setDialogOpen(true);
+                                  }}
+                                >
+                                  <Plus className="h-4 w-4" />
+                                </Button>
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -445,6 +312,13 @@ export const WebsiteBuilder = ({
           </CardContent>
         </Card>
       </div>
+
+      <BlockEditorDialog
+        block={editingBlock}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSave={updateBlockContent}
+      />
     </div>
   );
 };
