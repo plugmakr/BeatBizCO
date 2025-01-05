@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -12,6 +12,10 @@ import { DownloadUpload } from "./upload/DownloadUpload";
 import { ItemForm } from "./upload/ItemForm";
 import { UploadProgress } from "@/components/shared/media/UploadProgress";
 import { useMarketplaceUpload } from "@/hooks/use-marketplace-upload";
+import { useUploadAutosave } from "@/hooks/use-upload-autosave";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -34,6 +38,7 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [downloadFile, setDownloadFile] = useState<File | null>(null);
+  const { toast } = useToast();
   
   const { 
     isUploading, 
@@ -41,6 +46,14 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
     currentUpload,
     handleUpload 
   } = useMarketplaceUpload();
+
+  const {
+    autoSaveEnabled,
+    setAutoSaveEnabled,
+    saveDraft,
+    loadDraft,
+    clearDraft
+  } = useUploadAutosave();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,9 +69,45 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
     },
   });
 
+  // Load saved draft when dialog opens
+  useEffect(() => {
+    if (open) {
+      const draft = loadDraft();
+      if (draft) {
+        Object.entries(draft).forEach(([key, value]) => {
+          if (key !== 'autoSaveEnabled' && key !== 'thumbnailFile' && 
+              key !== 'audioFile' && key !== 'downloadFile') {
+            form.setValue(key as any, value);
+          }
+        });
+        setAutoSaveEnabled(draft.autoSaveEnabled ?? true);
+        
+        // Show toast about found draft
+        toast({
+          title: "Draft Found",
+          description: "Your previous upload attempt has been restored.",
+        });
+      }
+    }
+  }, [open]);
+
+  // Auto-save form data when it changes
+  useEffect(() => {
+    const subscription = form.watch((data) => {
+      saveDraft({
+        ...data,
+        thumbnailFile,
+        audioFile,
+        downloadFile,
+      });
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch, thumbnailFile, audioFile, downloadFile, autoSaveEnabled]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const success = await handleUpload(values, thumbnailFile!, audioFile!, downloadFile);
     if (success) {
+      clearDraft(); // Clear the draft on successful upload
       onSuccess();
       onOpenChange(false);
     }
@@ -72,7 +121,17 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="auto-save"
+                checked={autoSaveEnabled}
+                onCheckedChange={setAutoSaveEnabled}
+              />
+              <Label htmlFor="auto-save">Auto-save progress</Label>
+            </div>
+            
             <ItemForm form={form} />
+            
             <div className="space-y-4">
               <ThumbnailUpload onFileSelect={setThumbnailFile} />
               <AudioUpload onFileSelect={setAudioFile} />
@@ -112,7 +171,14 @@ export function UploadItemDialog({ open, onOpenChange, onSuccess }: UploadItemDi
             )}
             
             <div className="flex justify-end gap-2 sticky bottom-0 bg-background py-4 border-t">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => {
+                  clearDraft();
+                  onOpenChange(false);
+                }}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isUploading}>
