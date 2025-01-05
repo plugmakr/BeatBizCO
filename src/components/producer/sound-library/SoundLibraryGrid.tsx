@@ -3,10 +3,19 @@ import { AudioPlayer } from "@/components/shared/media/AudioPlayer";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Trash2, Music2 } from "lucide-react";
+import { Trash2, Music2, GripHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { FolderSelectDialog } from "./FolderSelectDialog";
+import { useState } from "react";
+import { useDraggable } from "@dnd-kit/core";
 
 interface Sound {
   id: string;
@@ -17,16 +26,22 @@ interface Sound {
   genre?: string;
   tags?: string[];
   file_path: string;
+  original_filename?: string;
 }
 
 interface SoundLibraryGridProps {
   sounds: Sound[];
   isLoading: boolean;
+  onMoveFile: (soundId: string, folderId: string | null) => Promise<void>;
+  onCopyFile: (soundId: string, folderId: string | null) => Promise<void>;
 }
 
-export function SoundLibraryGrid({ sounds, isLoading }: SoundLibraryGridProps) {
+export function SoundLibraryGrid({ sounds, isLoading, onMoveFile, onCopyFile }: SoundLibraryGridProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [selectedSound, setSelectedSound] = useState<Sound | null>(null);
+  const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+  const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
 
   const handleDelete = async (sound: Sound) => {
     try {
@@ -59,6 +74,25 @@ export function SoundLibraryGrid({ sounds, isLoading }: SoundLibraryGridProps) {
     }
   };
 
+  const getFileType = (filename: string): string => {
+    const ext = filename?.split('.').pop()?.toLowerCase() || '';
+    switch (ext) {
+      case 'mp3':
+        return 'MP3';
+      case 'wav':
+        return 'WAV';
+      case 'midi':
+      case 'mid':
+        return 'MIDI';
+      case 'aiff':
+        return 'AIFF';
+      case 'flac':
+        return 'FLAC';
+      default:
+        return ext.toUpperCase();
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -78,48 +112,99 @@ export function SoundLibraryGrid({ sounds, isLoading }: SoundLibraryGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {sounds.map((sound) => (
-        <Card key={sound.id} className="p-4">
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-4">
-              <div className="h-24 w-24 rounded-lg bg-secondary flex items-center justify-center">
-                <Music2 className="h-12 w-12 text-muted-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold truncate">{sound.title}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      {sound.bpm && <span>{sound.bpm} BPM</span>}
-                      {sound.key && <span>• {sound.key}</span>}
-                      {sound.genre && <span>• {sound.genre}</span>}
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {sounds.map((sound) => (
+          <ContextMenu key={sound.id}>
+            <ContextMenuTrigger>
+              <Card className="p-4 cursor-move">
+                <div className="flex flex-col gap-4">
+                  <div className="flex gap-4">
+                    <div className="h-24 w-24 rounded-lg bg-secondary flex items-center justify-center">
+                      <Music2 className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold truncate">{sound.title}</h3>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            {sound.bpm && <span>{sound.bpm} BPM</span>}
+                            {sound.key && <span>• {sound.key}</span>}
+                            {sound.genre && <span>• {sound.genre}</span>}
+                          </div>
+                          {sound.original_filename && (
+                            <Badge variant="secondary" className="mt-1">
+                              {getFileType(sound.original_filename)}
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="h-8 w-8 flex-shrink-0"
+                          onClick={() => handleDelete(sound)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      {sound.tags && sound.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {sound.tags.map((tag) => (
+                            <Badge key={tag} variant="secondary">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="h-8 w-8 flex-shrink-0"
-                    onClick={() => handleDelete(sound)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <AudioPlayer src={sound.file_path} title={sound.title} compact />
                 </div>
-                {sound.tags && sound.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {sound.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            <AudioPlayer src={sound.file_path} title={sound.title} compact />
-          </div>
-        </Card>
-      ))}
-    </div>
+              </Card>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              <ContextMenuItem
+                onClick={() => {
+                  setSelectedSound(sound);
+                  setIsMoveDialogOpen(true);
+                }}
+              >
+                Move to...
+              </ContextMenuItem>
+              <ContextMenuItem
+                onClick={() => {
+                  setSelectedSound(sound);
+                  setIsCopyDialogOpen(true);
+                }}
+              >
+                Copy to...
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
+        ))}
+      </div>
+
+      <FolderSelectDialog
+        open={isMoveDialogOpen}
+        onOpenChange={setIsMoveDialogOpen}
+        onConfirm={(folderId) => {
+          if (selectedSound) {
+            onMoveFile(selectedSound.id, folderId);
+          }
+        }}
+        title="Move to Folder"
+      />
+
+      <FolderSelectDialog
+        open={isCopyDialogOpen}
+        onOpenChange={setIsCopyDialogOpen}
+        onConfirm={(folderId) => {
+          if (selectedSound) {
+            onCopyFile(selectedSound.id, folderId);
+          }
+        }}
+        title="Copy to Folder"
+      />
+    </>
   );
 }
