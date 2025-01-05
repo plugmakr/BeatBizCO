@@ -13,10 +13,24 @@ interface ProjectFileListProps {
 }
 
 export function ProjectFileList({ files, onPreview, onDelete }: ProjectFileListProps) {
+  const getFileType = (file: CombinedProjectFile) => {
+    if (file.type === 'regular') {
+      return file.file.file_type;
+    }
+    return 'audio'; // Sound library files are always audio files
+  };
+
+  const getFileName = (file: CombinedProjectFile) => {
+    if (file.type === 'regular') {
+      return file.file.filename;
+    }
+    return file.file.title;
+  };
+
   return (
     <div className="space-y-2">
       {files.map((file) => (
-        <Card key={file.type === 'regular' ? file.file.id : (file.file as any).assignment_id} 
+        <Card key={file.type === 'regular' ? file.file.id : file.file.assignment_id} 
           className="bg-[#2A2F3C] border-[#9b87f5]/20"
         >
           <CardContent className="pt-4">
@@ -32,9 +46,7 @@ export function ProjectFileList({ files, onPreview, onDelete }: ProjectFileListP
               </button>
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="text-white">
-                    {file.type === 'regular' ? file.file.filename : (file.file as any).title}
-                  </p>
+                  <p className="text-white">{getFileName(file)}</p>
                   {file.type === 'sound_library' && (
                     <Badge variant="secondary">Sound Library</Badge>
                   )}

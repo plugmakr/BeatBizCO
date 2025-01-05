@@ -244,8 +244,8 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
 
       setPreviewFile({
         url: data.signedUrl,
-        type: file.type === 'regular' ? file.file.file_type : 'audio',
-        filename: file.type === 'regular' ? file.file.filename : (file.file as any).title
+        type: getFileType(file),
+        filename: getFileName(file)
       });
     } catch (error) {
       toast({
@@ -254,6 +254,20 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
         variant: "destructive",
       });
     }
+  };
+
+  const getFileType = (file: CombinedProjectFile) => {
+    if (file.type === 'regular') {
+      return file.file.file_type;
+    }
+    return 'audio'; // Sound library files are always audio files
+  };
+
+  const getFileName = (file: CombinedProjectFile) => {
+    if (file.type === 'regular') {
+      return file.file.filename;
+    }
+    return file.file.title;
   };
 
   if (isLoading) {
