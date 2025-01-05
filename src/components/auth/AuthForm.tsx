@@ -49,9 +49,6 @@ const AuthForm = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session && mounted.current) {
-        // Add a small delay to ensure the auth session is fully established
-        await new Promise(resolve => setTimeout(resolve, 500));
-
         try {
           const { error: upsertError } = await supabase
             .from("profiles")
@@ -59,9 +56,6 @@ const AuthForm = () => {
               id: session.user.id,
               role: role,
               updated_at: new Date().toISOString(),
-            }, {
-              onConflict: 'id',
-              ignoreDuplicates: false
             });
 
           if (upsertError) {
