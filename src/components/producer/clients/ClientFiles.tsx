@@ -66,28 +66,49 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
       xhr.onload = async () => {
         if (xhr.status === 200) {
-          toast({
-            title: "Success",
-            description: "File uploaded successfully",
-          });
-          fetchFiles();
+          try {
+            const response = JSON.parse(xhr.responseText);
+            if (response.error) {
+              throw new Error(response.error);
+            }
+            toast({
+              title: "Success",
+              description: "File uploaded successfully",
+            });
+            fetchFiles();
+          } catch (parseError) {
+            console.error('Error parsing response:', parseError);
+            throw new Error('Invalid server response');
+          }
         } else {
-          throw new Error('Upload failed');
+          let errorMessage = 'Upload failed';
+          try {
+            const response = JSON.parse(xhr.responseText);
+            errorMessage = response.error || errorMessage;
+          } catch {
+            // Use default error message if response parsing fails
+          }
+          throw new Error(errorMessage);
         }
       };
 
       xhr.onerror = () => {
-        throw new Error('Upload failed');
+        throw new Error('Network error occurred');
       };
 
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) {
+        throw new Error('No authentication token found');
+      }
+
       xhr.open('POST', `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-client-file`);
-      xhr.setRequestHeader('Authorization', `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`);
+      xhr.setRequestHeader('Authorization', `Bearer ${session.data.session.access_token}`);
       xhr.send(formData);
     } catch (error) {
       console.error('Error uploading file:', error);
       toast({
         title: "Error",
-        description: "Failed to upload file",
+        description: error instanceof Error ? error.message : "Failed to upload file",
         variant: "destructive",
       });
     } finally {
