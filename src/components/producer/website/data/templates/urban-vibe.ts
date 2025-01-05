@@ -7,6 +7,7 @@ export const urbanVibeTemplate: Template = {
   thumbnail: "/placeholder.svg",
   blocks: [
     {
+      id: "nav-3",
       type: "navigation",
       content: {
         links: [
@@ -19,6 +20,7 @@ export const urbanVibeTemplate: Template = {
       }
     },
     {
+      id: "hero-3",
       type: "hero",
       content: {
         heading: "Next Level Beats",
@@ -29,6 +31,7 @@ export const urbanVibeTemplate: Template = {
       }
     },
     {
+      id: "music-player-3",
       type: "music-player",
       content: {
         heading: "Hot Tracks",
@@ -51,6 +54,7 @@ export const urbanVibeTemplate: Template = {
       }
     },
     {
+      id: "services-3",
       type: "services",
       content: {
         heading: "Studio Services",
@@ -74,6 +78,7 @@ export const urbanVibeTemplate: Template = {
       }
     },
     {
+      id: "licensing-3",
       type: "licensing",
       content: {
         heading: "Beat Licenses",
@@ -97,6 +102,7 @@ export const urbanVibeTemplate: Template = {
       }
     },
     {
+      id: "testimonials-3",
       type: "testimonials",
       content: {
         heading: "Artist Reviews",
@@ -115,6 +121,7 @@ export const urbanVibeTemplate: Template = {
       }
     },
     {
+      id: "social-3",
       type: "social",
       content: {
         title: "Stay Connected",
@@ -126,6 +133,7 @@ export const urbanVibeTemplate: Template = {
       }
     },
     {
+      id: "contact-3",
       type: "contact",
       content: {
         heading: "Book a Session",

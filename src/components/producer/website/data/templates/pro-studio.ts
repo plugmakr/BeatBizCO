@@ -7,6 +7,7 @@ export const proStudioTemplate: Template = {
   thumbnail: "/placeholder.svg",
   blocks: [
     {
+      id: "nav-4",
       type: "navigation",
       content: {
         links: [
@@ -19,6 +20,7 @@ export const proStudioTemplate: Template = {
       }
     },
     {
+      id: "hero-4",
       type: "hero",
       content: {
         heading: "Professional Sound Design",
@@ -29,6 +31,7 @@ export const proStudioTemplate: Template = {
       }
     },
     {
+      id: "services-4",
       type: "services",
       content: {
         heading: "Professional Services",
@@ -52,6 +55,7 @@ export const proStudioTemplate: Template = {
       }
     },
     {
+      id: "music-player-4",
       type: "music-player",
       content: {
         heading: "Recent Work",
@@ -74,6 +78,7 @@ export const proStudioTemplate: Template = {
       }
     },
     {
+      id: "licensing-4",
       type: "licensing",
       content: {
         heading: "License Options",
@@ -97,6 +102,7 @@ export const proStudioTemplate: Template = {
       }
     },
     {
+      id: "testimonials-4",
       type: "testimonials",
       content: {
         heading: "Industry Feedback",
@@ -115,6 +121,7 @@ export const proStudioTemplate: Template = {
       }
     },
     {
+      id: "social-4",
       type: "social",
       content: {
         title: "Professional Network",
@@ -126,6 +133,7 @@ export const proStudioTemplate: Template = {
       }
     },
     {
+      id: "contact-4",
       type: "contact",
       content: {
         heading: "Start Your Project",

@@ -7,6 +7,7 @@ export const modernDarkTemplate: Template = {
   thumbnail: "/placeholder.svg",
   blocks: [
     {
+      id: "nav-1",
       type: "navigation",
       content: {
         links: [
@@ -19,6 +20,7 @@ export const modernDarkTemplate: Template = {
       }
     },
     {
+      id: "hero-1",
       type: "hero",
       content: {
         heading: "Premium Beats & Sound Design",
@@ -29,6 +31,7 @@ export const modernDarkTemplate: Template = {
       }
     },
     {
+      id: "music-player-1",
       type: "music-player",
       content: {
         heading: "Featured Tracks",
@@ -51,6 +54,7 @@ export const modernDarkTemplate: Template = {
       }
     },
     {
+      id: "services-1",
       type: "services",
       content: {
         heading: "Production Services",
@@ -74,6 +78,7 @@ export const modernDarkTemplate: Template = {
       }
     },
     {
+      id: "licensing-1",
       type: "licensing",
       content: {
         heading: "License Options",
@@ -97,6 +102,7 @@ export const modernDarkTemplate: Template = {
       }
     },
     {
+      id: "testimonials-1",
       type: "testimonials",
       content: {
         heading: "What Artists Say",
@@ -115,6 +121,7 @@ export const modernDarkTemplate: Template = {
       }
     },
     {
+      id: "social-1",
       type: "social",
       content: {
         title: "Follow the Journey",
@@ -126,6 +133,7 @@ export const modernDarkTemplate: Template = {
       }
     },
     {
+      id: "contact-1",
       type: "contact",
       content: {
         heading: "Get in Touch",

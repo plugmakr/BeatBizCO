@@ -21,11 +21,11 @@ export const TemplateLibrary = ({
   const handleUseTemplate = (templateId: string) => {
     const template = templates.find(t => t.id === templateId);
     if (template) {
-      // Ensure we pass all blocks from the template
+      console.log(`Loading template ${templateId} with ${template.blocks.length} blocks`);
       onSelectTemplate(templateId);
       toast({
         title: "Template Applied",
-        description: `${template.name} template has been applied to your website with ${template.blocks.length} sections.`,
+        description: `${template.name} template has been applied with ${template.blocks.length} sections.`,
       });
     }
   };

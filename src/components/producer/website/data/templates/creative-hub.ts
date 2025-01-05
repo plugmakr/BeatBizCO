@@ -7,6 +7,7 @@ export const creativeHubTemplate: Template = {
   thumbnail: "/placeholder.svg",
   blocks: [
     {
+      id: "nav-5",
       type: "navigation",
       content: {
         links: [
@@ -19,6 +20,7 @@ export const creativeHubTemplate: Template = {
       }
     },
     {
+      id: "hero-5",
       type: "hero",
       content: {
         heading: "Unleash Your Creativity",
@@ -29,6 +31,7 @@ export const creativeHubTemplate: Template = {
       }
     },
     {
+      id: "services-5",
       type: "services",
       content: {
         heading: "Creative Services",
@@ -52,6 +55,7 @@ export const creativeHubTemplate: Template = {
       }
     },
     {
+      id: "music-player-5",
       type: "music-player",
       content: {
         heading: "Featured Works",
@@ -74,6 +78,7 @@ export const creativeHubTemplate: Template = {
       }
     },
     {
+      id: "licensing-5",
       type: "licensing",
       content: {
         heading: "License Your Music",
@@ -97,6 +102,7 @@ export const creativeHubTemplate: Template = {
       }
     },
     {
+      id: "testimonials-5",
       type: "testimonials",
       content: {
         heading: "Creator Feedback",
@@ -115,6 +121,7 @@ export const creativeHubTemplate: Template = {
       }
     },
     {
+      id: "social-5",
       type: "social",
       content: {
         title: "Join the Community",
@@ -126,6 +133,7 @@ export const creativeHubTemplate: Template = {
       }
     },
     {
+      id: "contact-5",
       type: "contact",
       content: {
         heading: "Let's Create Together",

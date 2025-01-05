@@ -7,6 +7,7 @@ export const minimalLightTemplate: Template = {
   thumbnail: "/placeholder.svg",
   blocks: [
     {
+      id: "nav-2",
       type: "navigation",
       content: {
         links: [
@@ -19,6 +20,7 @@ export const minimalLightTemplate: Template = {
       }
     },
     {
+      id: "hero-2",
       type: "hero",
       content: {
         heading: "Crafting Sonic Excellence",
@@ -29,6 +31,7 @@ export const minimalLightTemplate: Template = {
       }
     },
     {
+      id: "services-2",
       type: "services",
       content: {
         heading: "Services Offered",
@@ -52,6 +55,7 @@ export const minimalLightTemplate: Template = {
       }
     },
     {
+      id: "music-player-2",
       type: "music-player",
       content: {
         heading: "Latest Releases",
@@ -74,6 +78,7 @@ export const minimalLightTemplate: Template = {
       }
     },
     {
+      id: "licensing-2",
       type: "licensing",
       content: {
         heading: "Licensing Options",
@@ -92,6 +97,7 @@ export const minimalLightTemplate: Template = {
       }
     },
     {
+      id: "testimonials-2",
       type: "testimonials",
       content: {
         heading: "Client Feedback",
@@ -110,6 +116,7 @@ export const minimalLightTemplate: Template = {
       }
     },
     {
+      id: "social-2",
       type: "social",
       content: {
         title: "Connect With Me",
@@ -121,6 +128,7 @@ export const minimalLightTemplate: Template = {
       }
     },
     {
+      id: "contact-2",
       type: "contact",
       content: {
         heading: "Work Together",
