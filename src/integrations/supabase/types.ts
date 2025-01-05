@@ -877,6 +877,52 @@ export type Database = {
           },
         ]
       }
+      sound_library_project_files: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          project_id: string
+          sound_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          project_id: string
+          sound_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          project_id?: string
+          sound_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sound_library_project_files_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sound_library_project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sound_library_project_files_sound_id_fkey"
+            columns: ["sound_id"]
+            isOneToOne: false
+            referencedRelation: "sound_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sound_library_tags: {
         Row: {
           color: string | null

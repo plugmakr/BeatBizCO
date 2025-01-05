@@ -3,7 +3,7 @@ import { AudioPlayer } from "@/components/shared/media/AudioPlayer";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Trash2, Music2, GripHorizontal } from "lucide-react";
+import { Trash2, Music2, Edit, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -14,8 +14,9 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { FolderSelectDialog } from "./FolderSelectDialog";
+import { SoundEditDialog } from "./SoundEditDialog";
+import { AssignToProjectDialog } from "./AssignToProjectDialog";
 import { useState } from "react";
-import { useDraggable } from "@dnd-kit/core";
 
 interface Sound {
   id: string;
@@ -36,17 +37,19 @@ interface SoundLibraryGridProps {
   onCopyFile: (soundId: string, folderId: string | null) => Promise<void>;
 }
 
-export function SoundLibraryGrid({ sounds, isLoading, onMoveFile, onCopyFile }: SoundLibraryGridProps) {
+export function SoundLibraryGrid({
+  sounds,
+  isLoading,
+  onMoveFile,
+  onCopyFile,
+}: SoundLibraryGridProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedSound, setSelectedSound] = useState<Sound | null>(null);
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
-
-  const handleDragStart = (e: React.DragEvent, sound: Sound) => {
-    e.dataTransfer.setData("fileId", sound.id);
-    e.dataTransfer.effectAllowed = "move";
-  };
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
 
   const handleDelete = async (sound: Sound) => {
     try {
@@ -122,11 +125,7 @@ export function SoundLibraryGrid({ sounds, isLoading, onMoveFile, onCopyFile }: 
         {sounds.map((sound) => (
           <ContextMenu key={sound.id}>
             <ContextMenuTrigger>
-              <Card 
-                className="p-4 cursor-move" 
-                draggable 
-                onDragStart={(e) => handleDragStart(e, sound)}
-              >
+              <Card className="p-4">
                 <div className="flex flex-col gap-4">
                   <div className="flex gap-4">
                     <div className="h-24 w-24 rounded-lg bg-secondary flex items-center justify-center">
@@ -147,14 +146,38 @@ export function SoundLibraryGrid({ sounds, isLoading, onMoveFile, onCopyFile }: 
                             </Badge>
                           )}
                         </div>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="h-8 w-8 flex-shrink-0"
-                          onClick={() => handleDelete(sound)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => {
+                              setSelectedSound(sound);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => {
+                              setSelectedSound(sound);
+                              setIsAssignDialogOpen(true);
+                            }}
+                          >
+                            <Share2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleDelete(sound)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       {sound.tags && sound.tags.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">
@@ -188,6 +211,22 @@ export function SoundLibraryGrid({ sounds, isLoading, onMoveFile, onCopyFile }: 
               >
                 Copy to...
               </ContextMenuItem>
+              <ContextMenuItem
+                onClick={() => {
+                  setSelectedSound(sound);
+                  setIsEditDialogOpen(true);
+                }}
+              >
+                Edit...
+              </ContextMenuItem>
+              <ContextMenuItem
+                onClick={() => {
+                  setSelectedSound(sound);
+                  setIsAssignDialogOpen(true);
+                }}
+              >
+                Assign to Project...
+              </ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>
         ))}
@@ -213,6 +252,18 @@ export function SoundLibraryGrid({ sounds, isLoading, onMoveFile, onCopyFile }: 
           }
         }}
         title="Copy to Folder"
+      />
+
+      <SoundEditDialog
+        sound={selectedSound}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
+
+      <AssignToProjectDialog
+        soundId={selectedSound?.id || null}
+        open={isAssignDialogOpen}
+        onOpenChange={setIsAssignDialogOpen}
       />
     </>
   );
