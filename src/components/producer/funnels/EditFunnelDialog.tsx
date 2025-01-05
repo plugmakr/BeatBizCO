@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { FunnelStepEditor } from "./components/FunnelStepEditor";
@@ -90,7 +91,7 @@ export function EditFunnelDialog({ funnel, open, onOpenChange, onSave }: EditFun
         <DialogHeader>
           <DialogTitle>Edit Funnel</DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue="details">
+        <Tabs defaultValue="details" className="h-[600px]">
           <TabsList>
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="steps">Steps</TabsTrigger>
@@ -139,17 +140,19 @@ export function EditFunnelDialog({ funnel, open, onOpenChange, onSave }: EditFun
             </form>
           </TabsContent>
 
-          <TabsContent value="steps">
-            <div className="space-y-6">
-              {steps.map((step) => (
-                <FunnelStepEditor
-                  key={step.id}
-                  step={step}
-                  funnelId={funnel.id}
-                  onSave={onSave}
-                />
-              ))}
-            </div>
+          <TabsContent value="steps" className="h-full">
+            <ScrollArea className="h-[500px] pr-4">
+              <div className="space-y-6">
+                {steps.map((step) => (
+                  <FunnelStepEditor
+                    key={step.id}
+                    step={step}
+                    funnelId={funnel.id}
+                    onSave={onSave}
+                  />
+                ))}
+              </div>
+            </ScrollArea>
           </TabsContent>
         </Tabs>
       </DialogContent>
