@@ -1,6 +1,6 @@
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Music, Users2, DollarSign, ChartLine, MoreVertical } from "lucide-react";
+import { Music, Users2, DollarSign, ChartLine, Database, ChartBar, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ProducerDashboard() {
@@ -28,6 +28,18 @@ export default function ProducerDashboard() {
       value: "45",
       icon: ChartLine,
       change: "+7% from last month"
+    },
+    {
+      title: "Active Products",
+      value: "32",
+      icon: Database,
+      change: "+5 this month"
+    },
+    {
+      title: "Recent Sales",
+      value: "$2,850",
+      icon: ChartBar,
+      change: "+22% from last week"
     }
   ];
 
@@ -78,16 +90,16 @@ export default function ProducerDashboard() {
       <div className="p-8">
         <h1 className="text-3xl font-bold mb-8">Producer Dashboard</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
           {stats.map((stat, index) => (
             <Card key={index} className="hover:scale-105 transition-transform duration-300">
-              <CardContent className="p-6">
+              <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <stat.icon className="w-8 h-8 text-primary" />
-                  <span className="text-sm text-muted-foreground">{stat.change}</span>
+                  <stat.icon className="w-6 h-6 text-primary" />
+                  <span className="text-xs text-muted-foreground">{stat.change}</span>
                 </div>
-                <h2 className="text-2xl font-bold mb-1">{stat.value}</h2>
-                <p className="text-muted-foreground">{stat.title}</p>
+                <h2 className="text-xl font-bold mb-1">{stat.value}</h2>
+                <p className="text-sm text-muted-foreground">{stat.title}</p>
               </CardContent>
             </Card>
           ))}
