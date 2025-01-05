@@ -2,6 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { CombinedProjectFile } from "../types/ProjectFileTypes";
 import { useToast } from "@/hooks/use-toast";
@@ -15,7 +17,12 @@ interface FileEditDialogProps {
 }
 
 export function FileEditDialog({ file, open, onOpenChange, onUpdate }: FileEditDialogProps) {
-  const [newName, setNewName] = useState(file?.type === 'regular' ? file.file.filename : file?.file.title || '');
+  const [title, setTitle] = useState(file?.type === 'regular' ? file.file.filename : file?.file.title || '');
+  const [description, setDescription] = useState(file?.type === 'sound_library' ? file.file.description || '' : '');
+  const [bpm, setBpm] = useState(file?.type === 'sound_library' ? file.file.bpm?.toString() || '' : '');
+  const [key, setKey] = useState(file?.type === 'sound_library' ? file.file.key || '' : '');
+  const [genre, setGenre] = useState(file?.type === 'sound_library' ? file.file.genre || '' : '');
+  const [tags, setTags] = useState(file?.type === 'sound_library' ? file.file.tags?.join(', ') || '' : '');
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
 
@@ -27,14 +34,21 @@ export function FileEditDialog({ file, open, onOpenChange, onUpdate }: FileEditD
       if (file.type === 'regular') {
         const { error } = await supabase
           .from('project_files')
-          .update({ filename: newName })
+          .update({ filename: title })
           .eq('id', file.file.id);
 
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('sound_library')
-          .update({ title: newName })
+          .update({
+            title,
+            description,
+            bpm: bpm ? parseInt(bpm) : null,
+            key,
+            genre,
+            tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+          })
           .eq('id', file.file.id);
 
         if (error) throw error;
@@ -69,11 +83,63 @@ export function FileEditDialog({ file, open, onOpenChange, onUpdate }: FileEditD
           <div>
             <Label>Name</Label>
             <Input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter file name"
             />
           </div>
+
+          {file?.type === 'sound_library' && (
+            <>
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Enter description"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>BPM</Label>
+                  <Input
+                    type="number"
+                    value={bpm}
+                    onChange={(e) => setBpm(e.target.value)}
+                    placeholder="Enter BPM"
+                  />
+                </div>
+                <div>
+                  <Label>Key</Label>
+                  <Input
+                    value={key}
+                    onChange={(e) => setKey(e.target.value)}
+                    placeholder="Enter key"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Genre</Label>
+                <Input
+                  value={genre}
+                  onChange={(e) => setGenre(e.target.value)}
+                  placeholder="Enter genre"
+                />
+              </div>
+
+              <div>
+                <Label>Tags (comma-separated)</Label>
+                <Input
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  placeholder="e.g., dark, trap, melodic"
+                />
+              </div>
+            </>
+          )}
+
           <Button
             onClick={handleUpdate}
             disabled={isUpdating}
