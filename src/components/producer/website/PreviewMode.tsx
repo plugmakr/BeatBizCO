@@ -15,38 +15,40 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
     switch (block.type) {
       case "navigation":
         return `
-          <nav class="bg-black text-white p-4">
-            <ul class="flex space-x-6 justify-center">
-              ${block.content.links
-                .map(
-                  (link: any) =>
-                    `<li><a href="${link.url}" class="hover:text-gray-300">${link.label}</a></li>`
-                )
-                .join("")}
-            </ul>
+          <nav class="bg-black/95 backdrop-blur-sm text-white sticky top-0 z-50 border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-6">
+              <ul class="flex items-center justify-center h-16 space-x-8">
+                ${block.content.links
+                  .map(
+                    (link: any) =>
+                      `<li><a href="${link.url}" class="text-white/80 hover:text-white transition-colors">${link.label}</a></li>`
+                  )
+                  .join("")}
+              </ul>
+            </div>
           </nav>
         `;
       case "hero":
         return `
-          <div class="relative h-[600px] flex items-center justify-center text-white">
+          <div class="relative min-h-[80vh] flex items-center justify-center text-white">
             ${
               block.content.backgroundImage
                 ? `<img src="${block.content.backgroundImage}" class="absolute inset-0 w-full h-full object-cover" alt="Hero background"/>`
                 : `<div class="absolute inset-0">
                      <img src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81" class="w-full h-full object-cover" alt="Default hero background"/>
-                     <div class="absolute inset-0 bg-black/40"></div>
+                     <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40"></div>
                    </div>`
             }
-            <div class="relative z-10 text-center">
-              <h1 class="text-5xl font-bold mb-4">${
+            <div class="relative z-10 text-center max-w-4xl mx-auto px-6">
+              <h1 class="text-6xl font-bold mb-6 leading-tight">${
                 block.content.heading || "Your Music Production Journey Starts Here"
               }</h1>
-              <p class="text-xl mb-8">${
+              <p class="text-xl mb-8 text-white/90">${
                 block.content.subheading || "Professional Beat Making & Music Production"
               }</p>
               <a href="${
                 block.content.ctaUrl || "#"
-              }" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-opacity-90">
+              }" class="inline-flex items-center justify-center bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-white/90 transition-all transform hover:scale-105">
                 ${block.content.ctaText || "Browse Beats"}
               </a>
             </div>
@@ -54,59 +56,76 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
         `;
       case "products":
         return `
-          <div class="py-16 px-8 bg-gray-50">
-            <h2 class="text-3xl font-bold text-center mb-12">${
-              block.content.heading || "Featured Beats"
-            }</h2>
-            <div class="grid grid-cols-1 md:grid-cols-${
-              block.content.itemsPerRow || 3
-            } gap-8 max-w-7xl mx-auto">
-              ${Array(6)
-                .fill(null)
-                .map(
-                  (_, i) => `
-                <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                  <div class="h-48 bg-gray-200">
-                    <img src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=500" class="w-full h-full object-cover" alt="Beat ${i + 1}"/>
+          <div class="py-24 px-6 bg-gradient-to-b from-black to-gray-900">
+            <div class="max-w-7xl mx-auto">
+              <h2 class="text-4xl font-bold text-center mb-16 text-white">${
+                block.content.heading || "Featured Beats"
+              }</h2>
+              <div class="grid grid-cols-1 md:grid-cols-${
+                block.content.itemsPerRow || 3
+              } gap-8">
+                ${Array(6)
+                  .fill(null)
+                  .map(
+                    (_, i) => `
+                  <div class="bg-white/5 backdrop-blur-sm rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all transform hover:scale-105">
+                    <div class="h-48 bg-white/5">
+                      <img src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=500" class="w-full h-full object-cover" alt="Beat ${
+                        i + 1
+                      }"/>
+                    </div>
+                    <div class="p-6">
+                      <h3 class="text-lg font-semibold text-white mb-2">Sample Beat ${
+                        i + 1
+                      }</h3>
+                      <div class="flex items-center justify-between">
+                        <p class="text-white/60">$29.99</p>
+                        <button class="text-white/80 hover:text-white">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div class="p-4">
-                    <h3 class="font-semibold">Sample Beat ${i + 1}</h3>
-                    <p class="text-gray-600">$29.99</p>
-                  </div>
-                </div>
-              `
-                )
-                .join("")}
+                `
+                  )
+                  .join("")}
+              </div>
             </div>
           </div>
         `;
       case "services":
         return `
-          <div class="py-16 px-8 bg-white">
-            <h2 class="text-3xl font-bold text-center mb-12">${
-              block.content.heading || "Production Services"
-            }</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              ${(block.content.services || [
-                {
-                  name: "Custom Beat Production",
-                  price: "Starting at $299",
-                  description: "Professional beat production tailored to your style"
-                },
-                {
-                  name: "Mixing & Mastering",
-                  price: "Starting at $149",
-                  description: "Industry-standard mixing and mastering services"
-                }
-              ]).map(
-                (service: any) => `
-                <div class="bg-gray-50 p-6 rounded-lg">
-                  <h3 class="text-xl font-semibold mb-2">${service.name}</h3>
-                  <p class="text-primary font-bold mb-2">${service.price}</p>
-                  <p class="text-gray-600">${service.description}</p>
-                </div>
-              `
-              ).join("")}
+          <div class="py-24 px-6 bg-black">
+            <div class="max-w-5xl mx-auto">
+              <h2 class="text-4xl font-bold text-center mb-16 text-white">${
+                block.content.heading || "Production Services"
+              }</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                ${(block.content.services || [
+                  {
+                    name: "Custom Beat Production",
+                    price: "Starting at $299",
+                    description: "Professional beat production tailored to your style"
+                  },
+                  {
+                    name: "Mixing & Mastering",
+                    price: "Starting at $149",
+                    description: "Industry-standard mixing and mastering services"
+                  }
+                ])
+                  .map(
+                    (service: any) => `
+                  <div class="bg-white/5 backdrop-blur-sm p-8 rounded-xl border border-white/10 hover:border-white/20 transition-all">
+                    <h3 class="text-xl font-semibold text-white mb-3">${service.name}</h3>
+                    <p class="text-primary font-bold mb-4">${service.price}</p>
+                    <p class="text-white/70">${service.description}</p>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
             </div>
           </div>
         `;
@@ -114,10 +133,10 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
         return MusicPlayerPreview({ content: block.content });
       default:
         return `
-          <div class="p-8 text-center bg-gray-50">
-            <div class="max-w-md mx-auto">
+          <div class="py-24 px-6 bg-black/50 backdrop-blur-sm">
+            <div class="max-w-md mx-auto text-center">
               <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" class="w-32 h-32 object-cover mx-auto mb-4 rounded-lg opacity-50" alt="Placeholder"/>
-              <p class="text-gray-500">
+              <p class="text-white/50">
                 Configuration needed for "${block.type}" block
               </p>
             </div>
@@ -147,8 +166,19 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                   <meta name="viewport" content="width=device-width, initial-scale=1">
                   <title>Website Preview</title>
                   <script src="https://cdn.tailwindcss.com"></script>
+                  <script>
+                    window.addEventListener('selectTrack', function(e) {
+                      const tracks = document.querySelectorAll('.track-item');
+                      const currentTrack = document.querySelector('.current-track');
+                      const selectedTrack = tracks[e.detail];
+                      
+                      if (currentTrack && selectedTrack) {
+                        currentTrack.textContent = selectedTrack.querySelector('h4').textContent;
+                      }
+                    });
+                  </script>
                 </head>
-                <body>
+                <body class="bg-black text-white">
                   <div id="preview">
                     ${blocks.map(renderBlock).join("")}
                   </div>
