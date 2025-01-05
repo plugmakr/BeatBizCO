@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface AudioPlayerProps {
   src: string;
@@ -14,16 +15,45 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const { toast } = useToast();
 
-  const togglePlay = () => {
-    if (audioRef.current) {
+  useEffect(() => {
+    // Reset states when src changes
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    setError(null);
+  }, [src]);
+
+  const togglePlay = async () => {
+    if (!audioRef.current) return;
+
+    try {
       if (isPlaying) {
-        audioRef.current.pause();
+        await audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error("Playback error:", error);
+            toast({
+              variant: "destructive",
+              title: "Playback Error",
+              description: "Unable to play this audio file. Please try again later.",
+            });
+          });
+        }
       }
       setIsPlaying(!isPlaying);
+    } catch (err) {
+      console.error("Audio playback error:", err);
+      toast({
+        variant: "destructive",
+        title: "Playback Error",
+        description: "Unable to play this audio file. Please try again later.",
+      });
     }
   };
 
@@ -36,7 +66,19 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
   const handleLoadedMetadata = () => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
+      setError(null);
     }
+  };
+
+  const handleError = (e: Event) => {
+    const audioElement = e.target as HTMLAudioElement;
+    setError("Unable to load audio file");
+    console.error("Audio error:", audioElement.error);
+    toast({
+      variant: "destructive",
+      title: "Audio Error",
+      description: "Failed to load the audio file. Please try again later.",
+    });
   };
 
   const handleVolumeChange = (value: number[]) => {
@@ -70,6 +112,15 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
     }
   };
 
+  if (error) {
+    return (
+      <div className="w-full p-4 border border-destructive rounded-lg flex items-center gap-2 text-destructive">
+        <AlertCircle className="h-4 w-4" />
+        <span className="text-sm">Failed to load audio</span>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full space-y-2">
       <audio
@@ -77,6 +128,7 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
         src={src}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
+        onError={handleError}
         className="hidden"
       />
       <div className="flex items-center gap-4">
