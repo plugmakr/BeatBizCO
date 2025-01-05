@@ -16,17 +16,30 @@ const AuthForm = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        
+        if (session) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
 
-        if (profile) {
-          handleRoleBasedRedirect(profile.role);
+          if (profileError) throw profileError;
+
+          if (profile) {
+            handleRoleBasedRedirect(profile.role);
+          }
         }
+      } catch (error) {
+        console.error("Session check error:", error);
+        toast({
+          title: "Error",
+          description: "There was a problem checking your session.",
+          variant: "destructive",
+        });
       }
     };
 
