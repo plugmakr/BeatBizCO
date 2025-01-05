@@ -230,7 +230,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
   const handlePreview = async (filePath: string, filename: string, fileType: string) => {
     try {
-      // If the filePath is already a full URL, don't try to create a signed URL
+      // If the file is from the sound library, the filePath is already a complete URL
       if (filePath.startsWith('http')) {
         setPreviewFile({
           url: filePath,
@@ -240,6 +240,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
         return;
       }
 
+      // For regular client files, create a signed URL
       const { data, error } = await supabase.storage
         .from('client_files')
         .createSignedUrl(filePath, 3600);
@@ -345,5 +346,4 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
       <FilePreviewDialog file={previewFile} onClose={() => setPreviewFile(null)} />
     </Card>
-  );
 }
