@@ -14,76 +14,6 @@ const AuthForm = () => {
   const [role, setRole] = useState<UserRole>("buyer");
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) throw sessionError;
-        
-        if (session) {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profileError) throw profileError;
-
-          if (profile) {
-            handleRoleBasedRedirect(profile.role);
-          }
-        }
-      } catch (error) {
-        console.error("Session check error:", error);
-        toast({
-          title: "Error",
-          description: "There was a problem checking your session.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session) {
-        setIsLoading(true);
-        try {
-          // Add a small delay to allow the trigger to complete
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const { data: profile, error: profileError } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", session.user.id)
-            .single();
-
-          if (profileError) throw profileError;
-
-          toast({
-            title: "Welcome to BeatBiz!",
-            description: "You've successfully signed in.",
-          });
-          
-          handleRoleBasedRedirect(profile?.role || role);
-        } catch (error) {
-          console.error("Error during sign in:", error);
-          toast({
-            title: "Error",
-            description: "There was a problem signing you in. Please try again.",
-            variant: "destructive",
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, role, toast]);
-
   const handleRoleBasedRedirect = (userRole: string) => {
     switch (userRole) {
       case "admin":
@@ -100,6 +30,86 @@ const AuthForm = () => {
         break;
     }
   };
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        
+        if (session && mounted) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileError) throw profileError;
+
+          if (profile && mounted) {
+            handleRoleBasedRedirect(profile.role);
+          }
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+        if (mounted) {
+          toast({
+            title: "Error",
+            description: "There was a problem checking your session.",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session && mounted) {
+        setIsLoading(true);
+        try {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", session.user.id)
+            .single();
+
+          if (profileError) throw profileError;
+
+          if (mounted) {
+            toast({
+              title: "Welcome to BeatBiz!",
+              description: "You've successfully signed in.",
+            });
+            
+            handleRoleBasedRedirect(profile?.role || role);
+          }
+        } catch (error) {
+          console.error("Error during sign in:", error);
+          if (mounted) {
+            toast({
+              title: "Error",
+              description: "There was a problem signing you in. Please try again.",
+              variant: "destructive",
+            });
+          }
+        } finally {
+          if (mounted) {
+            setIsLoading(false);
+          }
+        }
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [navigate, role, toast]);
 
   return (
     <Card className="w-full max-w-md mx-auto">
