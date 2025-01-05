@@ -1,18 +1,9 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Play, Download, MoreVertical } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { AudioPlayer } from "@/components/shared/media/AudioPlayer";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { MarketplaceItemCard } from "./MarketplaceItemCard";
 
 interface MarketplaceItem {
   id: string;
@@ -91,18 +82,6 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
     try {
       setPlayingId(id);
       
-      // First check if the file exists
-      const { data: fileExists } = await supabase
-        .storage
-        .from('marketplace')
-        .list('', {
-          search: previewUrl
-        });
-
-      if (!fileExists || fileExists.length === 0) {
-        throw new Error('Audio preview file not found');
-      }
-
       // Get the signed URL for the preview audio
       const { data, error } = await supabase
         .storage
@@ -136,57 +115,13 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
     <>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
-          <Card key={item.id} className="overflow-hidden">
-            <div className="aspect-video relative">
-              <img
-                src={thumbnailUrls[item.id]}
-                alt={item.title}
-                className="w-full h-full object-cover"
-              />
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute bottom-2 right-2"
-                onClick={() => handlePlay(item.id, item.preview_url)}
-              >
-                <Play className="h-4 w-4" />
-              </Button>
-            </div>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <h3 className="font-semibold">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.type}</p>
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleDelete(item.id)}>
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-sm">{item.description}</p>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">{item.genre}</Badge>
-                {item.bpm && <Badge variant="secondary">{item.bpm} BPM</Badge>}
-                {item.key && <Badge variant="secondary">Key: {item.key}</Badge>}
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <div className="text-sm space-x-2">
-                <span>{item.total_plays} plays</span>
-                <span>•</span>
-                <span>{item.total_downloads} downloads</span>
-              </div>
-              <p className="font-semibold">${item.price}</p>
-            </CardFooter>
-          </Card>
+          <MarketplaceItemCard
+            key={item.id}
+            item={item}
+            thumbnailUrl={thumbnailUrls[item.id] || ''}
+            onPlay={handlePlay}
+            onDelete={handleDelete}
+          />
         ))}
       </div>
 
