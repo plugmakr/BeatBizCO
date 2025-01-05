@@ -27,4 +27,6 @@ export interface ClientFile {
   parent_id: string | null;
   type: 'folder' | 'file';
   display_name: string | null;
+  fromSoundLibrary?: boolean;
+  projectName?: string;
 }

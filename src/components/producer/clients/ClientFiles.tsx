@@ -85,7 +85,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
         if (projectsError) throw projectsError;
 
         // Create virtual folder entries for each project
-        const projectFolders = projects?.map(project => ({
+        const projectFolders: ClientFile[] = projects?.map(project => ({
           id: `project-${project.id}`,
           client_id: client.id,
           filename: project.name,
@@ -93,16 +93,11 @@ export function ClientFiles({ client }: ClientFilesProps) {
           file_path: '',
           file_type: 'folder',
           size: 0,
-          type: 'folder' as const,
+          type: 'folder',
           created_at: null,
           updated_at: null,
           parent_id: null,
-          project_files: project.sound_library_project_files
-            .map(spf => ({
-              ...spf.sound_library,
-              fromSoundLibrary: true,
-              projectName: project.name
-            }))
+          uploaded_by: null
         })) || [];
 
         setFiles([...(clientFiles || []), ...projectFolders]);
@@ -120,13 +115,14 @@ export function ClientFiles({ client }: ClientFilesProps) {
               size,
               created_at,
               type
-            )
+            ),
+            project:collaboration_projects(name)
           `)
           .eq('project_id', projectId);
 
         if (projectFilesError) throw projectFilesError;
 
-        const soundLibraryFiles = projectFiles?.map(pf => ({
+        const soundLibraryFiles: ClientFile[] = projectFiles?.map(pf => ({
           id: pf.sound_library.id,
           client_id: client.id,
           filename: pf.sound_library.title,
@@ -134,11 +130,13 @@ export function ClientFiles({ client }: ClientFilesProps) {
           file_path: pf.sound_library.file_path,
           file_type: pf.sound_library.file_type,
           size: pf.sound_library.size,
-          type: 'file' as const,
+          type: 'file',
           created_at: pf.sound_library.created_at,
           updated_at: null,
           parent_id: currentFolder,
-          fromSoundLibrary: true
+          uploaded_by: null,
+          fromSoundLibrary: true,
+          projectName: pf.project?.name
         })) || [];
 
         setFiles(soundLibraryFiles);
