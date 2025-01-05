@@ -4,7 +4,6 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Package, Music2, Folder, Disc3, Layers } from "lucide-react";
-import { MarketplaceStats } from "@/components/producer/marketplace/MarketplaceStats";
 import { UploadItemDialog } from "@/components/producer/marketplace/UploadItemDialog";
 import { MarketplaceItemList } from "@/components/producer/marketplace/MarketplaceItemList";
 import { MarketplaceSubmenu } from "@/components/producer/marketplace/MarketplaceSubmenu";
@@ -28,25 +27,6 @@ export default function ProducerMarketplace() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<ValidCategory | 'all'>('all');
-
-  const { data: stats } = useQuery({
-    queryKey: ["marketplaceStats"],
-    queryFn: async () => {
-      const { data: items } = await supabase
-        .from("marketplace_items")
-        .select("total_sales, price, total_downloads, total_plays")
-        .eq("producer_id", (await supabase.auth.getSession()).data.session?.user.id);
-
-      if (!items) return { totalSales: 0, totalRevenue: 0, totalDownloads: 0, totalPlays: 0 };
-
-      return {
-        totalSales: items.reduce((sum, item) => sum + (item.total_sales || 0), 0),
-        totalRevenue: items.reduce((sum, item) => sum + ((item.total_sales || 0) * item.price), 0),
-        totalDownloads: items.reduce((sum, item) => sum + (item.total_downloads || 0), 0),
-        totalPlays: items.reduce((sum, item) => sum + (item.total_plays || 0), 0),
-      };
-    },
-  });
 
   const { data: items, refetch: refetchItems } = useQuery({
     queryKey: ["marketplaceItems", searchQuery, selectedCategory],
@@ -89,13 +69,6 @@ export default function ProducerMarketplace() {
             Upload Item
           </Button>
         </div>
-
-        <MarketplaceStats
-          totalSales={stats?.totalSales || 0}
-          totalRevenue={stats?.totalRevenue || 0}
-          totalDownloads={stats?.totalDownloads || 0}
-          totalPlays={stats?.totalPlays || 0}
-        />
 
         <div className="space-y-4">
           <div className="relative">
