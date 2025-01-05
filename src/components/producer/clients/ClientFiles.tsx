@@ -346,4 +346,5 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
       <FilePreviewDialog file={previewFile} onClose={() => setPreviewFile(null)} />
     </Card>
+  );
 }
