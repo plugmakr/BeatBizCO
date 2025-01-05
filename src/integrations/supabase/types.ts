@@ -893,6 +893,51 @@ export type Database = {
           },
         ]
       }
+      role_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string | null
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id?: string | null
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission?: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: []
+      }
       sound_library: {
         Row: {
           bpm: number | null
@@ -1134,6 +1179,36 @@ export type Database = {
           },
         ]
       }
+      user_management: {
+        Row: {
+          created_at: string
+          id: string
+          last_login: string | null
+          login_count: number | null
+          notes: string | null
+          status: Database["public"]["Enums"]["user_status"] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          last_login?: string | null
+          login_count?: number | null
+          notes?: string | null
+          status?: Database["public"]["Enums"]["user_status"] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_login?: string | null
+          login_count?: number | null
+          notes?: string | null
+          status?: Database["public"]["Enums"]["user_status"] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1153,6 +1228,7 @@ export type Database = {
         | "one_shot"
         | "sample"
       user_role: "producer" | "artist" | "buyer" | "admin"
+      user_status: "active" | "inactive" | "suspended" | "pending"
     }
     CompositeTypes: {
       [_ in never]: never

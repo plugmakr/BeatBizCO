@@ -26,23 +26,25 @@ function App() {
           }
         />
 
-        {/* Producer Routes */}
+        {/* Producer Routes - Using nested route configuration */}
         <Route
-          path="/producer"
+          path="/producer/*"
           element={
             <AuthGuard>
               <RoleGuard allowedRoles={["producer", "admin"]}>
-                <ProducerDashboard />
-              </RoleGuard>
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/producer/dashboard"
-          element={
-            <AuthGuard>
-              <RoleGuard allowedRoles={["producer", "admin"]}>
-                <ProducerDashboard />
+                <Routes>
+                  <Route index element={<ProducerDashboard />} />
+                  <Route path="dashboard" element={<ProducerDashboard />} />
+                  <Route path="clients" element={<ProducerDashboard />} />
+                  <Route path="funnels" element={<ProducerDashboard />} />
+                  <Route path="marketplace" element={<ProducerDashboard />} />
+                  <Route path="messages" element={<ProducerDashboard />} />
+                  <Route path="projects" element={<ProducerDashboard />} />
+                  <Route path="settings" element={<ProducerDashboard />} />
+                  <Route path="sound-library" element={<ProducerDashboard />} />
+                  <Route path="support" element={<ProducerDashboard />} />
+                  <Route path="website" element={<ProducerDashboard />} />
+                </Routes>
               </RoleGuard>
             </AuthGuard>
           }
