@@ -21,10 +21,22 @@ export function CreateFunnelDialog({ open, onOpenChange }: CreateFunnelDialogPro
     e.preventDefault();
     
     try {
+      // Get the current user's session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.user?.id) {
+        throw new Error("No authenticated user found");
+      }
+
       const { error } = await supabase
         .from('funnels')
         .insert([
-          { name, description }
+          { 
+            name, 
+            description,
+            producer_id: session.user.id,
+            status: 'draft'
+          }
         ]);
 
       if (error) throw error;
@@ -38,6 +50,7 @@ export function CreateFunnelDialog({ open, onOpenChange }: CreateFunnelDialogPro
       setName("");
       setDescription("");
     } catch (error) {
+      console.error("Error creating funnel:", error);
       toast({
         title: "Error",
         description: "Failed to create funnel",
