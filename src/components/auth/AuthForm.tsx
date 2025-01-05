@@ -122,6 +122,9 @@ const AuthForm = () => {
     }
   };
 
+  // Get the current URL for redirect
+  const redirectTo = typeof window !== 'undefined' ? window.location.origin : '';
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
@@ -145,7 +148,7 @@ const AuthForm = () => {
             },
           }}
           providers={[]}
-          redirectTo={window.location.origin}
+          redirectTo={redirectTo}
         />
       </CardContent>
     </Card>
