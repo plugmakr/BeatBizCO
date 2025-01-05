@@ -116,73 +116,75 @@ export function FileList({
   };
 
   return (
-    <ScrollArea className="h-[400px] pr-4">
-      <div className="space-y-2">
-        {files.map((file) => (
-          <FileContextMenu
-            key={file.id}
-            onMove={() => {
-              setSelectedFile(file);
-              setMoveDialogOpen(true);
-            }}
-            onCopy={() => {
-              setSelectedFile(file);
-              setCopyDialogOpen(true);
-            }}
-          >
-            <div
-              className="flex items-center justify-between p-3 border rounded-lg transition-colors hover:bg-secondary/50"
-              draggable={true}
-              onDragStart={() => handleDragStart(file)}
-              onDragOver={(e) => handleDragOver(e, file)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, file)}
+    <div className="relative min-h-[400px] w-full">
+      <ScrollArea className="h-[400px] w-full">
+        <div className="space-y-2 pr-4">
+          {files.map((file) => (
+            <FileContextMenu
+              key={file.id}
+              onMove={() => {
+                setSelectedFile(file);
+                setMoveDialogOpen(true);
+              }}
+              onCopy={() => {
+                setSelectedFile(file);
+                setCopyDialogOpen(true);
+              }}
             >
-              <div className="flex items-center space-x-4">
-                {file.type === "folder" ? (
-                  <button
-                    onClick={() => onFolderClick(file.id)}
-                    className="focus:outline-none"
-                  >
-                    <Folder className="h-6 w-6 text-blue-500" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() =>
-                      onPreview(file.file_path, file.filename, file.file_type)
-                    }
-                    className="focus:outline-none"
-                  >
-                    <MediaThumbnail type={file.file_type} />
-                  </button>
-                )}
-                <div>
-                  <p className="font-medium">
-                    {file.display_name || file.filename}
-                  </p>
-                  {file.type !== "folder" && (
-                    <p className="text-sm text-muted-foreground">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                  )}
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onDelete(file.id, file.file_path)}
+              <div
+                className="flex items-center justify-between p-3 border rounded-lg transition-colors hover:bg-secondary/50"
+                draggable={true}
+                onDragStart={() => handleDragStart(file)}
+                onDragOver={(e) => handleDragOver(e, file)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, file)}
               >
-                <Trash2 className="h-4 w-4 text-red-500" />
-              </Button>
-            </div>
-          </FileContextMenu>
-        ))}
-        {files.length === 0 && (
-          <p className="text-center text-muted-foreground py-8">
-            This folder is empty
-          </p>
-        )}
-      </div>
+                <div className="flex items-center space-x-4">
+                  {file.type === "folder" ? (
+                    <button
+                      onClick={() => onFolderClick(file.id)}
+                      className="focus:outline-none"
+                    >
+                      <Folder className="h-6 w-6 text-blue-500" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        onPreview(file.file_path, file.filename, file.file_type)
+                      }
+                      className="focus:outline-none"
+                    >
+                      <MediaThumbnail type={file.file_type} />
+                    </button>
+                  )}
+                  <div>
+                    <p className="font-medium">
+                      {file.display_name || file.filename}
+                    </p>
+                    {file.type !== "folder" && (
+                      <p className="text-sm text-muted-foreground">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onDelete(file.id, file.file_path)}
+                >
+                  <Trash2 className="h-4 w-4 text-red-500" />
+                </Button>
+              </div>
+            </FileContextMenu>
+          ))}
+          {files.length === 0 && (
+            <p className="text-center text-muted-foreground py-8">
+              This folder is empty
+            </p>
+          )}
+        </div>
+      </ScrollArea>
 
       <FolderSelectDialog
         open={moveDialogOpen}
@@ -209,6 +211,6 @@ export function FileList({
         clientId={clientId}
         currentFolderId={currentFolder}
       />
-    </ScrollArea>
+    </div>
   );
 }
