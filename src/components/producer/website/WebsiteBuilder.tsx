@@ -34,6 +34,7 @@ import { HeroEditor } from "./block-editors/HeroEditor";
 import { ProductsEditor } from "./block-editors/ProductsEditor";
 import { ServicesEditor } from "./block-editors/ServicesEditor";
 import { LicensingEditor } from "./block-editors/LicensingEditor";
+import { MusicPlayerEditor } from "./block-editors/MusicPlayerEditor";
 import { SaveTemplateDialog } from "./SaveTemplateDialog";
 import { musicPlayerTemplate } from "./block-templates/MusicPlayerTemplate";
 import { useToast } from "@/hooks/use-toast";
@@ -274,6 +275,13 @@ export const WebsiteBuilder = ({
       case "licensing":
         return (
           <LicensingEditor
+            content={block.content}
+            onSave={(content) => updateBlockContent(block.id, content)}
+          />
+        );
+      case "music-player":
+        return (
+          <MusicPlayerEditor
             content={block.content}
             onSave={(content) => updateBlockContent(block.id, content)}
           />

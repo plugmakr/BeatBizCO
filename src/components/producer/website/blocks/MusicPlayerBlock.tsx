@@ -43,7 +43,7 @@ export const MusicPlayerBlock = ({ content }: { content: any }) => {
             ${tracks
               .map(
                 (track: any, index: number) => `
-              <div class="bg-white/5 p-4 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group" 
+              <div class="track-item bg-white/5 p-4 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group" 
                    onclick="window.dispatchEvent(new CustomEvent('selectTrack', { detail: ${index} }))">
                 <h4 class="font-medium text-white group-hover:text-white/90">${
                   track.title
