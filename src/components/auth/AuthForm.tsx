@@ -154,6 +154,7 @@ const AuthForm = () => {
           view="sign_in"
           showLinks={true}
           redirectTo={`${window.location.origin}/auth/callback`}
+          magicLink={false}
         />
       </CardContent>
     </Card>
