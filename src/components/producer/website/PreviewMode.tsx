@@ -111,8 +111,7 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
           </div>
         `;
       case "music-player":
-        const playerContent = React.createElement(MusicPlayerPreview, { content: block.content });
-        return playerContent.toString();
+        return MusicPlayerPreview({ content: block.content });
       default:
         return `
           <div class="p-8 text-center bg-gray-50">
