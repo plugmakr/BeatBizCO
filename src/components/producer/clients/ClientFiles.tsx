@@ -56,7 +56,13 @@ export function ClientFiles({ client }: ClientFilesProps) {
     formData.append('clientId', client.id);
 
     try {
+      const session = await supabase.auth.getSession();
+      if (!session.data.session?.access_token) {
+        throw new Error('No authentication token found');
+      }
+
       const xhr = new XMLHttpRequest();
+      
       xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable) {
           const progress = (event.loaded / event.total) * 100;
@@ -64,9 +70,21 @@ export function ClientFiles({ client }: ClientFilesProps) {
         }
       });
 
+      xhr.onerror = () => {
+        console.error('Network error during upload');
+        toast({
+          title: "Error",
+          description: "Network error occurred during upload",
+          variant: "destructive",
+        });
+        setIsUploading(false);
+        setCurrentUpload(null);
+        setUploadProgress(0);
+      };
+
       xhr.onload = async () => {
-        if (xhr.status === 200) {
-          try {
+        try {
+          if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);
             if (response.error) {
               throw new Error(response.error);
@@ -75,43 +93,43 @@ export function ClientFiles({ client }: ClientFilesProps) {
               title: "Success",
               description: "File uploaded successfully",
             });
-            fetchFiles();
-          } catch (parseError) {
-            console.error('Error parsing response:', parseError);
-            throw new Error('Invalid server response');
+            await fetchFiles();
+          } else {
+            let errorMessage = 'Upload failed';
+            try {
+              const response = JSON.parse(xhr.responseText);
+              errorMessage = response.error || errorMessage;
+              console.error('Upload error response:', response);
+            } catch (parseError) {
+              console.error('Error parsing error response:', parseError);
+            }
+            throw new Error(errorMessage);
           }
-        } else {
-          let errorMessage = 'Upload failed';
-          try {
-            const response = JSON.parse(xhr.responseText);
-            errorMessage = response.error || errorMessage;
-          } catch {
-            // Use default error message if response parsing fails
-          }
-          throw new Error(errorMessage);
+        } catch (error) {
+          console.error('Error processing upload response:', error);
+          toast({
+            title: "Error",
+            description: error instanceof Error ? error.message : "Failed to process upload response",
+            variant: "destructive",
+          });
+        } finally {
+          setIsUploading(false);
+          setCurrentUpload(null);
+          setUploadProgress(0);
         }
       };
 
-      xhr.onerror = () => {
-        throw new Error('Network error occurred');
-      };
-
-      const session = await supabase.auth.getSession();
-      if (!session.data.session?.access_token) {
-        throw new Error('No authentication token found');
-      }
-
+      console.log('Starting file upload to:', `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-client-file`);
       xhr.open('POST', `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-client-file`);
       xhr.setRequestHeader('Authorization', `Bearer ${session.data.session.access_token}`);
       xhr.send(formData);
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error('Error initiating upload:', error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to upload file",
+        description: error instanceof Error ? error.message : "Failed to initiate upload",
         variant: "destructive",
       });
-    } finally {
       setIsUploading(false);
       setCurrentUpload(null);
       setUploadProgress(0);
