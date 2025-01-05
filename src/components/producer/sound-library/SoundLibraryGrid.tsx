@@ -43,6 +43,11 @@ export function SoundLibraryGrid({ sounds, isLoading, onMoveFile, onCopyFile }: 
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
   const [isCopyDialogOpen, setIsCopyDialogOpen] = useState(false);
 
+  const handleDragStart = (e: React.DragEvent, sound: Sound) => {
+    e.dataTransfer.setData("fileId", sound.id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
   const handleDelete = async (sound: Sound) => {
     try {
       const { error: storageError } = await supabase.storage
@@ -117,7 +122,11 @@ export function SoundLibraryGrid({ sounds, isLoading, onMoveFile, onCopyFile }: 
         {sounds.map((sound) => (
           <ContextMenu key={sound.id}>
             <ContextMenuTrigger>
-              <Card className="p-4 cursor-move">
+              <Card 
+                className="p-4 cursor-move" 
+                draggable 
+                onDragStart={(e) => handleDragStart(e, sound)}
+              >
                 <div className="flex flex-col gap-4">
                   <div className="flex gap-4">
                     <div className="h-24 w-24 rounded-lg bg-secondary flex items-center justify-center">

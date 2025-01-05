@@ -75,7 +75,6 @@ export default function ProducerSoundLibrary() {
 
   const handleCopyFile = async (soundId: string, folderId: string | null) => {
     try {
-      // Get the original file data
       const { data: originalFile, error: fetchError } = await supabase
         .from("sound_library")
         .select("*")
@@ -84,10 +83,9 @@ export default function ProducerSoundLibrary() {
 
       if (fetchError) throw fetchError;
 
-      // Create a new copy with the new folder path
       const { error: insertError } = await supabase.from("sound_library").insert({
         ...originalFile,
-        id: undefined, // Let Supabase generate a new ID
+        id: undefined,
         folder_path: folderId || "/",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -117,6 +115,7 @@ export default function ProducerSoundLibrary() {
         <SoundLibrarySidebar
           selectedFolder={selectedFolder}
           onFolderSelect={setSelectedFolder}
+          onFileDrop={handleMoveFile}
         />
         <div className="flex-1 overflow-hidden">
           <div className="h-full flex flex-col">
