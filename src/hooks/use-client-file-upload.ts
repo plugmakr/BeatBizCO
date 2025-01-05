@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import type { Client } from "@/types/database";
+import { FileOptions } from "@supabase/storage-js";
 
 export function useClientFileUpload(client: Client, onSuccess: () => void) {
   const [isUploading, setIsUploading] = useState(false);
@@ -20,11 +21,9 @@ export function useClientFileUpload(client: Client, onSuccess: () => void) {
       const { data: storageData, error: storageError } = await supabase.storage
         .from('client_files')
         .upload(filePath, file, {
-          onUploadProgress: (progress) => {
-            const percent = (progress.loaded / progress.total) * 100;
-            setUploadProgress(percent);
-          },
-        });
+          cacheControl: '3600',
+          upsert: false,
+        } as FileOptions);
 
       if (storageError) throw storageError;
 

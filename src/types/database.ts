@@ -24,4 +24,7 @@ export interface ClientFile {
   uploaded_by: string | null;
   created_at: string | null;
   updated_at: string | null;
+  parent_id: string | null;
+  type: 'folder' | 'file';
+  display_name: string | null;
 }
