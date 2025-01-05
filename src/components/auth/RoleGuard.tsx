@@ -28,7 +28,24 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
         .eq('id', session.user.id)
         .single();
 
-      if (!profile || !allowedRoles.includes(profile.role)) {
+      if (!profile) {
+        toast({
+          title: "Access Denied",
+          description: "Profile not found.",
+          variant: "destructive",
+        });
+        navigate("/");
+        return;
+      }
+
+      // If user is admin, they're authorized for all routes
+      if (profile.role === 'admin') {
+        setIsAuthorized(true);
+        return;
+      }
+
+      // For non-admin users, check if their role is in allowedRoles
+      if (!allowedRoles.includes(profile.role)) {
         toast({
           title: "Access Denied",
           description: "You don't have permission to access this area.",
