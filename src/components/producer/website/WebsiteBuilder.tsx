@@ -36,25 +36,89 @@ interface WebsiteBuilderProps {
 const getDefaultContent = (blockType: string) => {
   switch (blockType) {
     case "navigation":
-      return { links: [] };
+      return { 
+        links: [
+          { label: "Home", url: "#" },
+          { label: "Beats", url: "#beats" },
+          { label: "Contact", url: "#contact" }
+        ]
+      };
     case "hero":
-      return { title: "Welcome", subtitle: "", imageUrl: "" };
+      return { 
+        heading: "Welcome to My Studio",
+        subheading: "Professional Beat Making & Music Production",
+        ctaText: "Browse Beats",
+        ctaUrl: "#beats",
+        backgroundImage: "" 
+      };
     case "products":
-      return { title: "My Beats", items: [] };
+      return { 
+        heading: "Featured Beats",
+        description: "Check out my latest productions",
+        itemsPerRow: 3,
+        showFilters: true,
+        showSort: true
+      };
     case "services":
-      return { title: "Services", services: [] };
+      return { 
+        heading: "My Services",
+        services: [
+          {
+            name: "Custom Beat Production",
+            price: "Starting at $299",
+            description: "Get a unique beat tailored to your style"
+          }
+        ]
+      };
     case "licensing":
-      return { title: "Licensing Options", licenses: [] };
+      return { 
+        heading: "Licensing Options",
+        description: "Choose the right license for your needs",
+        licenses: [
+          {
+            name: "Basic License",
+            price: "$29.99",
+            features: ["MP3 File", "100k Streams", "Non-Profit Use"]
+          }
+        ]
+      };
     case "music-player":
-      return { title: "Featured Tracks", tracks: [] };
+      return { 
+        heading: "Listen to My Beats",
+        playlist: []
+      };
     case "testimonials":
-      return { title: "What People Say", testimonials: [] };
+      return { 
+        heading: "What Artists Say",
+        testimonials: [
+          {
+            name: "John Doe",
+            role: "Recording Artist",
+            content: "Add your first testimonial here"
+          }
+        ]
+      };
     case "booking":
-      return { title: "Book a Session", description: "", showCalendar: true };
+      return { 
+        heading: "Book Studio Time",
+        description: "Schedule your next session with me",
+        showCalendar: true
+      };
     case "social":
-      return { title: "Connect With Me", links: [] };
+      return { 
+        title: "Connect With Me",
+        platforms: [
+          { name: "Instagram", url: "" },
+          { name: "YouTube", url: "" },
+          { name: "Twitter", url: "" }
+        ]
+      };
     case "contact":
-      return { heading: "Get in Touch", fields: ["name", "email", "message"], showSocials: false };
+      return { 
+        heading: "Get in Touch",
+        fields: ["name", "email", "message"],
+        showSocials: false
+      };
     default:
       return {};
   }
@@ -130,6 +194,7 @@ export const WebsiteBuilder = ({
   onBlocksChange,
 }: WebsiteBuilderProps) => {
   const [editingBlock, setEditingBlock] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const handleDragEnd = (result: DropResult) => {
@@ -154,6 +219,11 @@ export const WebsiteBuilder = ({
         content: getDefaultContent(blockType),
       },
     ]);
+
+    toast({
+      title: "Block added",
+      description: `${blockConfig.name} block has been added to your website.`,
+    });
   };
 
   const updateBlockContent = (blockId: string, newContent: any) => {
@@ -164,11 +234,19 @@ export const WebsiteBuilder = ({
           : block
       )
     );
-    setEditingBlock(null);
+    setDialogOpen(false);
+    toast({
+      title: "Changes saved",
+      description: "Your block has been updated successfully.",
+    });
   };
 
   const deleteBlock = (blockId: string) => {
     onBlocksChange(blocks.filter((block) => block.id !== blockId));
+    toast({
+      title: "Block deleted",
+      description: "The block has been removed from your website.",
+    });
   };
 
   const renderBlockEditor = (block: any) => {
@@ -317,7 +395,7 @@ export const WebsiteBuilder = ({
                                 {blockTypes.find((b) => b.id === block.type)?.name}
                               </div>
                               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Dialog>
+                                <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                                   <DialogTrigger asChild>
                                     <Button
                                       variant="ghost"
