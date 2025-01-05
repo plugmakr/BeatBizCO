@@ -56,6 +56,9 @@ const AuthForm = () => {
               id: session.user.id,
               role: role,
               updated_at: new Date().toISOString(),
+            }, {
+              onConflict: 'id',
+              ignoreDuplicates: false
             });
 
           if (upsertError) {
