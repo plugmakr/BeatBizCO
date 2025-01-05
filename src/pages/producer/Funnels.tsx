@@ -8,6 +8,7 @@ import { FunnelTemplates } from "@/components/producer/funnels/FunnelTemplates";
 import { FunnelAnalytics } from "@/components/producer/funnels/FunnelAnalytics";
 import { FunnelAutomation } from "@/components/producer/funnels/FunnelAutomation";
 import { CreateFunnelDialog } from "@/components/producer/funnels/CreateFunnelDialog";
+import { FunnelList } from "@/components/producer/funnels/FunnelList";
 
 export default function ProducerFunnels() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -35,7 +36,13 @@ export default function ProducerFunnels() {
           </TabsList>
 
           <TabsContent value="overview">
-            <FunnelOverview />
+            <div className="space-y-6">
+              <FunnelOverview />
+              <div className="mt-8">
+                <h2 className="text-xl font-semibold mb-4">Your Funnels</h2>
+                <FunnelList />
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="templates">
