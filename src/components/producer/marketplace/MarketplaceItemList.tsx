@@ -17,6 +17,7 @@ interface MarketplaceItem {
   tags?: string[];
   preview_url: string;
   thumbnail_url: string;
+  category: 'Loops' | 'Midi Kits' | 'Sample Kits' | 'Drum Kits' | 'Beats';
   total_sales: number;
   total_downloads: number;
   total_plays: number;

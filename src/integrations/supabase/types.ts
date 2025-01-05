@@ -355,6 +355,7 @@ export type Database = {
       marketplace_items: {
         Row: {
           bpm: number | null
+          category: string | null
           created_at: string | null
           description: string | null
           download_url: string | null
@@ -376,6 +377,7 @@ export type Database = {
         }
         Insert: {
           bpm?: number | null
+          category?: string | null
           created_at?: string | null
           description?: string | null
           download_url?: string | null
@@ -397,6 +399,7 @@ export type Database = {
         }
         Update: {
           bpm?: number | null
+          category?: string | null
           created_at?: string | null
           description?: string | null
           download_url?: string | null
