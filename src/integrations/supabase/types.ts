@@ -269,6 +269,132 @@ export type Database = {
           },
         ]
       }
+      funnel_automations: {
+        Row: {
+          action_type: string
+          config: Json | null
+          created_at: string | null
+          funnel_id: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          trigger_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          action_type: string
+          config?: Json | null
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          trigger_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          config?: Json | null
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          trigger_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_automations_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funnel_steps: {
+        Row: {
+          config: Json | null
+          created_at: string | null
+          funnel_id: string | null
+          id: string
+          name: string
+          order_index: number
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          name: string
+          order_index: number
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          name?: string
+          order_index?: number
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_steps_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funnels: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          producer_id: string | null
+          status: Database["public"]["Enums"]["funnel_status"] | null
+          template_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          producer_id?: string | null
+          status?: Database["public"]["Enums"]["funnel_status"] | null
+          template_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          producer_id?: string | null
+          status?: Database["public"]["Enums"]["funnel_status"] | null
+          template_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnels_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       license_templates: {
         Row: {
           created_at: string | null
@@ -1008,6 +1134,7 @@ export type Database = {
     }
     Enums: {
       client_item_type: "folder" | "file"
+      funnel_status: "draft" | "active" | "archived"
       sound_type:
         | "beat"
         | "sound_kit"
