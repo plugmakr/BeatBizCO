@@ -15,68 +15,43 @@ const AuthForm = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check active session on mount
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user && mounted.current) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profile) {
-            handleRoleBasedRedirect(profile.role);
-          }
-        }
-      } catch (error: any) {
-        console.error('Session check error:', error);
-        setError(error.message);
-      }
-    };
-
-    checkSession();
-
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user && mounted.current) {
+      if (!mounted.current) return;
+
+      if (event === 'SIGNED_IN' && session?.user) {
         try {
-          // Check if profile exists
           const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', session.user.id)
             .single();
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error('Profile fetch error:', profileError);
+            throw profileError;
+          }
 
           if (profile) {
             toast({
               title: "Welcome back!",
               description: "You've successfully signed in.",
             });
-            handleRoleBasedRedirect(profile.role);
-            return;
+            
+            switch (profile.role) {
+              case "admin":
+                navigate("/admin");
+                break;
+              case "artist":
+                navigate("/artist");
+                break;
+              case "producer":
+                navigate("/producer");
+                break;
+              default:
+                navigate("/");
+                break;
+            }
           }
-
-          // Create new profile if none exists
-          const { error: createError } = await supabase
-            .from('profiles')
-            .insert({
-              id: session.user.id,
-              role: 'buyer',
-              updated_at: new Date().toISOString(),
-            });
-
-          if (createError) throw createError;
-
-          toast({
-            title: "Welcome to BeatBiz!",
-            description: "Your account has been created successfully.",
-          });
-          handleRoleBasedRedirect('buyer');
-
         } catch (error: any) {
           console.error('Auth state change error:', error);
           setError(error.message);
@@ -94,25 +69,6 @@ const AuthForm = () => {
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
-
-  const handleRoleBasedRedirect = (role: string) => {
-    if (!mounted.current) return;
-
-    switch (role) {
-      case "admin":
-        navigate("/admin");
-        break;
-      case "artist":
-        navigate("/artist");
-        break;
-      case "producer":
-        navigate("/producer");
-        break;
-      default:
-        navigate("/");
-        break;
-    }
-  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
