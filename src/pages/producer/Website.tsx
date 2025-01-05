@@ -4,12 +4,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WebsiteBuilder } from "@/components/producer/website/WebsiteBuilder";
 import { DomainSettings } from "@/components/producer/website/DomainSettings";
 import { TemplateLibrary } from "@/components/producer/website/TemplateLibrary";
+import { PreviewMode } from "@/components/producer/website/PreviewMode";
 import { Button } from "@/components/ui/button";
 import { Globe, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ProducerWebsite = () => {
   const [currentTemplate, setCurrentTemplate] = useState<string | null>(null);
+  const [blocks, setBlocks] = useState<any[]>([]);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const { toast } = useToast();
 
   const handleSave = () => {
@@ -17,6 +20,10 @@ const ProducerWebsite = () => {
       title: "Changes saved",
       description: "Your website changes have been saved successfully.",
     });
+  };
+
+  const handlePreview = () => {
+    setIsPreviewOpen(true);
   };
 
   return (
@@ -34,7 +41,7 @@ const ProducerWebsite = () => {
               <Save className="mr-2 h-4 w-4" />
               Save Changes
             </Button>
-            <Button>
+            <Button onClick={handlePreview}>
               <Globe className="mr-2 h-4 w-4" />
               Preview Site
             </Button>
@@ -52,6 +59,8 @@ const ProducerWebsite = () => {
             <WebsiteBuilder
               currentTemplate={currentTemplate}
               onSave={handleSave}
+              blocks={blocks}
+              onBlocksChange={setBlocks}
             />
           </TabsContent>
 
@@ -66,6 +75,12 @@ const ProducerWebsite = () => {
             <DomainSettings />
           </TabsContent>
         </Tabs>
+
+        <PreviewMode
+          blocks={blocks}
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+        />
       </div>
     </DashboardLayout>
   );

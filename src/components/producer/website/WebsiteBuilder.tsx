@@ -35,6 +35,8 @@ import { ProductsEditor } from "./block-editors/ProductsEditor";
 interface WebsiteBuilderProps {
   currentTemplate: string | null;
   onSave: () => void;
+  blocks: any[];
+  onBlocksChange: (blocks: any[]) => void;
 }
 
 const blockTypes = [
@@ -184,8 +186,12 @@ const blockTypes = [
   },
 ];
 
-export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps) => {
-  const [blocks, setBlocks] = useState<any[]>([]);
+export const WebsiteBuilder = ({
+  currentTemplate,
+  onSave,
+  blocks,
+  onBlocksChange,
+}: WebsiteBuilderProps) => {
   const [editingBlock, setEditingBlock] = useState<any>(null);
 
   const handleDragEnd = (result: DropResult) => {
@@ -195,14 +201,14 @@ export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps)
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    setBlocks(items);
+    onBlocksChange(items);
   };
 
   const addBlock = (blockType: string) => {
     const blockConfig = blockTypes.find((b) => b.id === blockType);
     if (!blockConfig) return;
 
-    setBlocks([
+    onBlocksChange([
       ...blocks,
       {
         id: `${blockType}-${Date.now()}`,
@@ -213,7 +219,7 @@ export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps)
   };
 
   const updateBlockContent = (blockId: string, newContent: any) => {
-    setBlocks(
+    onBlocksChange(
       blocks.map((block) =>
         block.id === blockId
           ? { ...block, content: { ...block.content, ...newContent } }
@@ -224,7 +230,7 @@ export const WebsiteBuilder = ({ currentTemplate, onSave }: WebsiteBuilderProps)
   };
 
   const deleteBlock = (blockId: string) => {
-    setBlocks(blocks.filter((block) => block.id !== blockId));
+    onBlocksChange(blocks.filter((block) => block.id !== blockId));
   };
 
   const renderBlockEditor = (block: any) => {
