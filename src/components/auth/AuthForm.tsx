@@ -15,6 +15,7 @@ const AuthForm = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRoleBasedRedirect = (userRole: string) => {
+    console.log("Handling redirect for role:", userRole);
     switch (userRole) {
       case "admin":
         navigate("/admin");
@@ -37,7 +38,10 @@ const AuthForm = () => {
     const checkSession = async () => {
       try {
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) throw sessionError;
+        if (sessionError) {
+          console.error("Session check error:", sessionError);
+          throw sessionError;
+        }
         
         if (session && mounted) {
           const { data: profile, error: profileError } = await supabase
@@ -46,9 +50,13 @@ const AuthForm = () => {
             .eq('id', session.user.id)
             .single();
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error("Profile fetch error:", profileError);
+            throw profileError;
+          }
 
           if (profile && mounted) {
+            console.log("Found existing session with role:", profile.role);
             handleRoleBasedRedirect(profile.role);
           }
         }
@@ -57,7 +65,7 @@ const AuthForm = () => {
         if (mounted) {
           toast({
             title: "Error",
-            description: "There was a problem checking your session.",
+            description: "There was a problem checking your session. Please try logging in again.",
             variant: "destructive",
           });
         }
@@ -67,9 +75,12 @@ const AuthForm = () => {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session?.user?.id);
+      
       if (event === "SIGNED_IN" && session && mounted) {
         setIsLoading(true);
         try {
+          // Add a small delay to ensure the profile is created
           await new Promise(resolve => setTimeout(resolve, 1000));
           
           const { data: profile, error: profileError } = await supabase
@@ -78,9 +89,13 @@ const AuthForm = () => {
             .eq("id", session.user.id)
             .single();
 
-          if (profileError) throw profileError;
+          if (profileError) {
+            console.error("Profile fetch error after sign in:", profileError);
+            throw profileError;
+          }
 
           if (mounted) {
+            console.log("Successfully signed in with role:", profile?.role || role);
             toast({
               title: "Welcome to BeatBiz!",
               description: "You've successfully signed in.",
@@ -91,12 +106,12 @@ const AuthForm = () => {
             console.log("Redirecting user with role:", userRole);
             handleRoleBasedRedirect(userRole);
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Error during sign in:", error);
           if (mounted) {
             toast({
               title: "Error",
-              description: "There was a problem signing you in. Please try again.",
+              description: error.message || "There was a problem signing you in. Please try again.",
               variant: "destructive",
             });
           }
