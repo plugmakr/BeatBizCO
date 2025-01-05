@@ -13,16 +13,25 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting file upload process...');
+    
     const formData = await req.formData()
     const file = formData.get('file')
     const clientId = formData.get('clientId')
 
     if (!file || !clientId) {
+      console.error('Missing required fields:', { file: !!file, clientId: !!clientId });
       return new Response(
         JSON.stringify({ error: 'Missing file or client ID' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
+
+    console.log('File details:', {
+      name: (file as File).name,
+      type: (file as File).type,
+      size: (file as File).size
+    });
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -34,6 +43,8 @@ serve(async (req) => {
     const fileExt = fileName.split('.').pop()
     const filePath = `${clientId}/${crypto.randomUUID()}.${fileExt}`
 
+    console.log('Attempting to upload file to storage:', { filePath });
+
     // Upload file to storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('client_files')
@@ -43,12 +54,14 @@ serve(async (req) => {
       })
 
     if (uploadError) {
-      console.error('Upload error:', uploadError)
+      console.error('Storage upload error:', uploadError);
       return new Response(
-        JSON.stringify({ error: 'Failed to upload file' }),
+        JSON.stringify({ error: 'Failed to upload file to storage' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
+
+    console.log('File uploaded successfully to storage, saving metadata to database');
 
     // Save file metadata to database
     const { error: dbError } = await supabase
@@ -62,12 +75,14 @@ serve(async (req) => {
       })
 
     if (dbError) {
-      console.error('Database error:', dbError)
+      console.error('Database error:', dbError);
       return new Response(
         JSON.stringify({ error: 'Failed to save file metadata' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
+
+    console.log('File upload process completed successfully');
 
     return new Response(
       JSON.stringify({ 
@@ -78,7 +93,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
-    console.error('Unexpected error:', error)
+    console.error('Unexpected error:', error);
     return new Response(
       JSON.stringify({ error: 'An unexpected error occurred' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
