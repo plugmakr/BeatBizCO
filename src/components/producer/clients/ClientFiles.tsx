@@ -239,6 +239,9 @@ export function ClientFiles({ client }: ClientFilesProps) {
           onPreview={handlePreview}
           onDelete={handleDelete}
           onFolderClick={handleNavigate}
+          clientId={client.id}
+          currentFolder={currentFolder}
+          onFilesChange={fetchFiles}
         />
       </CardContent>
 
