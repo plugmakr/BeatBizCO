@@ -10,13 +10,11 @@ export const proStudioTemplate: Template = {
       type: "navigation",
       content: {
         links: [
-          { label: "Beats", url: "#beats" },
-          { label: "Loop Kits", url: "#loops" },
-          { label: "Sound Kits", url: "#sounds" },
-          { label: "Drum Kits", url: "#drums" },
-          { label: "Midi Kits", url: "#midi" },
+          { label: "Home", url: "#" },
           { label: "Services", url: "#services" },
-          { label: "Licensing", url: "#licensing" }
+          { label: "Portfolio", url: "#portfolio" },
+          { label: "Licensing", url: "#licensing" },
+          { label: "Contact", url: "#contact" }
         ]
       }
     },
@@ -54,6 +52,28 @@ export const proStudioTemplate: Template = {
       }
     },
     {
+      type: "music-player",
+      content: {
+        heading: "Recent Productions",
+        playlist: [
+          {
+            id: "track-1",
+            title: "Studio Magic",
+            bpm: 128,
+            key: "Am",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
+          },
+          {
+            id: "track-2",
+            title: "Professional Touch",
+            bpm: 140,
+            key: "Gm",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
+          }
+        ]
+      }
+    },
+    {
       type: "licensing",
       content: {
         heading: "License Options",
@@ -74,6 +94,43 @@ export const proStudioTemplate: Template = {
             features: ["Full Ownership", "Source Files", "Unlimited Usage"]
           }
         ]
+      }
+    },
+    {
+      type: "testimonials",
+      content: {
+        heading: "Client Success Stories",
+        testimonials: [
+          {
+            name: "David Lee",
+            role: "Professional Artist",
+            content: "The level of professionalism and quality here is unmatched. Every session exceeds expectations."
+          },
+          {
+            name: "Emma Thompson",
+            role: "Recording Artist",
+            content: "Found my signature sound here. The team's expertise made all the difference."
+          }
+        ]
+      }
+    },
+    {
+      type: "social",
+      content: {
+        title: "Follow Our Journey",
+        platforms: [
+          { name: "Instagram", url: "#" },
+          { name: "YouTube", url: "#" },
+          { name: "Twitter", url: "#" }
+        ]
+      }
+    },
+    {
+      type: "contact",
+      content: {
+        heading: "Start Your Project",
+        fields: ["name", "email", "budget", "project-details"],
+        showSocials: true
       }
     }
   ],

@@ -10,13 +10,11 @@ export const creativeHubTemplate: Template = {
       type: "navigation",
       content: {
         links: [
-          { label: "Beats", url: "#beats" },
-          { label: "Loop Kits", url: "#loops" },
-          { label: "Sound Kits", url: "#sounds" },
-          { label: "Drum Kits", url: "#drums" },
-          { label: "Midi Kits", url: "#midi" },
+          { label: "Home", url: "#" },
           { label: "Services", url: "#services" },
-          { label: "Licensing", url: "#licensing" }
+          { label: "Portfolio", url: "#portfolio" },
+          { label: "Licensing", url: "#licensing" },
+          { label: "Contact", url: "#contact" }
         ]
       }
     },
@@ -31,13 +29,71 @@ export const creativeHubTemplate: Template = {
       }
     },
     {
-      type: "products",
+      type: "services",
       content: {
-        heading: "Sound Collection",
-        layout: "grid",
-        itemsPerRow: 4,
-        showFilters: true,
-        showSort: true
+        heading: "Creative Services",
+        services: [
+          {
+            name: "Music Production",
+            price: "from $299",
+            description: "Full-service music production with a creative touch"
+          },
+          {
+            name: "Sound Design",
+            price: "from $199",
+            description: "Custom sound design for your unique project"
+          },
+          {
+            name: "Artist Development",
+            price: "from $499",
+            description: "Comprehensive artist development program"
+          }
+        ]
+      }
+    },
+    {
+      type: "music-player",
+      content: {
+        heading: "Latest Works",
+        playlist: [
+          {
+            id: "track-1",
+            title: "Creative Flow",
+            bpm: 125,
+            key: "Cm",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
+          },
+          {
+            id: "track-2",
+            title: "Artistic Vision",
+            bpm: 135,
+            key: "Gm",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
+          }
+        ]
+      }
+    },
+    {
+      type: "licensing",
+      content: {
+        heading: "Licensing Plans",
+        licenses: [
+          {
+            name: "Creator License",
+            price: "$59.99",
+            features: ["High-Quality Files", "Social Media Use", "Monetization Rights"]
+          },
+          {
+            name: "Professional",
+            price: "$299.99",
+            features: ["All Audio Formats", "Commercial Use", "Unlimited Revenue"]
+          },
+          {
+            name: "Enterprise",
+            price: "$799.99",
+            features: ["Exclusive Rights", "Source Files", "Full Ownership"]
+          }
+        ]
       }
     },
     {
@@ -64,10 +120,21 @@ export const creativeHubTemplate: Template = {
       }
     },
     {
+      type: "social",
+      content: {
+        title: "Join Our Creative Community",
+        platforms: [
+          { name: "Instagram", url: "#" },
+          { name: "YouTube", url: "#" },
+          { name: "Twitter", url: "#" }
+        ]
+      }
+    },
+    {
       type: "contact",
       content: {
-        heading: "Connect With Us",
-        fields: ["name", "email", "project-type", "message"],
+        heading: "Let's Create Together",
+        fields: ["name", "email", "project-type", "vision", "budget"],
         showSocials: true
       }
     }
