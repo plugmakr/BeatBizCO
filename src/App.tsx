@@ -13,6 +13,7 @@ import ProducerSoundLibrary from "./pages/producer/SoundLibrary";
 import ProducerSupport from "./pages/producer/Support";
 import ProducerWebsite from "./pages/producer/Website";
 import ProducerFunnels from "./pages/producer/Funnels";
+import ProducerMessages from "./pages/producer/Messages";
 import ArtistDashboard from "./pages/artist/Dashboard";
 import ArtistAnalytics from "./pages/artist/Analytics";
 import ArtistMarketing from "./pages/artist/Marketing";
@@ -41,6 +42,7 @@ function App() {
         <Route path="/producer/support" element={<ProducerSupport />} />
         <Route path="/producer/website" element={<ProducerWebsite />} />
         <Route path="/producer/funnels" element={<ProducerFunnels />} />
+        <Route path="/producer/messages" element={<ProducerMessages />} />
 
         {/* Artist Routes */}
         <Route path="/artist" element={<ArtistDashboard />} />
