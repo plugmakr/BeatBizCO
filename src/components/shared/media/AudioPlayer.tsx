@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Play, Pause, Volume2, VolumeX, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { AudioControls } from "./audio/AudioControls";
+import { TimeDisplay } from "./audio/TimeDisplay";
+import { VolumeControl } from "./audio/VolumeControl";
 
 interface AudioPlayerProps {
   src: string;
   title?: string;
+  compact?: boolean;
 }
 
-export function AudioPlayer({ src, title }: AudioPlayerProps) {
+export function AudioPlayer({ src, title, compact = false }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -31,10 +34,9 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
       try {
         const { data, error } = await supabase.storage
           .from('sound_library')
-          .createSignedUrl(src, 3600); // 1 hour expiry
+          .createSignedUrl(src, 3600);
 
         if (error) throw error;
-        
         setAudioUrl(data.signedUrl);
         setError(null);
       } catch (err) {
@@ -118,12 +120,6 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
     });
   };
 
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  };
-
   if (error) {
     return (
       <div className="flex items-center justify-center p-4 text-destructive gap-2">
@@ -145,61 +141,29 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
           className="hidden"
         />
       )}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full"
-          onClick={togglePlay}
-          disabled={!audioUrl}
-        >
-          {isPlaying ? (
-            <Pause className="h-6 w-6" />
-          ) : (
-            <Play className="h-6 w-6" />
-          )}
-        </Button>
-        <div className="flex-1">
-          {title && (
-            <div className="text-sm font-medium mb-1 truncate">{title}</div>
-          )}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground min-w-[40px]">
-              {formatTime(currentTime)}
-            </span>
-            <Slider
-              value={[currentTime]}
-              max={duration}
-              step={0.1}
-              onValueChange={handleSeek}
-              className="flex-1"
-            />
-            <span className="text-xs text-muted-foreground min-w-[40px]">
-              {formatTime(duration)}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 min-w-[100px]">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-            onClick={toggleMute}
-          >
-            {isMuted ? (
-              <VolumeX className="h-4 w-4" />
-            ) : (
-              <Volume2 className="h-4 w-4" />
-            )}
-          </Button>
-          <Slider
-            value={[isMuted ? 0 : volume]}
-            max={1}
-            step={0.01}
-            onValueChange={handleVolumeChange}
-            className="w-20"
+      <div className={`flex flex-col ${compact ? 'gap-2' : 'gap-4'}`}>
+        <div className="flex items-center gap-4">
+          <AudioControls
+            isPlaying={isPlaying}
+            onPlayPause={togglePlay}
+            disabled={!audioUrl}
+          />
+          <TimeDisplay currentTime={currentTime} duration={duration} />
+          <div className="flex-1" />
+          <VolumeControl
+            volume={volume}
+            isMuted={isMuted}
+            onVolumeChange={handleVolumeChange}
+            onMuteToggle={toggleMute}
           />
         </div>
+        <Slider
+          value={[currentTime]}
+          max={duration}
+          step={0.1}
+          onValueChange={handleSeek}
+          className="flex-1"
+        />
       </div>
     </div>
   );
