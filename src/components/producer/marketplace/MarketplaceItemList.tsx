@@ -37,14 +37,16 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
     const loadThumbnails = async () => {
       const urls: { [key: string]: string } = {};
       for (const item of items) {
-        try {
-          const { data: { publicUrl } } = supabase
-            .storage
-            .from('marketplace')
-            .getPublicUrl(item.thumbnail_url);
-          urls[item.id] = publicUrl;
-        } catch (error) {
-          console.error("Error getting thumbnail URL:", error);
+        if (item.thumbnail_url) {
+          try {
+            const { data: { publicUrl } } = supabase
+              .storage
+              .from('marketplace')
+              .getPublicUrl(item.thumbnail_url);
+            urls[item.id] = publicUrl;
+          } catch (error) {
+            console.error("Error getting thumbnail URL:", error);
+          }
         }
       }
       setThumbnailUrls(urls);
@@ -82,16 +84,9 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
     try {
       setPlayingId(id);
       
-      // First check if the file exists
-      const { data: fileExists, error: checkError } = await supabase
-        .storage
-        .from('marketplace')
-        .list('', {
-          search: previewUrl
-        });
-
-      if (checkError || !fileExists || fileExists.length === 0) {
-        throw new Error("Preview file not found");
+      // First check if the preview URL is valid
+      if (!previewUrl) {
+        throw new Error("No preview URL available");
       }
 
       // Get the signed URL for the preview audio
@@ -110,12 +105,14 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
           item_id: id,
           event_type: "play",
         });
+      } else {
+        throw new Error("Could not generate preview URL");
       }
     } catch (error: any) {
       console.error("Play analytics error:", error);
       toast({
         title: "Error",
-        description: "Failed to play audio preview. The file might be missing or inaccessible.",
+        description: "Unable to play audio preview. The file might be missing or inaccessible.",
         variant: "destructive",
       });
       setPlayingId(null);
@@ -140,7 +137,10 @@ export function MarketplaceItemList({ items, onRefresh }: MarketplaceItemListPro
       <Dialog open={!!audioPreviewUrl} onOpenChange={() => setAudioPreviewUrl(null)}>
         <DialogContent>
           {audioPreviewUrl && (
-            <AudioPlayer src={audioPreviewUrl} title="Audio Preview" />
+            <AudioPlayer 
+              src={audioPreviewUrl} 
+              title={items.find(item => item.id === playingId)?.title || "Audio Preview"} 
+            />
           )}
         </DialogContent>
       </Dialog>
