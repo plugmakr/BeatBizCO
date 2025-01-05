@@ -46,22 +46,19 @@ const ProducerClients = () => {
   const { data: clients, isLoading, refetch } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
+
       const { data, error } = await supabase
         .from('clients')
         .select('*')
+        .eq('producer_id', user.user.id)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data as Client[];
     }
   });
-
-  const filteredClients = clients?.filter(client =>
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.genre_focus?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleDeleteClient = async () => {
     if (!selectedClient) return;
@@ -144,14 +141,19 @@ const ProducerClients = () => {
                         Loading clients...
                       </TableCell>
                     </TableRow>
-                  ) : filteredClients?.length === 0 ? (
+                  ) : clients?.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} className="text-center">
                         No clients found
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredClients?.map((client) => (
+                    clients?.filter(client =>
+                      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      client.phone?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      client.genre_focus?.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).map((client) => (
                       <ClientTableRow
                         key={client.id}
                         client={client}
