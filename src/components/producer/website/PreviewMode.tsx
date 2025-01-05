@@ -21,13 +21,11 @@ interface PreviewModeProps {
 
 export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
   const renderBlock = (block: any) => {
-    // Early return if block or content is undefined
     if (!block?.content) {
       console.warn(`Block or content missing for type: ${block?.type}`);
       return null;
     }
 
-    // Map block types to their components
     const blockComponents: { [key: string]: (props: { content: any }) => string } = {
       navigation: NavigationBlock,
       hero: HeroBlock,
@@ -47,10 +45,8 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
       return BlockComponent({ content: block.content });
     }
 
-    // Fallback for unconfigured blocks
-    console.warn(`No component found for block type: ${block.type}`);
     return `
-      <section class="py-24 px-6 bg-black/50 backdrop-blur-sm border-y border-white/10">
+      <section class="py-12 px-6 bg-black/50 backdrop-blur-sm border-y border-white/10">
         <div class="max-w-md mx-auto text-center">
           <div class="bg-white/5 p-8 rounded-xl border border-white/10">
             <svg class="w-12 h-12 mx-auto mb-4 text-white/50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,9 +101,19 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                     body { 
                       background: #000;
                       color: #fff;
+                      margin: 0;
+                      padding: 0;
+                    }
+                    section { 
+                      margin: 0;
+                      padding: 0;
                     }
                     section + section { 
                       margin-top: 1px;
+                    }
+                    #preview {
+                      margin: 0;
+                      padding: 0;
                     }
                   </style>
                 </head>
