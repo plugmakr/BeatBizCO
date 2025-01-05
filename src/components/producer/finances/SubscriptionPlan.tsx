@@ -21,21 +21,25 @@ export function SubscriptionPlan() {
   }, []);
 
   const fetchCurrentPlan = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('subscription_plan')
-      .eq('id', user.id)
-      .single();
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('subscription_plan')
+        .eq('id', user.id)
+        .single();
 
-    if (error) {
+      if (error) {
+        console.error('Error fetching subscription plan:', error);
+        return;
+      }
+
+      setCurrentPlan(profile?.subscription_plan || 'CRM Only');
+    } catch (error) {
       console.error('Error fetching subscription plan:', error);
-      return;
     }
-
-    setCurrentPlan(profile?.subscription_plan || 'CRM Only');
   };
 
   const plans: Plan[] = [
