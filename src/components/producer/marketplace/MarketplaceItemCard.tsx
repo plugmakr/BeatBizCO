@@ -1,12 +1,21 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, MoreVertical } from "lucide-react";
+import { 
+  Play, 
+  MoreVertical, 
+  Share2, 
+  Star, 
+  Tag,
+  DollarSign,
+  Shield
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 interface MarketplaceItemCardProps {
@@ -36,56 +45,102 @@ export function MarketplaceItemCard({
   onPlay, 
   onDelete 
 }: MarketplaceItemCardProps) {
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: item.title,
+        text: item.description,
+        url: window.location.href,
+      });
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
+
   return (
-    <Card className="overflow-hidden">
-      <div className="aspect-video relative">
+    <Card className="overflow-hidden w-full max-w-sm">
+      <div className="aspect-video relative h-36">
         <img
           src={thumbnailUrl}
           alt={item.title}
           className="w-full h-full object-cover"
         />
-        <Button
-          variant="secondary"
-          size="icon"
-          className="absolute bottom-2 right-2"
-          onClick={() => onPlay(item.id, item.preview_url)}
-        >
-          <Play className="h-4 w-4" />
-        </Button>
+        <div className="absolute bottom-2 right-2 flex gap-2">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => onPlay(item.id, item.preview_url)}
+          >
+            <Play className="h-4 w-4" />
+          </Button>
+          {item.total_sales > 10 && (
+            <Badge variant="secondary" className="bg-primary/20">
+              <Star className="h-3 w-3 mr-1" />
+              Featured
+            </Badge>
+          )}
+        </div>
       </div>
-      <CardHeader className="flex flex-row items-center justify-between">
+      
+      <CardHeader className="p-3 flex flex-row items-center justify-between">
         <div>
-          <h3 className="font-semibold">{item.title}</h3>
-          <p className="text-sm text-muted-foreground">{item.type}</p>
+          <h3 className="font-semibold text-sm">{item.title}</h3>
+          <p className="text-xs text-muted-foreground">{item.type}</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="h-8 w-8">
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onDelete(item.id)}>
+            <DropdownMenuItem onClick={handleShare}>
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onDelete(item.id)} className="text-destructive">
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent className="space-y-2">
-        <p className="text-sm">{item.description}</p>
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{item.genre}</Badge>
-          {item.bpm && <Badge variant="secondary">{item.bpm} BPM</Badge>}
-          {item.key && <Badge variant="secondary">Key: {item.key}</Badge>}
+
+      <CardContent className="p-3 space-y-2">
+        <div className="flex flex-wrap gap-1">
+          <Badge variant="outline" className="text-xs">
+            <Tag className="h-3 w-3 mr-1" />
+            {item.genre}
+          </Badge>
+          {item.bpm && (
+            <Badge variant="outline" className="text-xs">
+              {item.bpm} BPM
+            </Badge>
+          )}
+          {item.key && (
+            <Badge variant="outline" className="text-xs">
+              Key: {item.key}
+            </Badge>
+          )}
+        </div>
+        
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center">
+            <DollarSign className="h-3 w-3 mr-1" />
+            <span className="font-semibold">${item.price}</span>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            <Shield className="h-3 w-3 mr-1" />
+            Basic License
+          </Badge>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between">
-        <div className="text-sm space-x-2">
-          <span>{item.total_plays} plays</span>
-          <span>•</span>
-          <span>{item.total_downloads} downloads</span>
-        </div>
-        <p className="font-semibold">${item.price}</p>
+
+      <CardFooter className="p-3 flex justify-between text-xs text-muted-foreground">
+        <span>{item.total_plays} plays</span>
+        <span>•</span>
+        <span>{item.total_downloads} downloads</span>
       </CardFooter>
     </Card>
   );
