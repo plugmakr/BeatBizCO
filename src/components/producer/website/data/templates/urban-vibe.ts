@@ -10,13 +10,11 @@ export const urbanVibeTemplate: Template = {
       type: "navigation",
       content: {
         links: [
+          { label: "Home", url: "#" },
           { label: "Beats", url: "#beats" },
-          { label: "Loop Kits", url: "#loops" },
-          { label: "Sound Kits", url: "#sounds" },
-          { label: "Drum Kits", url: "#drums" },
-          { label: "Midi Kits", url: "#midi" },
           { label: "Services", url: "#services" },
-          { label: "Licensing", url: "#licensing" }
+          { label: "Licensing", url: "#licensing" },
+          { label: "Contact", url: "#contact" }
         ]
       }
     },
@@ -54,21 +52,81 @@ export const urbanVibeTemplate: Template = {
       }
     },
     {
-      type: "social",
+      type: "services",
       content: {
-        platforms: [
-          { name: "Instagram", url: "#", icon: "Instagram" },
-          { name: "YouTube", url: "#", icon: "Youtube" },
-          { name: "Twitter", url: "#", icon: "Twitter" }
+        heading: "Studio Services",
+        services: [
+          {
+            name: "Beat Production",
+            price: "Custom Quote",
+            description: "Professional beat making with industry-standard equipment"
+          },
+          {
+            name: "Recording Sessions",
+            price: "from $100/hr",
+            description: "State-of-the-art recording studio with experienced engineers"
+          }
         ]
       }
     },
     {
-      type: "booking",
+      type: "licensing",
       content: {
-        heading: "Book Studio Time",
-        description: "Reserve your session in our professional recording studio",
-        showCalendar: true
+        heading: "License Your Beat",
+        licenses: [
+          {
+            name: "Basic",
+            price: "$39.99",
+            features: ["MP3 File", "Limited Streams", "Personal Use"]
+          },
+          {
+            name: "Premium",
+            price: "$149.99",
+            features: ["WAV + MP3", "Unlimited Streams", "Commercial Rights"]
+          },
+          {
+            name: "Exclusive",
+            price: "$599.99",
+            features: ["Full Rights", "Source Files", "Commercial Use"]
+          }
+        ]
+      }
+    },
+    {
+      type: "testimonials",
+      content: {
+        heading: "Artist Reviews",
+        testimonials: [
+          {
+            name: "James Wilson",
+            role: "Rap Artist",
+            content: "These beats are fire! The quality and creativity is next level."
+          },
+          {
+            name: "Maria Garcia",
+            role: "Producer",
+            content: "Best studio experience I've had. Professional and talented team."
+          }
+        ]
+      }
+    },
+    {
+      type: "social",
+      content: {
+        title: "Stay Connected",
+        platforms: [
+          { name: "Instagram", url: "#" },
+          { name: "YouTube", url: "#" },
+          { name: "Twitter", url: "#" }
+        ]
+      }
+    },
+    {
+      type: "contact",
+      content: {
+        heading: "Book a Session",
+        fields: ["name", "email", "phone", "project-details"],
+        showSocials: true
       }
     }
   ],

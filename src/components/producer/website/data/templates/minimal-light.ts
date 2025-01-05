@@ -10,13 +10,11 @@ export const minimalLightTemplate: Template = {
       type: "navigation",
       content: {
         links: [
-          { label: "Beats", url: "#beats" },
-          { label: "Loop Kits", url: "#loops" },
-          { label: "Sound Kits", url: "#sounds" },
-          { label: "Drum Kits", url: "#drums" },
-          { label: "Midi Kits", url: "#midi" },
+          { label: "Home", url: "#" },
+          { label: "About", url: "#about" },
           { label: "Services", url: "#services" },
-          { label: "Licensing", url: "#licensing" }
+          { label: "Beats", url: "#beats" },
+          { label: "Contact", url: "#contact" }
         ]
       }
     },
@@ -31,13 +29,66 @@ export const minimalLightTemplate: Template = {
       }
     },
     {
-      type: "products",
+      type: "services",
+      content: {
+        heading: "Services Offered",
+        services: [
+          {
+            name: "Beat Production",
+            price: "$299",
+            description: "Custom beats tailored to your style"
+          },
+          {
+            name: "Vocal Production",
+            price: "$199",
+            description: "Professional vocal recording and editing"
+          },
+          {
+            name: "Audio Mixing",
+            price: "$149",
+            description: "Expert mixing for crystal clear sound"
+          }
+        ]
+      }
+    },
+    {
+      type: "music-player",
       content: {
         heading: "Latest Releases",
-        layout: "grid",
-        itemsPerRow: 3,
-        showFilters: true,
-        showSort: true
+        playlist: [
+          {
+            id: "track-1",
+            title: "Summer Vibes",
+            bpm: 128,
+            key: "Am",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
+          },
+          {
+            id: "track-2",
+            title: "Midnight Dreams",
+            bpm: 95,
+            key: "Fm",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
+          }
+        ]
+      }
+    },
+    {
+      type: "licensing",
+      content: {
+        heading: "License Options",
+        licenses: [
+          {
+            name: "Standard License",
+            price: "$49.99",
+            features: ["MP3 & WAV Files", "10,000 Streams", "Non-Profit Use"]
+          },
+          {
+            name: "Premium License",
+            price: "$199.99",
+            features: ["All Audio Files", "Unlimited Streams", "Commercial Use"]
+          }
+        ]
       }
     },
     {
@@ -46,22 +97,33 @@ export const minimalLightTemplate: Template = {
         heading: "Artist Testimonials",
         testimonials: [
           {
-            name: "Alex Thompson",
-            role: "Recording Artist",
-            content: "The quality and professionalism exceeded my expectations. Truly game-changing beats."
+            name: "Michael Chen",
+            role: "Hip Hop Artist",
+            content: "The quality and attention to detail is unmatched. A game-changer for my production workflow."
           },
           {
-            name: "Sarah Martinez",
-            role: "Independent Artist",
-            content: "Working with this studio has taken my music to the next level. Incredible sound design."
+            name: "Lisa Rodriguez",
+            role: "R&B Singer",
+            content: "Found my signature sound here. The professional approach exceeded expectations."
           }
+        ]
+      }
+    },
+    {
+      type: "social",
+      content: {
+        title: "Follow Me",
+        platforms: [
+          { name: "Instagram", url: "#" },
+          { name: "YouTube", url: "#" },
+          { name: "Twitter", url: "#" }
         ]
       }
     },
     {
       type: "contact",
       content: {
-        heading: "Get in Touch",
+        heading: "Work Together",
         fields: ["name", "email", "message"],
         showSocials: true
       }

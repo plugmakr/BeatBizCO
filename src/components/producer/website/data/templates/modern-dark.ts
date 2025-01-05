@@ -10,13 +10,12 @@ export const modernDarkTemplate: Template = {
       type: "navigation",
       content: {
         links: [
-          { label: "Beats", url: "#beats" },
-          { label: "Loop Kits", url: "#loops" },
-          { label: "Sound Kits", url: "#sounds" },
-          { label: "Drum Kits", url: "#drums" },
-          { label: "Midi Kits", url: "#midi" },
+          { label: "Home", url: "#" },
           { label: "Services", url: "#services" },
-          { label: "Licensing", url: "#licensing" }
+          { label: "Beats", url: "#beats" },
+          { label: "Licensing", url: "#licensing" },
+          { label: "Testimonials", url: "#testimonials" },
+          { label: "Contact", url: "#contact" }
         ]
       }
     },
@@ -28,29 +27,6 @@ export const modernDarkTemplate: Template = {
         ctaText: "Explore Beats",
         ctaUrl: "#beats",
         backgroundImage: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04"
-      }
-    },
-    {
-      type: "music-player",
-      content: {
-        heading: "Featured Tracks",
-        artistName: "Your Studio Name",
-        playlist: [
-          {
-            id: "track-1",
-            title: "Urban Night",
-            bpm: 140,
-            key: "Am",
-            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
-          },
-          {
-            id: "track-2",
-            title: "City Lights",
-            bpm: 128,
-            key: "Cm",
-            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
-          }
-        ]
       }
     },
     {
@@ -77,6 +53,29 @@ export const modernDarkTemplate: Template = {
       }
     },
     {
+      type: "music-player",
+      content: {
+        heading: "Featured Tracks",
+        artistName: "Your Studio Name",
+        playlist: [
+          {
+            id: "track-1",
+            title: "Urban Night",
+            bpm: 140,
+            key: "Am",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3"
+          },
+          {
+            id: "track-2",
+            title: "City Lights",
+            bpm: 128,
+            key: "Cm",
+            audioUrl: "https://assets.mixkit.co/music/preview/mixkit-hip-hop-02-178.mp3"
+          }
+        ]
+      }
+    },
+    {
       type: "licensing",
       content: {
         heading: "Licensing Options",
@@ -97,6 +96,43 @@ export const modernDarkTemplate: Template = {
             features: ["All Files", "Full Ownership", "Unlimited Use"]
           }
         ]
+      }
+    },
+    {
+      type: "testimonials",
+      content: {
+        heading: "What Artists Say",
+        testimonials: [
+          {
+            name: "Alex Thompson",
+            role: "Recording Artist",
+            content: "Working with this studio transformed my sound completely. The quality and professionalism exceeded all expectations."
+          },
+          {
+            name: "Sarah Martinez",
+            role: "Independent Artist",
+            content: "The beats are incredible and the service is top-notch. Highly recommend for any serious artist."
+          }
+        ]
+      }
+    },
+    {
+      type: "social",
+      content: {
+        title: "Connect With Me",
+        platforms: [
+          { name: "Instagram", url: "#" },
+          { name: "YouTube", url: "#" },
+          { name: "Twitter", url: "#" }
+        ]
+      }
+    },
+    {
+      type: "contact",
+      content: {
+        heading: "Get in Touch",
+        fields: ["name", "email", "project-type", "message"],
+        showSocials: true
       }
     }
   ],
