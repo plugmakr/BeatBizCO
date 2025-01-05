@@ -86,7 +86,10 @@ const AuthForm = () => {
               description: "You've successfully signed in.",
             });
             
-            handleRoleBasedRedirect(profile?.role || role);
+            // Ensure we're using the correct role from the profile
+            const userRole = profile?.role || role;
+            console.log("Redirecting user with role:", userRole);
+            handleRoleBasedRedirect(userRole);
           }
         } catch (error) {
           console.error("Error during sign in:", error);
