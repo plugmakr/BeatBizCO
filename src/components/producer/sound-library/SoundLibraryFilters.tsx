@@ -46,12 +46,12 @@ export function SoundLibraryFilters({
 
   return (
     <div className="p-4 border-b flex items-center gap-4">
-      <Select value={selectedType || ""} onValueChange={(value) => onTypeChange(value || null)}>
+      <Select value={selectedType || "all"} onValueChange={(value) => onTypeChange(value === "all" ? null : value)}>
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Filter by type" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Types</SelectItem>
+          <SelectItem value="all">All Types</SelectItem>
           <SelectItem value="beat">Beats</SelectItem>
           <SelectItem value="sound_kit">Sound Kits</SelectItem>
           <SelectItem value="midi_kit">MIDI Kits</SelectItem>
