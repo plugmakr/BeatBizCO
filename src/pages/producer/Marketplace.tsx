@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Plus, Search } from "lucide-react";
 import { MarketplaceStats } from "@/components/producer/marketplace/MarketplaceStats";
 import { UploadItemDialog } from "@/components/producer/marketplace/UploadItemDialog";
 import { MarketplaceItemList } from "@/components/producer/marketplace/MarketplaceItemList";
+import { MarketplaceSubmenu } from "@/components/producer/marketplace/MarketplaceSubmenu";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function ProducerMarketplace() {
@@ -81,6 +82,8 @@ export default function ProducerMarketplace() {
             className="pl-10"
           />
         </div>
+
+        <MarketplaceSubmenu />
 
         <MarketplaceItemList items={items || []} onRefresh={handleRefresh} />
 
