@@ -170,8 +170,15 @@ const AuthForm = () => {
                 colors: {
                   brand: "rgb(var(--primary))",
                   brandAccent: "rgb(var(--primary))",
+                  inputText: "#FFFFFF",
+                  inputBackground: "#2A2F3C",
+                  inputPlaceholder: "#9CA3AF",
                 },
               },
+            },
+            className: {
+              input: "text-white placeholder-gray-400",
+              label: "text-gray-200",
             },
           }}
           providers={[]}
