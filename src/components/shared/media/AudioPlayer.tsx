@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, Volume2, VolumeX, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AudioPlayerProps {
   src: string;
@@ -16,6 +17,7 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
 
@@ -25,7 +27,31 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
     setCurrentTime(0);
     setDuration(0);
     setError(null);
-  }, [src]);
+    
+    // Get the signed URL for the audio file
+    const loadAudioUrl = async () => {
+      try {
+        const { data: { publicUrl } } = supabase.storage
+          .from('sound_library')
+          .getPublicUrl(src);
+          
+        setAudioUrl(publicUrl);
+        setError(null);
+      } catch (err) {
+        console.error("Error getting audio URL:", err);
+        setError("Failed to load audio file");
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load the audio file. Please try again later.",
+        });
+      }
+    };
+
+    if (src) {
+      loadAudioUrl();
+    }
+  }, [src, toast]);
 
   const togglePlay = async () => {
     if (!audioRef.current) return;
@@ -70,10 +96,9 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
     }
   };
 
-  const handleError = (e: Event) => {
-    const audioElement = e.target as HTMLAudioElement;
+  const handleError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
     setError("Unable to load audio file");
-    console.error("Audio error:", audioElement.error);
+    console.error("Audio error:", e);
     toast({
       variant: "destructive",
       title: "Audio Error",
@@ -123,20 +148,23 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
 
   return (
     <div className="w-full space-y-2">
-      <audio
-        ref={audioRef}
-        src={src}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onError={handleError}
-        className="hidden"
-      />
+      {audioUrl && (
+        <audio
+          ref={audioRef}
+          src={audioUrl}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={handleLoadedMetadata}
+          onError={handleError}
+          className="hidden"
+        />
+      )}
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="icon"
           className="rounded-full"
           onClick={togglePlay}
+          disabled={!audioUrl}
         >
           {isPlaying ? (
             <Pause className="h-6 w-6" />
