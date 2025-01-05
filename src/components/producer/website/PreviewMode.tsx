@@ -13,8 +13,8 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl h-[90vh]">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Website Preview</h2>
+        <div className="flex justify-between items-center mb-2 py-2">
+          <h2 className="text-sm font-medium">Preview</h2>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
@@ -56,19 +56,22 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                                 ${
                                   block.content.backgroundImage
                                     ? `<img src="${block.content.backgroundImage}" class="absolute inset-0 w-full h-full object-cover" alt="Hero background"/>`
-                                    : `<div class="absolute inset-0 bg-gradient-to-r from-purple-900 to-blue-900"></div>`
+                                    : `<div class="absolute inset-0">
+                                         <img src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81" class="w-full h-full object-cover" alt="Default hero background"/>
+                                         <div class="absolute inset-0 bg-black/40"></div>
+                                       </div>`
                                 }
                                 <div class="relative z-10 text-center">
                                   <h1 class="text-5xl font-bold mb-4">${
-                                    block.content.heading
+                                    block.content.heading || "Your Music Production Journey Starts Here"
                                   }</h1>
                                   <p class="text-xl mb-8">${
-                                    block.content.subheading
+                                    block.content.subheading || "Professional Beat Making & Music Production"
                                   }</p>
                                   <a href="${
-                                    block.content.ctaUrl
+                                    block.content.ctaUrl || "#"
                                   }" class="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-opacity-90">
-                                    ${block.content.ctaText}
+                                    ${block.content.ctaText || "Browse Beats"}
                                   </a>
                                 </div>
                               </div>
@@ -77,19 +80,21 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                             return `
                               <div class="py-16 px-8 bg-gray-50">
                                 <h2 class="text-3xl font-bold text-center mb-12">${
-                                  block.content.heading
+                                  block.content.heading || "Featured Beats"
                                 }</h2>
                                 <div class="grid grid-cols-1 md:grid-cols-${
-                                  block.content.itemsPerRow
+                                  block.content.itemsPerRow || 3
                                 } gap-8 max-w-7xl mx-auto">
                                   ${Array(6)
                                     .fill(null)
                                     .map(
-                                      () => `
+                                      (_, i) => `
                                     <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                                      <div class="h-48 bg-gray-200"></div>
+                                      <div class="h-48 bg-gray-200">
+                                        <img src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=500" class="w-full h-full object-cover" alt="Beat ${i + 1}"/>
+                                      </div>
                                       <div class="p-4">
-                                        <h3 class="font-semibold">Sample Beat</h3>
+                                        <h3 class="font-semibold">Sample Beat ${i + 1}</h3>
                                         <p class="text-gray-600">$29.99</p>
                                       </div>
                                     </div>
@@ -99,10 +104,43 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
                                 </div>
                               </div>
                             `;
+                          case "services":
+                            return `
+                              <div class="py-16 px-8 bg-white">
+                                <h2 class="text-3xl font-bold text-center mb-12">${
+                                  block.content.heading || "Production Services"
+                                }</h2>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                                  ${(block.content.services || [
+                                    {
+                                      name: "Custom Beat Production",
+                                      price: "Starting at $299",
+                                      description: "Professional beat production tailored to your style"
+                                    },
+                                    {
+                                      name: "Mixing & Mastering",
+                                      price: "Starting at $149",
+                                      description: "Industry-standard mixing and mastering services"
+                                    }
+                                  ]).map(
+                                    (service: any) => `
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                      <h3 class="text-xl font-semibold mb-2">${service.name}</h3>
+                                      <p class="text-primary font-bold mb-2">${service.price}</p>
+                                      <p class="text-gray-600">${service.description}</p>
+                                    </div>
+                                  `
+                                  ).join("")}
+                                </div>
+                              </div>
+                            `;
                           default:
                             return `
-                              <div class="p-4 text-center text-gray-500">
-                                Preview not available for this block type
+                              <div class="p-16 text-center bg-gray-50">
+                                <img src="https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d" class="w-64 h-64 object-cover mx-auto mb-4 rounded-lg" alt="Placeholder"/>
+                                <p class="text-gray-500">
+                                  Preview content is being prepared for this block type
+                                </p>
                               </div>
                             `;
                         }
