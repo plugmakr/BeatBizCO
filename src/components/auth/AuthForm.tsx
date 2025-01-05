@@ -17,7 +17,9 @@ const AuthForm = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
         
         if (session?.user && mounted.current) {
           const { data: profile, error: profileError } = await supabase
@@ -26,20 +28,17 @@ const AuthForm = () => {
             .eq('id', session.user.id)
             .single();
 
-          if (profileError) {
-            console.error("Profile fetch error:", profileError);
-            return;
-          }
+          if (profileError) throw profileError;
 
           if (profile && mounted.current) {
             handleRoleBasedRedirect(profile.role);
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Session check error:", error);
         toast({
           title: "Error",
-          description: "Failed to check session. Please try again.",
+          description: error.message || "Failed to check session",
           variant: "destructive",
         });
       }
@@ -50,7 +49,6 @@ const AuthForm = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session && mounted.current) {
         try {
-          // First check if profile exists
           const { data: existingProfile, error: profileError } = await supabase
             .from("profiles")
             .select("id, role")
@@ -58,11 +56,9 @@ const AuthForm = () => {
             .single();
 
           if (profileError && profileError.code !== 'PGRST116') {
-            console.error("Profile check error:", profileError);
             throw profileError;
           }
 
-          // If profile doesn't exist or role is different, upsert
           if (!existingProfile || existingProfile.role !== role) {
             const { error: upsertError } = await supabase
               .from("profiles")
@@ -72,10 +68,7 @@ const AuthForm = () => {
                 updated_at: new Date().toISOString(),
               });
 
-            if (upsertError) {
-              console.error("Profile upsert error:", upsertError);
-              throw upsertError;
-            }
+            if (upsertError) throw upsertError;
           }
 
           if (mounted.current) {
@@ -90,13 +83,11 @@ const AuthForm = () => {
           if (mounted.current) {
             toast({
               title: "Error",
-              description: error.message || "Failed to set user role. Please try again.",
+              description: error.message || "Failed to set user role",
               variant: "destructive",
             });
           }
         }
-      } else if (event === 'SIGNED_OUT') {
-        navigate("/auth");
       }
     });
 
