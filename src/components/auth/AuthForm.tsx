@@ -50,20 +50,41 @@ const AuthForm = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session && mounted.current) {
         try {
-          const { error: upsertError } = await supabase
+          // First, check if profile exists
+          const { data: existingProfile } = await supabase
             .from("profiles")
-            .upsert({
-              id: session.user.id,
-              role: role,
-              updated_at: new Date().toISOString(),
-            }, {
-              onConflict: 'id',
-              ignoreDuplicates: false
-            });
+            .select("id")
+            .eq("id", session.user.id)
+            .single();
 
-          if (upsertError) {
-            console.error("Profile upsert error:", upsertError);
-            throw upsertError;
+          if (!existingProfile) {
+            // If profile doesn't exist, create it
+            const { error: insertError } = await supabase
+              .from("profiles")
+              .insert({
+                id: session.user.id,
+                role: role,
+                updated_at: new Date().toISOString(),
+              });
+
+            if (insertError) {
+              console.error("Profile creation error:", insertError);
+              throw insertError;
+            }
+          } else {
+            // If profile exists, update it
+            const { error: updateError } = await supabase
+              .from("profiles")
+              .update({
+                role: role,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", session.user.id);
+
+            if (updateError) {
+              console.error("Profile update error:", updateError);
+              throw updateError;
+            }
           }
 
           if (mounted.current) {
@@ -74,7 +95,7 @@ const AuthForm = () => {
             handleRoleBasedRedirect(role);
           }
         } catch (error) {
-          console.error("Error updating role:", error);
+          console.error("Error managing profile:", error);
           if (mounted.current) {
             toast({
               title: "Error",
