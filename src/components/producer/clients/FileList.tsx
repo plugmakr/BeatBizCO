@@ -116,9 +116,9 @@ export function FileList({
   };
 
   return (
-    <div className="relative min-h-[400px] w-full">
+    <div className="relative min-h-[400px] w-full overflow-hidden rounded-md border">
       <ScrollArea className="h-[400px] w-full">
-        <div className="space-y-2 pr-4">
+        <div className="space-y-2 p-4">
           {files.map((file) => (
             <FileContextMenu
               key={file.id}
@@ -132,7 +132,7 @@ export function FileList({
               }}
             >
               <div
-                className="flex items-center justify-between p-3 border rounded-lg transition-colors hover:bg-secondary/50"
+                className="flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-secondary/50"
                 draggable={true}
                 onDragStart={() => handleDragStart(file)}
                 onDragOver={(e) => handleDragOver(e, file)}
