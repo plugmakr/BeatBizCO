@@ -1,15 +1,19 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const mounted = useRef(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -33,6 +37,7 @@ const AuthForm = () => {
   }, [navigate]);
 
   const handleExistingUser = async (userId: string) => {
+    setIsLoading(true);
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -47,15 +52,19 @@ const AuthForm = () => {
       }
     } catch (error: any) {
       console.error('Error checking existing user:', error);
+      setError(error.message || "Failed to check user profile");
       toast({
         title: "Error",
         description: error.message || "Failed to check user profile",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleNewSignIn = async (userId: string) => {
+    setIsLoading(true);
     try {
       // Check if profile exists
       const { data: profile, error: profileError } = await supabase
@@ -95,11 +104,23 @@ const AuthForm = () => {
 
     } catch (error: any) {
       console.error('Error handling sign in:', error);
+      let errorMessage = error.message || "Failed to complete sign in";
+      
+      // Handle specific error cases
+      if (error.status === 500) {
+        errorMessage = "Our authentication service is temporarily unavailable. Please try again in a few minutes.";
+      } else if (error.message?.includes("Database error")) {
+        errorMessage = "There was an issue with your account creation. Please try again or contact support.";
+      }
+      
+      setError(errorMessage);
       toast({
         title: "Error",
-        description: error.message || "Failed to complete sign in",
+        description: errorMessage,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -134,6 +155,12 @@ const AuthForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <Auth
           supabaseClient={supabase}
           appearance={{
