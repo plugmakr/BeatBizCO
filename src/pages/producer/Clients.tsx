@@ -46,13 +46,15 @@ const ProducerClients = () => {
   const { data: clients, isLoading, refetch } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user?.id) {
+        throw new Error('Not authenticated');
+      }
 
       const { data, error } = await supabase
         .from('clients')
         .select('*')
-        .eq('producer_id', user.user.id)
+        .eq('producer_id', session.session.user.id)
         .order('created_at', { ascending: false });
       
       if (error) throw error;

@@ -36,7 +36,9 @@ export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogP
         producer_id: session.session.user.id
       };
 
-      const { error } = await supabase.from('clients').insert(clientData);
+      const { error } = await supabase
+        .from('clients')
+        .insert(clientData);
 
       if (error) throw error;
 
@@ -48,6 +50,7 @@ export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogP
       onSuccess();
       onClose();
     } catch (error) {
+      console.error('Error adding client:', error);
       toast({
         title: "Error",
         description: "Failed to add client. Please try again.",
