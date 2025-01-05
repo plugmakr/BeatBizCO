@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Package, Music2, Folder, Disc3, Layers } from "lucide-react";
 import { MarketplaceStats } from "@/components/producer/marketplace/MarketplaceStats";
 import { UploadItemDialog } from "@/components/producer/marketplace/UploadItemDialog";
 import { MarketplaceItemList } from "@/components/producer/marketplace/MarketplaceItemList";
@@ -16,9 +16,18 @@ const isValidCategory = (category: string | null): category is ValidCategory => 
   return ['Loops', 'Midi Kits', 'Sample Kits', 'Drum Kits', 'Beats'].includes(category || '');
 };
 
+const categoryIcons = {
+  'Loops': Music2,
+  'Midi Kits': Layers,
+  'Sample Kits': Package,
+  'Drum Kits': Disc3,
+  'Beats': Folder,
+} as const;
+
 export default function ProducerMarketplace() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<ValidCategory | 'all'>('all');
 
   const { data: stats } = useQuery({
     queryKey: ["marketplaceStats"],
@@ -40,7 +49,7 @@ export default function ProducerMarketplace() {
   });
 
   const { data: items, refetch: refetchItems } = useQuery({
-    queryKey: ["marketplaceItems", searchQuery],
+    queryKey: ["marketplaceItems", searchQuery, selectedCategory],
     queryFn: async () => {
       const query = supabase
         .from("marketplace_items")
@@ -49,6 +58,10 @@ export default function ProducerMarketplace() {
 
       if (searchQuery) {
         query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      if (selectedCategory !== 'all') {
+        query.eq('category', selectedCategory);
       }
 
       const { data, error } = await query;
@@ -84,14 +97,41 @@ export default function ProducerMarketplace() {
           totalPlays={stats?.totalPlays || 0}
         />
 
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search items..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+        <div className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            <Button
+              variant={selectedCategory === 'all' ? "default" : "outline"}
+              onClick={() => setSelectedCategory('all')}
+              className="whitespace-nowrap"
+            >
+              <Package className="mr-2 h-4 w-4" />
+              All Products
+            </Button>
+            {(['Loops', 'Midi Kits', 'Sample Kits', 'Drum Kits', 'Beats'] as const).map((category) => {
+              const Icon = categoryIcons[category];
+              return (
+                <Button
+                  key={category}
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(category)}
+                  className="whitespace-nowrap"
+                >
+                  <Icon className="mr-2 h-4 w-4" />
+                  {category}
+                </Button>
+              );
+            })}
+          </div>
         </div>
 
         <MarketplaceSubmenu />
