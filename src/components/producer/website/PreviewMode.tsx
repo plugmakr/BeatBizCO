@@ -7,6 +7,7 @@ import { HeroBlock } from "./blocks/HeroBlock";
 import { ProductsBlock } from "./blocks/ProductsBlock";
 import { MusicPlayerBlock } from "./blocks/MusicPlayerBlock";
 import { LicensingBlock } from "./blocks/LicensingBlock";
+import { ServicesBlock } from "./blocks/ServicesBlock";
 
 interface PreviewModeProps {
   blocks: any[];
@@ -16,6 +17,10 @@ interface PreviewModeProps {
 
 export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
   const renderBlock = (block: any) => {
+    if (!block?.content) {
+      return null;
+    }
+
     switch (block.type) {
       case "navigation":
         return NavigationBlock({ content: block.content });
@@ -27,6 +32,8 @@ export const PreviewMode = ({ blocks, isOpen, onClose }: PreviewModeProps) => {
         return MusicPlayerBlock({ content: block.content });
       case "licensing":
         return LicensingBlock({ content: block.content });
+      case "services":
+        return ServicesBlock({ content: block.content });
       default:
         return `
           <section class="py-24 px-6 bg-black/50 backdrop-blur-sm border-y border-white/10">
