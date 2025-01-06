@@ -4,6 +4,8 @@ import RevenueChart from "@/components/producer/finances/RevenueChart";
 import { AddTransactionDialog } from "@/components/producer/finances/AddTransactionDialog";
 import { TransactionHistory } from "@/components/producer/finances/TransactionHistory";
 import { CategoryAnalytics } from "@/components/producer/finances/CategoryAnalytics";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SubscriptionPlan } from "@/components/producer/finances/SubscriptionPlan";
 
 const ProducerFinances = () => {
   return (
@@ -18,16 +20,28 @@ const ProducerFinances = () => {
           </div>
           <AddTransactionDialog />
         </div>
-        
-        <FinancialOverview />
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <RevenueChart />
-        </div>
 
-        <CategoryAnalytics />
-        
-        <TransactionHistory />
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="subscription">Subscription Plan</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <FinancialOverview />
+            <RevenueChart />
+            <CategoryAnalytics />
+          </TabsContent>
+
+          <TabsContent value="transactions">
+            <TransactionHistory />
+          </TabsContent>
+
+          <TabsContent value="subscription">
+            <SubscriptionPlan />
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );

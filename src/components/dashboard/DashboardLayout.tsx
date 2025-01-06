@@ -16,7 +16,7 @@ import { LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getProducerMenuItems, getArtistMenuItems, getAdminMenuItems } from "@/config/producerMenuItems";
 
-const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [role, setRole] = useState<string | null>(null);
