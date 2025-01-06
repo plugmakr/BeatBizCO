@@ -15,13 +15,23 @@ const AuthForm = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check initial session
     const checkSession = async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      console.log("Initial session check:", { session, error: sessionError });
-      
-      if (session?.user) {
-        handleAuthSuccess(session);
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log("Initial session check:", { session, error: sessionError });
+        
+        if (sessionError) {
+          console.error("Session check error:", sessionError);
+          throw sessionError;
+        }
+
+        if (session?.user) {
+          console.log("Found existing session for user:", session.user.id);
+          handleAuthSuccess(session);
+        }
+      } catch (error: any) {
+        console.error("Session check failed:", error);
+        setError(error.message);
       }
     };
 
@@ -37,6 +47,8 @@ const AuthForm = () => {
       } else if (event === 'SIGNED_OUT') {
         console.log('User signed out');
         setError(null);
+      } else if (event === 'USER_UPDATED') {
+        console.log('User profile updated');
       }
     });
 
