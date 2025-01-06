@@ -5,7 +5,7 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { AuthChangeEvent, Session } from "@supabase/supabase-js";
+import { Session } from "@supabase/supabase-js";
 
 type UserRole = "producer" | "artist" | "buyer" | "admin";
 
@@ -40,8 +40,8 @@ const AuthForm = () => {
     };
   }, [navigate, role, toast]);
 
-  const handleAuthStateChange = async (event: AuthChangeEvent, session: Session | null) => {
-    if (event === AuthChangeEvent.SIGNED_UP && session) {
+  const handleAuthStateChange = async (event: string, session: Session | null) => {
+    if (event === 'SIGNED_UP' && session) {
       try {
         // First, ensure the profile exists
         const { data: existingProfile, error: profileCheckError } = await supabase
@@ -89,7 +89,7 @@ const AuthForm = () => {
           variant: "destructive",
         });
       }
-    } else if (event === AuthChangeEvent.SIGNED_IN && session) {
+    } else if (event === 'SIGNED_IN' && session) {
       try {
         const { error } = await supabase
           .from("profiles")
