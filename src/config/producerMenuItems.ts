@@ -65,6 +65,11 @@ export const getProducerMenuItems = () => [
     url: "/producer/messages",
   },
   {
+    title: "Notifications",
+    icon: Bell,
+    url: "/producer/notifications",
+  },
+  {
     title: "Settings",
     icon: Settings,
     url: "/producer/settings",
