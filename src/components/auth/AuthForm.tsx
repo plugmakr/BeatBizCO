@@ -17,17 +17,17 @@ const AuthForm = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log("Initial session check:", { session, error: sessionError });
+        const { data, error: sessionError } = await supabase.auth.getSession();
+        console.log("Initial session check:", { session: data.session, error: sessionError });
         
         if (sessionError) {
           console.error("Session check error:", sessionError);
           throw sessionError;
         }
 
-        if (session?.user) {
-          console.log("Found existing session for user:", session.user.id);
-          handleAuthSuccess(session);
+        if (data.session?.user) {
+          console.log("Found existing session for user:", data.session.user.id);
+          handleAuthSuccess(data.session);
         }
       } catch (error: any) {
         console.error("Session check failed:", error);
@@ -48,7 +48,7 @@ const AuthForm = () => {
 
       console.log("Auth state change:", { event, session });
 
-      if (event === 'SIGNED_IN' && session?.user) {
+      if (event === 'SIGNED_IN' && session) {
         handleAuthSuccess(session);
       } else if (event === 'SIGNED_OUT') {
         console.log('User signed out');
