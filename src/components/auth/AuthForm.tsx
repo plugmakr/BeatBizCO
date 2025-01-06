@@ -31,7 +31,13 @@ const AuthForm = () => {
         }
       } catch (error: any) {
         console.error("Session check failed:", error);
-        setError(error.message);
+        const errorMessage = error.message || "Failed to check session";
+        setError(errorMessage);
+        toast({
+          title: "Session Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
     };
 
