@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
@@ -6,133 +6,77 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+type UserRole = "producer" | "artist" | "buyer" | "admin";
+
 const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const mounted = useRef(true);
+  const [role, setRole] = useState<UserRole>("buyer");
 
   useEffect(() => {
     // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user && mounted.current) {
-        console.log("Existing session found:", session.user.id);
-        handleExistingUser(session.user.id);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          handleRoleBasedRedirect(profile.role);
+        }
       }
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event, session?.user?.id);
-      if (event === 'SIGNED_IN' && session?.user && mounted.current) {
-        handleNewSignIn(session.user.id);
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        try {
+          const { error } = await supabase
+            .from("profiles")
+            .upsert({
+              id: session.user.id,
+              role: role,
+              updated_at: new Date().toISOString(),
+            }, {
+              onConflict: 'id'
+            });
+
+          if (error) throw error;
+
+          toast({
+            title: "Welcome to BeatBiz!",
+            description: "You've successfully signed in.",
+          });
+          
+          handleRoleBasedRedirect(role);
+        } catch (error) {
+          console.error("Error updating role:", error);
+          toast({
+            title: "Error",
+            description: "Failed to set user role. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     });
 
     return () => {
-      mounted.current = false;
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, [navigate, role, toast]);
 
-  const handleExistingUser = async (userId: string) => {
-    try {
-      console.log("Checking existing user profile:", userId);
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching profile:", error);
-        throw error;
-      }
-
-      console.log("Found profile:", profile);
-      if (profile) {
-        handleRoleBasedRedirect(profile.role);
-      }
-    } catch (error: any) {
-      console.error('Error checking existing user:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to check user profile",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleNewSignIn = async (userId: string) => {
-    try {
-      console.log("Handling new sign in for user:", userId);
-      // Check if profile exists
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error("Error checking profile:", profileError);
-        throw profileError;
-      }
-
-      // If profile exists, redirect based on role
-      if (profile) {
-        console.log("Existing profile found:", profile);
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in.",
-        });
-        handleRoleBasedRedirect(profile.role);
-        return;
-      }
-
-      console.log("Creating new profile for user:", userId);
-      // If no profile exists, create one with default role
-      const { error: createError } = await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          role: 'buyer',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        });
-
-      if (createError) {
-        console.error("Error creating profile:", createError);
-        throw createError;
-      }
-
-      toast({
-        title: "Welcome to BeatBiz!",
-        description: "Your account has been created successfully.",
-      });
-      handleRoleBasedRedirect('buyer');
-
-    } catch (error: any) {
-      console.error('Error handling sign in:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to complete sign in",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleRoleBasedRedirect = (role: string) => {
-    if (!mounted.current) return;
-
-    console.log("Redirecting based on role:", role);
-    switch (role) {
+  const handleRoleBasedRedirect = (userRole: string) => {
+    switch (userRole) {
+      case "admin":
+        navigate("/admin");
+        break;
       case "artist":
         navigate("/artist");
         break;
-      case "producer":
-        navigate("/producer");
-        break;
       default:
-        navigate("/");
+        navigate("/"); // Default route for other roles
         break;
     }
   };
@@ -146,22 +90,45 @@ const AuthForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Auth
-          supabaseClient={supabase}
-          appearance={{
-            theme: ThemeSupa,
-            variables: {
-              default: {
-                colors: {
-                  brand: "rgb(var(--primary))",
-                  brandAccent: "rgb(var(--primary))",
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              I am a...
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["producer", "artist", "buyer"] as const).map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setRole(option)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
+                    ${
+                      role === option
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-secondary hover:bg-secondary/80"
+                    }`}
+                >
+                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <Auth
+            supabaseClient={supabase}
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: "rgb(var(--primary))",
+                    brandAccent: "rgb(var(--primary))",
+                  },
                 },
               },
-            },
-          }}
-          providers={[]}
-          redirectTo={window.location.origin}
-        />
+            }}
+            providers={[]}
+            redirectTo={window.location.origin}
+          />
+        </div>
       </CardContent>
     </Card>
   );
