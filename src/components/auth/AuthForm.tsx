@@ -31,7 +31,7 @@ const AuthForm = () => {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_UP" && session) {
+      if (event === 'SIGNED_UP' && session) {
         try {
           // First, ensure the profile exists
           const { data: existingProfile, error: profileCheckError } = await supabase
@@ -79,7 +79,7 @@ const AuthForm = () => {
             variant: "destructive",
           });
         }
-      } else if (event === "SIGNED_IN" && session) {
+      } else if (event === 'SIGNED_IN' && session) {
         try {
           const { error } = await supabase
             .from("profiles")
