@@ -15,58 +15,28 @@ const AuthForm = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check initial session
+    const checkSession = async () => {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      console.log("Initial session check:", { session, error: sessionError });
+      
+      if (session?.user) {
+        handleAuthSuccess(session);
+      }
+    };
+
+    checkSession();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted.current) return;
 
-      console.log("Auth state change event:", event);
-      console.log("Session:", session);
+      console.log("Auth state change:", { event, session });
 
       if (event === 'SIGNED_IN' && session?.user) {
-        try {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profileError) {
-            console.error('Profile fetch error:', profileError);
-            throw profileError;
-          }
-
-          if (profile) {
-            toast({
-              title: "Welcome back!",
-              description: "You've successfully signed in.",
-            });
-            
-            switch (profile.role) {
-              case "admin":
-                navigate("/admin");
-                break;
-              case "artist":
-                navigate("/artist");
-                break;
-              case "producer":
-                navigate("/producer");
-                break;
-              default:
-                navigate("/");
-                break;
-            }
-          }
-        } catch (error: any) {
-          console.error('Auth state change error:', error);
-          const errorMessage = error.message || "An unexpected error occurred";
-          setError(errorMessage);
-          toast({
-            title: "Authentication Error",
-            description: errorMessage,
-            variant: "destructive",
-          });
-        }
+        handleAuthSuccess(session);
       } else if (event === 'SIGNED_OUT') {
         console.log('User signed out');
+        setError(null);
       }
     });
 
@@ -75,6 +45,59 @@ const AuthForm = () => {
       subscription.unsubscribe();
     };
   }, [navigate, toast]);
+
+  const handleAuthSuccess = async (session: any) => {
+    try {
+      console.log("Handling auth success for user:", session.user.id);
+      
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        throw profileError;
+      }
+
+      console.log("Retrieved profile:", profile);
+
+      if (profile) {
+        toast({
+          title: "Welcome!",
+          description: "You've successfully signed in.",
+        });
+        
+        switch (profile.role) {
+          case "admin":
+            navigate("/admin");
+            break;
+          case "artist":
+            navigate("/artist");
+            break;
+          case "producer":
+            navigate("/producer");
+            break;
+          default:
+            navigate("/");
+            break;
+        }
+      } else {
+        console.error('No profile found for user:', session.user.id);
+        setError("Unable to retrieve user profile. Please try again.");
+      }
+    } catch (error: any) {
+      console.error('Auth success handling error:', error);
+      const errorMessage = error.message || "An unexpected error occurred";
+      setError(errorMessage);
+      toast({
+        title: "Authentication Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -113,9 +136,7 @@ const AuthForm = () => {
             },
           }}
           providers={[]}
-          view="sign_in"
-          showLinks={true}
-          redirectTo={`${window.location.origin}/auth/callback`}
+          redirectTo={window.location.origin}
           magicLink={false}
         />
       </CardContent>
