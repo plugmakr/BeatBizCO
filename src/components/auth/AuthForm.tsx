@@ -163,7 +163,7 @@ const AuthForm = () => {
             },
           }}
           providers={[]}
-          redirectTo={`${window.location.origin}/auth/callback`}
+          redirectTo={window.location.origin}
         />
       </CardContent>
     </Card>
