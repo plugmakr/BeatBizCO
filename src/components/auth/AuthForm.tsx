@@ -146,14 +146,6 @@ const AuthForm = () => {
           }}
           providers={[]}
           redirectTo={`${window.location.origin}/auth/callback`}
-          onError={(error) => {
-            console.error('Auth error:', error);
-            toast({
-              title: "Authentication Error",
-              description: error.message || "Failed to authenticate",
-              variant: "destructive",
-            });
-          }}
         />
       </CardContent>
     </Card>
