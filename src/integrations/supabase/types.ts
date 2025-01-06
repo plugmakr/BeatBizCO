@@ -1216,6 +1216,7 @@ export type Database = {
     Functions: {
       [_ in never]: never
     }
+
     Enums: {
       client_item_type: "folder" | "file"
       funnel_status: "draft" | "active" | "archived"
@@ -1230,6 +1231,7 @@ export type Database = {
       user_role: "producer" | "artist" | "buyer"
       user_status: "active" | "inactive" | "suspended" | "pending"
     }
+
     CompositeTypes: {
       [_ in never]: never
     }
@@ -1332,3 +1334,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
