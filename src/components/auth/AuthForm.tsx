@@ -31,22 +31,68 @@ const AuthForm = () => {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session) {
+      if (event === "SIGNED_UP" && session) {
+        try {
+          // First, ensure the profile exists
+          const { data: existingProfile, error: profileCheckError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", session.user.id)
+            .single();
+
+          if (profileCheckError) {
+            // If profile doesn't exist, create it
+            const { error: insertError } = await supabase
+              .from("profiles")
+              .insert({
+                id: session.user.id,
+                role: role,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              });
+
+            if (insertError) throw insertError;
+          } else {
+            // If profile exists, update it
+            const { error: updateError } = await supabase
+              .from("profiles")
+              .update({
+                role: role,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", session.user.id);
+
+            if (updateError) throw updateError;
+          }
+
+          toast({
+            title: "Welcome to BeatBiz!",
+            description: "Your account has been created successfully.",
+          });
+          
+          handleRoleBasedRedirect(role);
+        } catch (error) {
+          console.error("Error setting up profile:", error);
+          toast({
+            title: "Error",
+            description: "There was an issue setting up your profile. Please try again or contact support.",
+            variant: "destructive",
+          });
+        }
+      } else if (event === "SIGNED_IN" && session) {
         try {
           const { error } = await supabase
             .from("profiles")
-            .upsert({
-              id: session.user.id,
+            .update({
               role: role,
               updated_at: new Date().toISOString(),
-            }, {
-              onConflict: 'id'
-            });
+            })
+            .eq("id", session.user.id);
 
           if (error) throw error;
 
           toast({
-            title: "Welcome to BeatBiz!",
+            title: "Welcome back to BeatBiz!",
             description: "You've successfully signed in.",
           });
           
@@ -55,7 +101,7 @@ const AuthForm = () => {
           console.error("Error updating role:", error);
           toast({
             title: "Error",
-            description: "Failed to set user role. Please try again.",
+            description: "Failed to update user role. Please try again.",
             variant: "destructive",
           });
         }
