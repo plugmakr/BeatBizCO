@@ -125,9 +125,6 @@ const AuthForm = () => {
 
     console.log("Redirecting based on role:", role);
     switch (role) {
-      case "admin":
-        navigate("/admin");
-        break;
       case "artist":
         navigate("/artist");
         break;

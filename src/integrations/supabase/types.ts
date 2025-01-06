@@ -975,7 +975,7 @@ export type Database = {
           metadata?: Json | null
           original_filename?: string | null
           producer_id?: string | null
-          size?: number | null
+          size?: number
           status?: string | null
           tags?: string[] | null
           title: string
@@ -1076,8 +1076,8 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           id?: string
-          project_id?: string
-          sound_id?: string
+          project_id: string
+          sound_id: string
         }
         Relationships: [
           {
@@ -1227,7 +1227,7 @@ export type Database = {
         | "drum_kit"
         | "one_shot"
         | "sample"
-      user_role: "producer" | "artist" | "buyer" | "admin"
+      user_role: "producer" | "artist" | "buyer"
       user_status: "active" | "inactive" | "suspended" | "pending"
     }
     CompositeTypes: {
@@ -1245,7 +1245,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
