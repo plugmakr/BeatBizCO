@@ -19,7 +19,7 @@ import { AssignToProjectDialog } from "./AssignToProjectDialog";
 import { useState } from "react";
 import { Tables } from "@/integrations/supabase/types";
 
-type Sound = Tables<"sound_library">;
+type Sound = Tables<"sound_library", never>;
 
 interface SoundLibraryGridProps {
   sounds: Sound[];
