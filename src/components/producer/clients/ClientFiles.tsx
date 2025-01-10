@@ -112,12 +112,14 @@ export function ClientFiles({ client }: ClientFilesProps) {
               )
             )
           `)
-          .eq('client_id', client.id) as { data: ProjectWithSoundLibrary[] | null, error: any };
+          .eq('client_id', client.id)
+          .eq('created_by', session.user.id)
+          .eq('status', 'active');
 
         if (projectsError) throw projectsError;
 
         // Create virtual folder entries for each project
-        const projectFolders: ClientFile[] = projects?.map(project => ({
+        const projectFolders: ClientFile[] = (projects || []).map(project => ({
           id: `project-${project.id}`,
           client_id: client.id,
           filename: project.name,
@@ -130,7 +132,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
           updated_at: null,
           parent_id: null,
           uploaded_by: null
-        })) || [];
+        }));
 
         setFiles([...(clientFiles || []), ...projectFolders]);
       } else if (currentFolder?.startsWith('project-')) {

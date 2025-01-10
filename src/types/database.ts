@@ -1,5 +1,7 @@
 import type { Database } from '@/integrations/supabase/types';
 
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
+
 export interface Client {
   id: string;
   producer_id: string | null;
@@ -33,5 +35,4 @@ export interface ClientFile {
   projectName?: string;
 }
 
-export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 export { Database };
