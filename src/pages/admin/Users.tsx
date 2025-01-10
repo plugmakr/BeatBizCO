@@ -1,17 +1,14 @@
-import { Suspense } from "react";
-import { Loading } from "@/components/ui/loading";
+import { UserManagement } from "@/components/admin/UserManagement";
 
 const AdminUsers = () => {
   return (
-    <Suspense fallback={<Loading />}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-muted-foreground">Manage platform users and their roles</p>
-        </div>
-        {/* Add user management content here */}
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">User Management</h1>
+        <p className="text-muted-foreground">Manage platform users and their roles</p>
       </div>
-    </Suspense>
+      <UserManagement />
+    </div>
   );
 };
 
