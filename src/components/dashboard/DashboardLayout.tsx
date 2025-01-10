@@ -25,7 +25,7 @@ import { getProducerMenuItems, getArtistMenuItems, getAdminMenuItems } from "@/c
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [role, setRole] = useState<string>("producer"); // Default to producer for now
+  const [role, setRole] = useState<string>("producer");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -82,28 +82,38 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         <Sidebar>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Menu</SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
-                  {getMenuItems().map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <Link to={item.url} className="w-full">
-                        <SidebarMenuButton className="w-full">
-                          <div className="flex items-center gap-2">
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
-                          </div>
-                        </SidebarMenuButton>
-                      </Link>
-                    </SidebarMenuItem>
+                <Accordion type="single" collapsible className="w-full">
+                  {getMenuItems().map((section, index) => (
+                    <AccordionItem value={`section-${index}`} key={index}>
+                      <AccordionTrigger className="px-2">
+                        {section.category}
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <SidebarMenu>
+                          {section.items.map((item) => (
+                            <SidebarMenuItem key={item.title}>
+                              <Link to={item.url} className="w-full">
+                                <SidebarMenuButton className="w-full">
+                                  <div className="flex items-center gap-2">
+                                    <item.icon className="h-4 w-4" />
+                                    <span>{item.title}</span>
+                                  </div>
+                                </SidebarMenuButton>
+                              </Link>
+                            </SidebarMenuItem>
+                          ))}
+                        </SidebarMenu>
+                      </AccordionContent>
+                    </AccordionItem>
                   ))}
-                  <SidebarMenuItem>
-                    <SidebarMenuButton onClick={handleLogout} className="flex items-center gap-2 w-full">
-                      <LogOut className="h-4 w-4" />
-                      <span>Sign out</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
+                </Accordion>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={handleLogout} className="flex items-center gap-2 w-full mt-4">
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign out</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
