@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { 
   Sidebar, 
-  SidebarContent, 
+  SidebarContent,
   SidebarGroup, 
   SidebarGroupContent, 
   SidebarGroupLabel, 
@@ -34,11 +40,13 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         if (profile) {
           setRole(profile.role);
         }
+      } else {
+        navigate("/auth");
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [navigate]);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -81,12 +89,14 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
                 <SidebarMenu>
                   {getMenuItems().map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <a href={item.url} className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </a>
-                      </SidebarMenuButton>
+                      <Link to={item.url} className="w-full">
+                        <SidebarMenuButton className="w-full">
+                          <div className="flex items-center gap-2">
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.title}</span>
+                          </div>
+                        </SidebarMenuButton>
+                      </Link>
                     </SidebarMenuItem>
                   ))}
                   <SidebarMenuItem>
