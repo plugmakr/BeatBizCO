@@ -23,6 +23,7 @@ import ArtistWebsite from "./pages/artist/Website";
 import ArtistProfile from "./pages/ArtistProfile";
 import AdminDashboard from "./pages/admin/Dashboard";
 import { ProducerLayout } from "./components/layouts/ProducerLayout";
+import { ArtistLayout } from "./components/layouts/ArtistLayout";
 
 function App() {
   return (
@@ -56,12 +57,18 @@ function App() {
 
         {/* Artist Routes */}
         <Route path="/artist" element={<Navigate to="/artist/dashboard" replace />} />
-        <Route path="/artist/dashboard" element={<ArtistDashboard />} />
-        <Route path="/artist/analytics" element={<ArtistAnalytics />} />
-        <Route path="/artist/marketing" element={<ArtistMarketing />} />
-        <Route path="/artist/sales" element={<ArtistSales />} />
-        <Route path="/artist/website" element={<ArtistWebsite />} />
-        <Route path="/artist/:id" element={<ArtistProfile />} />
+        <Route path="/artist/*" element={
+          <ArtistLayout>
+            <Routes>
+              <Route path="dashboard" element={<ArtistDashboard />} />
+              <Route path="analytics" element={<ArtistAnalytics />} />
+              <Route path="marketing" element={<ArtistMarketing />} />
+              <Route path="sales" element={<ArtistSales />} />
+              <Route path="website" element={<ArtistWebsite />} />
+              <Route path=":id" element={<ArtistProfile />} />
+            </Routes>
+          </ArtistLayout>
+        } />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

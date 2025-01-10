@@ -10,7 +10,10 @@ import {
   MessageSquare, 
   HelpCircle, 
   Settings,
-  UserCircle
+  UserCircle,
+  BarChart,
+  Megaphone,
+  ShoppingCart
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -108,6 +111,47 @@ export const getProducerMenuItems = (): MenuSection[] => [
   }
 ];
 
-// Placeholder functions for other user types - to be implemented later
-export const getArtistMenuItems = (): MenuSection[] => [];
+export const getArtistMenuItems = (): MenuSection[] => [
+  {
+    category: "Overview",
+    items: [
+      {
+        title: "Dashboard",
+        url: "/artist/dashboard",
+        icon: LayoutDashboard
+      },
+      {
+        title: "Analytics",
+        url: "/artist/analytics",
+        icon: BarChart
+      }
+    ]
+  },
+  {
+    category: "Business",
+    items: [
+      {
+        title: "Marketing",
+        url: "/artist/marketing",
+        icon: Megaphone
+      },
+      {
+        title: "Sales",
+        url: "/artist/sales",
+        icon: ShoppingCart
+      }
+    ]
+  },
+  {
+    category: "Content",
+    items: [
+      {
+        title: "Website",
+        url: "/artist/website",
+        icon: Globe
+      }
+    ]
+  }
+];
+
 export const getAdminMenuItems = (): MenuSection[] => [];
