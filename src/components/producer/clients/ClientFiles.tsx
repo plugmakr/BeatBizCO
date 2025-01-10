@@ -21,13 +21,22 @@ interface ClientFilesProps {
 }
 
 interface SoundLibraryProjectFile {
-  sound_library: SoundLibraryFile;
+  sound_library: {
+    id: string;
+    title: string;
+    file_path: string;
+    type: string;
+    size: number;
+    created_at: string;
+  };
   project?: {
     name: string;
   };
 }
 
 interface ProjectWithSoundLibrary extends Project {
+  id: string;
+  name: string;
   sound_library_project_files?: SoundLibraryProjectFile[];
 }
 
@@ -106,8 +115,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         if (projectsError) throw projectsError;
 
-        const typedProjects = projects as unknown as ProjectWithSoundLibrary[];
-        const projectFolders: ClientFile[] = (typedProjects || []).map(project => ({
+        const projectFolders: ClientFile[] = (projects || []).map((project: ProjectWithSoundLibrary) => ({
           id: `project-${project.id}`,
           client_id: client.id,
           filename: project.name,
@@ -125,7 +133,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
         setFiles([...(clientFiles || []), ...projectFolders]);
       } else if (currentFolder?.startsWith('project-')) {
         const projectId = currentFolder.replace('project-', '');
-        const { data: projectFiles, error: projectFilesError } = await supabase
+        const { data, error: projectFilesError } = await supabase
           .from('sound_library_project_files')
           .select(`
             sound_library (
@@ -144,7 +152,8 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         if (projectFilesError) throw projectFilesError;
 
-        const soundLibraryFiles: ClientFile[] = (projectFiles as SoundLibraryProjectFile[] || []).map(pf => ({
+        const projectFiles = data as SoundLibraryProjectFile[];
+        const soundLibraryFiles: ClientFile[] = (projectFiles || []).map(pf => ({
           id: pf.sound_library.id,
           client_id: client.id,
           filename: pf.sound_library.title,
@@ -254,7 +263,6 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
   const handlePreview = async (filePath: string, filename: string, fileType: string) => {
     try {
-      // If the file is from the sound library, the filePath is already a complete URL
       if (filePath.startsWith('http')) {
         setPreviewFile({
           url: filePath,
@@ -264,7 +272,6 @@ export function ClientFiles({ client }: ClientFilesProps) {
         return;
       }
 
-      // For regular client files, create a signed URL
       const { data, error } = await supabase.storage
         .from('client_files')
         .createSignedUrl(filePath, 3600);
