@@ -46,8 +46,29 @@ import {
   EyeOff,
   AlertTriangle,
   Star,
-  StarOff,
 } from "lucide-react";
+
+interface MarketplaceItem {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  category: string | null;
+  status: string | null;
+  is_featured: boolean;
+  producer_id: string | null;
+  profiles?: {
+    username: string | null;
+    full_name: string | null;
+  };
+}
+
+interface MarketplaceCategory {
+  id: string;
+  name: string;
+  item_count: number;
+  is_active: boolean;
+}
 
 export function MarketplaceManagement() {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -93,7 +114,7 @@ export function MarketplaceManagement() {
         .order("name");
 
       if (error) throw error;
-      return data;
+      return data as MarketplaceCategory[];
     },
   });
 
@@ -251,7 +272,7 @@ export function MarketplaceManagement() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {items?.map((item) => (
+                      {items?.map((item: MarketplaceItem) => (
                         <TableRow key={item.id}>
                           <TableCell className="font-medium">
                             {item.title}
@@ -260,14 +281,14 @@ export function MarketplaceManagement() {
                             {item.profiles?.username || item.profiles?.full_name}
                           </TableCell>
                           <TableCell>
-                            <Badge variant="secondary">{item.category}</Badge>
+                            <Badge variant="outline">{item.category}</Badge>
                           </TableCell>
                           <TableCell>${item.price}</TableCell>
                           <TableCell>
                             <Badge
                               variant={
                                 item.status === "published"
-                                  ? "success"
+                                  ? "default"
                                   : "secondary"
                               }
                             >
@@ -288,7 +309,7 @@ export function MarketplaceManagement() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() =>
-                                  handleToggleVisibility(item.id, item.status)
+                                  handleToggleVisibility(item.id, item.status || '')
                                 }
                               >
                                 {item.status === "published" ? (
@@ -362,7 +383,7 @@ export function MarketplaceManagement() {
                           <TableCell>
                             <Badge
                               variant={
-                                category.is_active ? "success" : "secondary"
+                                category.is_active ? "default" : "secondary"
                               }
                             >
                               {category.is_active ? "Active" : "Inactive"}
