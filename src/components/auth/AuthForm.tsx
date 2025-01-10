@@ -38,7 +38,7 @@ const AuthForm = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, role, toast]);
+  }, [navigate]);
 
   const handleAuthStateChange = async (event: string, session: Session | null) => {
     if (event === 'SIGNED_UP' && session) {
@@ -178,7 +178,8 @@ const AuthForm = () => {
               },
             }}
             providers={[]}
-            redirectTo={window.location.origin}
+            redirectTo={`${window.location.origin}/auth/callback`}
+            onlyThirdPartyProviders={false}
           />
         </div>
       </CardContent>
