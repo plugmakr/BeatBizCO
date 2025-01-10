@@ -16,14 +16,14 @@ interface ClientFormProps {
   isLoading: boolean;
   defaultValues?: {
     name: string;
-    email: string;
-    phone: string;
-    website: string;
-    budget_range: string;
-    genre_focus: string;
-    project_type: string;
-    social_media: string;
-    notes: string;
+    email: string | null;
+    phone: string | null;
+    website: string | null;
+    budget_range: string | null;
+    genre_focus: string | null;
+    project_type: string | null;
+    social_media: string | null;
+    notes: string | null;
   };
 }
 
@@ -36,7 +36,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
     }} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
+          <Label htmlFor="name">Name *</Label>
           <Input 
             id="name" 
             name="name" 
@@ -50,7 +50,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
             id="email" 
             name="email" 
             type="email"
-            defaultValue={defaultValues?.email}
+            defaultValue={defaultValues?.email || ''}
           />
         </div>
       </div>
@@ -62,7 +62,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
             id="phone" 
             name="phone" 
             type="tel"
-            defaultValue={defaultValues?.phone}
+            defaultValue={defaultValues?.phone || ''}
           />
         </div>
         <div className="space-y-2">
@@ -72,7 +72,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
             name="website" 
             type="url" 
             placeholder="https://"
-            defaultValue={defaultValues?.website}
+            defaultValue={defaultValues?.website || ''}
           />
         </div>
       </div>
@@ -80,7 +80,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="budget_range">Budget Range</Label>
-          <Select name="budget_range" defaultValue={defaultValues?.budget_range}>
+          <Select name="budget_range" defaultValue={defaultValues?.budget_range || ''}>
             <SelectTrigger>
               <SelectValue placeholder="Select budget range" />
             </SelectTrigger>
@@ -94,7 +94,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
         </div>
         <div className="space-y-2">
           <Label htmlFor="genre_focus">Genre Focus</Label>
-          <Select name="genre_focus" defaultValue={defaultValues?.genre_focus}>
+          <Select name="genre_focus" defaultValue={defaultValues?.genre_focus || ''}>
             <SelectTrigger>
               <SelectValue placeholder="Select primary genre" />
             </SelectTrigger>
@@ -112,7 +112,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
 
       <div className="space-y-2">
         <Label htmlFor="project_type">Project Type</Label>
-        <Select name="project_type" defaultValue={defaultValues?.project_type}>
+        <Select name="project_type" defaultValue={defaultValues?.project_type || ''}>
           <SelectTrigger>
             <SelectValue placeholder="Select project type" />
           </SelectTrigger>
@@ -133,7 +133,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
           id="social_media" 
           name="social_media" 
           placeholder="Instagram, Spotify, SoundCloud, etc."
-          defaultValue={defaultValues?.social_media}
+          defaultValue={defaultValues?.social_media || ''}
         />
       </div>
 
@@ -144,7 +144,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
           name="notes"
           placeholder="Project details, preferences, deadlines, etc."
           className="h-24"
-          defaultValue={defaultValues?.notes}
+          defaultValue={defaultValues?.notes || ''}
         />
       </div>
 
