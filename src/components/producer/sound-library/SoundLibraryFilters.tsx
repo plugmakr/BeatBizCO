@@ -25,17 +25,29 @@ export function SoundLibraryFilters({
   selectedType,
   onTypeChange,
 }: SoundLibraryFiltersProps) {
-  const { data: tags } = useQuery({
-    queryKey: ["sound-library-tags"],
+  const { data: session } = useQuery({
+    queryKey: ['session'],
     queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    },
+  });
+
+  const { data: tags } = useQuery({
+    queryKey: ["sound-library-tags", session?.user.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      
       const { data, error } = await supabase
         .from("sound_library_tags")
         .select("*")
-        .eq("producer_id", (await supabase.auth.getSession()).data.session?.user.id);
+        .eq("producer_id", session.user.id);
       
       if (error) throw error;
       return data;
     },
+    enabled: !!session?.user?.id,
   });
 
   const toggleTag = (tag: string) => {
