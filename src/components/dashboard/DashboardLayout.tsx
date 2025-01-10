@@ -25,11 +25,11 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
           // Redirect if user is on wrong portal
           const currentPath = window.location.pathname;
           if (profile.role === 'admin' && !currentPath.startsWith('/admin')) {
-            navigate('/admin');
+            navigate('/admin/dashboard');
           } else if (profile.role === 'artist' && !currentPath.startsWith('/artist')) {
-            navigate('/artist');
+            navigate('/artist/dashboard');
           } else if (profile.role === 'producer' && !currentPath.startsWith('/producer')) {
-            navigate('/producer');
+            navigate('/producer/dashboard');
           }
         }
       }
