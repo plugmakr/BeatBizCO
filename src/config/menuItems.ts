@@ -1,41 +1,84 @@
 import { 
-  LayoutDashboard, 
-  Users, 
-  ShoppingBag,
-  UsersRound,
-  FileText,
-  BarChart2,
+  LayoutDashboard,
+  Music2,
+  Users,
   MessageSquare,
   CreditCard,
+  BarChart2,
   Megaphone,
   Settings,
-  FileSearch,
-  Activity,
-  Bell,
-  UserCheck,
-  Store,
-  Handshake,
-  FileEdit,
-  PieChart,
-  Shield,
-  Wallet,
-  Target,
-  Cog,
-  ClipboardList,
-  Globe as GlobeIcon // Renamed to avoid confusion
+  HelpCircle,
+  ShoppingBag,
+  Handshake
 } from "lucide-react";
-import { LucideIcon } from "lucide-react";
 
-interface MenuItem {
-  title: string;
-  url: string;
-  icon: LucideIcon;
-}
-
-interface MenuSection {
-  category: string;
-  items: MenuItem[];
-}
+export const getArtistMenuItems = () => [
+  {
+    category: "Overview",
+    items: [
+      {
+        title: "Dashboard",
+        url: "/artist/dashboard",
+        icon: LayoutDashboard
+      },
+      {
+        title: "My Music",
+        url: "/artist/my-music",
+        icon: Music2
+      }
+    ]
+  },
+  {
+    category: "Business",
+    items: [
+      {
+        title: "Collaborations",
+        url: "/artist/collaborations",
+        icon: Handshake
+      },
+      {
+        title: "Messages",
+        url: "/artist/messages",
+        icon: MessageSquare
+      },
+      {
+        title: "Sales",
+        url: "/artist/sales",
+        icon: ShoppingBag
+      }
+    ]
+  },
+  {
+    category: "Analytics",
+    items: [
+      {
+        title: "Performance",
+        url: "/artist/analytics",
+        icon: BarChart2
+      },
+      {
+        title: "Marketing",
+        url: "/artist/marketing",
+        icon: Megaphone
+      }
+    ]
+  },
+  {
+    category: "Support",
+    items: [
+      {
+        title: "Settings",
+        url: "/artist/settings",
+        icon: Settings
+      },
+      {
+        title: "Help Center",
+        url: "/artist/help",
+        icon: HelpCircle
+      }
+    ]
+  }
+];
 
 export const getProducerMenuItems = (): MenuSection[] => [
   {
@@ -115,49 +158,6 @@ export const getProducerMenuItems = (): MenuSection[] => [
         title: "Settings",
         url: "/producer/settings",
         icon: Settings
-      }
-    ]
-  }
-];
-
-export const getArtistMenuItems = (): MenuSection[] => [
-  {
-    category: "Overview",
-    items: [
-      {
-        title: "Dashboard",
-        url: "/artist/dashboard",
-        icon: LayoutDashboard
-      },
-      {
-        title: "Analytics",
-        url: "/artist/analytics",
-        icon: BarChart2
-      }
-    ]
-  },
-  {
-    category: "Business",
-    items: [
-      {
-        title: "Marketing",
-        url: "/artist/marketing",
-        icon: Megaphone
-      },
-      {
-        title: "Sales",
-        url: "/artist/sales",
-        icon: ShoppingBag
-      }
-    ]
-  },
-  {
-    category: "Content",
-    items: [
-      {
-        title: "Website",
-        url: "/artist/website",
-        icon: GlobeIcon
       }
     ]
   }
