@@ -25,7 +25,7 @@ import { getProducerMenuItems, getArtistMenuItems, getAdminMenuItems } from "@/c
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRole] = useState<string>("producer"); // Default to producer for now
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -40,13 +40,11 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         if (profile) {
           setRole(profile.role);
         }
-      } else {
-        navigate("/auth");
       }
     };
 
     fetchProfile();
-  }, [navigate]);
+  }, []);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
