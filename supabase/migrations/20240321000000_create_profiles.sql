@@ -1,5 +1,10 @@
--- Create enum for user roles
-create type user_role as enum ('producer', 'artist', 'buyer', 'admin');
+-- Check if user_role type doesn't exist before creating it
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
+        CREATE TYPE user_role AS ENUM ('producer', 'artist', 'buyer', 'admin');
+    END IF;
+END $$;
 
 -- Create profiles table
 create table if not exists public.profiles (
