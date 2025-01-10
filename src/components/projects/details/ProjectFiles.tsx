@@ -46,7 +46,7 @@ interface PreviewFile {
   };
 }
 
-export default function ProjectFiles({ projectId }: ProjectFilesProps) {
+export default function ProjectFiles({ projectId }: { projectId: string }) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentUpload, setCurrentUpload] = useState<string | null>(null);
@@ -56,7 +56,6 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch both regular project files and sound library files
   const { data: combinedFiles, isLoading } = useQuery({
     queryKey: ["project-files", projectId],
     queryFn: async () => {
@@ -86,7 +85,7 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
       const soundLibraryFiles: CombinedProjectFile[] = (soundLibraryFilesResult.data || []).map(record => ({
         type: 'sound_library',
         file: {
-          ...record.sound_library,
+          ...record.sound_library[0],
           assignment_id: record.id
         }
       }));
@@ -362,4 +361,3 @@ export default function ProjectFiles({ projectId }: ProjectFilesProps) {
       />
     </div>
   );
-}

@@ -14,7 +14,5 @@ export type CombinedProjectFile = {
   type: 'sound_library';
   file: SoundLibraryFile & { 
     assignment_id: string;
-    file_type?: string;
-    filename?: string;
   };
 };
