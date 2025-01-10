@@ -20,25 +20,8 @@ interface ClientFilesProps {
   client: Client;
 }
 
-interface SoundLibraryData {
-  id: string;
-  title: string;
-  file_path: string;
-  type: string;
-  size: number;
-  created_at: string;
-}
-
-interface ProjectData {
-  name: string;
-}
-
-interface SoundLibraryProjectFile {
-  sound_library: SoundLibraryData;
-  project: ProjectData | null;
-}
-
-interface CollaborationProject {
+// Simplified type structure that matches exactly what Supabase returns
+type RawProject = {
   id: string;
   name: string;
   client_id: string;
@@ -48,7 +31,19 @@ interface CollaborationProject {
   description: string | null;
   status: string | null;
   updated_at: string | null;
-  sound_library_project_files?: SoundLibraryProjectFile[];
+  sound_library_project_files: Array<{
+    sound_library: {
+      id: string;
+      title: string;
+      file_path: string;
+      type: string;
+      size: number;
+      created_at: string;
+    };
+    project: {
+      name: string;
+    } | null;
+  }>;
 }
 
 export function ClientFiles({ client }: ClientFilesProps) {
@@ -101,7 +96,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
       if (clientFilesError) throw clientFilesError;
 
       if (currentFolder === null) {
-        const { data: projects, error: projectsError } = await supabase
+        const { data, error: projectsError } = await supabase
           .from('collaboration_projects')
           .select(`
             id,
@@ -133,7 +128,10 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         if (projectsError) throw projectsError;
 
-        const projectFolders: ClientFile[] = (projects as CollaborationProject[]).map(project => ({
+        // Type assertion with our raw type
+        const projects = data as unknown as RawProject[];
+        
+        const projectFolders: ClientFile[] = projects.map(project => ({
           id: `project-${project.id}`,
           client_id: client.id,
           filename: project.name,
@@ -170,23 +168,28 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         if (projectFilesError) throw projectFilesError;
 
-        const typedData = data as unknown as SoundLibraryProjectFile[];
-        const soundLibraryFiles: ClientFile[] = (typedData || []).map(pf => ({
-          id: pf.sound_library.id,
-          client_id: client.id,
-          filename: pf.sound_library.title,
-          display_name: pf.sound_library.title,
-          file_path: pf.sound_library.file_path,
-          file_type: pf.sound_library.type,
-          size: pf.sound_library.size,
-          type: 'file',
-          created_at: pf.sound_library.created_at,
-          updated_at: null,
-          parent_id: currentFolder,
-          uploaded_by: null,
-          fromSoundLibrary: true,
-          projectName: pf.project?.name
-        }));
+        // Transform the raw data into ClientFile format
+        const soundLibraryFiles: ClientFile[] = (data || []).map(item => {
+          const soundLibrary = (item as any).sound_library;
+          const project = (item as any).project;
+          
+          return {
+            id: soundLibrary.id,
+            client_id: client.id,
+            filename: soundLibrary.title,
+            display_name: soundLibrary.title,
+            file_path: soundLibrary.file_path,
+            file_type: soundLibrary.type,
+            size: soundLibrary.size,
+            type: 'file',
+            created_at: soundLibrary.created_at,
+            updated_at: null,
+            parent_id: currentFolder,
+            uploaded_by: null,
+            fromSoundLibrary: true,
+            projectName: project?.name
+          };
+        });
 
         setFiles(soundLibraryFiles);
       } else {

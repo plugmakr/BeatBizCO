@@ -8,7 +8,5 @@ export interface ClientFile extends Tables<'client_files'> {
   fromSoundLibrary?: boolean;
   projectName?: string;
 }
-export type SoundLibraryFile = Tables<'sound_library'>;
-export type Project = Tables<'collaboration_projects'>;
 
 export { Database };
