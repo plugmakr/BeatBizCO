@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ClientForm from "./ClientForm";
 import { useToast } from "@/hooks/use-toast";
@@ -13,16 +13,36 @@ interface AddClientDialogProps {
 
 export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id || null);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleSubmit = async (formData: FormData) => {
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to add clients",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.session?.user?.id) {
-        throw new Error("No authenticated user");
-      }
-
       const clientData = {
         name: String(formData.get('name')),
         email: formData.get('email') ? String(formData.get('email')) : null,
@@ -33,7 +53,7 @@ export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogP
         project_type: formData.get('project_type') ? String(formData.get('project_type')) : null,
         social_media: formData.get('social_media') ? String(formData.get('social_media')) : null,
         notes: formData.get('notes') ? String(formData.get('notes')) : null,
-        producer_id: session.session.user.id,
+        producer_id: userId,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
