@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import type { Client, ClientFile } from "@/types/database";
+import type { Client, ClientFile, SoundLibraryFile, Project } from "@/types/database";
 import { FileUploadButton } from "./FileUploadButton";
 import { FilePreviewDialog } from "./files/FilePreviewDialog";
 import { FileList } from "./FileList";
@@ -20,18 +20,7 @@ interface ClientFilesProps {
   client: Client;
 }
 
-interface SoundLibraryFile {
-  id: string;
-  title: string;
-  file_path: string;
-  type: string;
-  size: number;
-  created_at: string;
-}
-
-interface ProjectWithSoundLibrary {
-  id: string;
-  name: string;
+interface ProjectWithSoundLibrary extends Project {
   sound_library_project_files?: {
     sound_library: SoundLibraryFile;
     project?: {
@@ -57,10 +46,8 @@ export function ClientFiles({ client }: ClientFilesProps) {
   const { isUploading, uploadProgress, currentUpload, uploadFile } =
     useClientFileUpload(client, fetchFiles);
 
-  // Initialize default folders
   useDefaultFolders(client.id, fetchFiles);
 
-  // Get the current session
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
@@ -74,7 +61,6 @@ export function ClientFiles({ client }: ClientFilesProps) {
     if (!session?.user?.id) return;
 
     try {
-      // Fetch regular client files
       let query = supabase
         .from('client_files')
         .select('*')
@@ -82,7 +68,6 @@ export function ClientFiles({ client }: ClientFilesProps) {
         .order('type', { ascending: false })
         .order('created_at', { ascending: false });
 
-      // Handle parent_id filtering
       if (currentFolder === null) {
         query = query.is('parent_id', null);
       } else {
@@ -93,9 +78,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
       if (clientFilesError) throw clientFilesError;
 
-      // Fetch project files if we're at root level
       if (currentFolder === null) {
-        // First get all projects associated with this client
         const { data: projects, error: projectsError } = await supabase
           .from('collaboration_projects')
           .select(`
@@ -109,20 +92,19 @@ export function ClientFiles({ client }: ClientFilesProps) {
                 type,
                 size,
                 created_at
+              ),
+              project (
+                name
               )
             )
           `)
           .eq('client_id', client.id)
           .eq('created_by', session.user.id)
-          .eq('status', 'active') as { 
-            data: ProjectWithSoundLibrary[] | null;
-            error: any;
-          };
+          .eq('status', 'active');
 
         if (projectsError) throw projectsError;
 
-        // Create virtual folder entries for each project
-        const projectFolders: ClientFile[] = (projects || []).map(project => ({
+        const projectFolders: ClientFile[] = (projects as ProjectWithSoundLibrary[] || []).map(project => ({
           id: `project-${project.id}`,
           client_id: client.id,
           filename: project.name,
@@ -139,7 +121,6 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         setFiles([...(clientFiles || []), ...projectFolders]);
       } else if (currentFolder?.startsWith('project-')) {
-        // If we're inside a project folder, show its sound library files
         const projectId = currentFolder.replace('project-', '');
         const { data: projectFiles, error: projectFilesError } = await supabase
           .from('sound_library_project_files')
@@ -152,7 +133,9 @@ export function ClientFiles({ client }: ClientFilesProps) {
               size,
               created_at
             ),
-            project:collaboration_projects(name)
+            project (
+              name
+            )
           `)
           .eq('project_id', projectId);
 

@@ -36,4 +36,7 @@ export interface ClientFile {
   projectName?: string;
 }
 
+export type SoundLibraryFile = Database['public']['Tables']['sound_library']['Row'];
+export type Project = Database['public']['Tables']['collaboration_projects']['Row'];
+
 export { Database };
