@@ -9,12 +9,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+type SoundType = "beat" | "sound_kit" | "midi_kit" | "loop_kit" | "drum_kit" | "one_shot" | "sample";
+
 export default function ProducerSoundLibrary() {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<SoundType | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 

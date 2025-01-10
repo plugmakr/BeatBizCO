@@ -139,14 +139,14 @@ export default function ProducerProfile() {
     setPlayingId(playingId === id ? null : id);
   };
 
+  const scrollToSection = () => {};
+  const getDashboardRoute = () => "/dashboard";
+
   return (
     <div className="min-h-screen bg-[#1a1a1a]">
       <TopNavigation 
-        session={null}
-        userRole={null}
-        handleLogout={() => {}}
-        scrollToSection={() => {}}
-        getDashboardRoute={() => "/dashboard"}
+        scrollToSection={scrollToSection}
+        getDashboardRoute={getDashboardRoute}
       />
       
       <ProducerHero 

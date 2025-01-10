@@ -47,7 +47,6 @@ export default function ArtistProfile() {
   const [isFollowing, setIsFollowing] = useState(false);
 
   // Mock functions for TopNavigation props
-  const handleLogout = () => {};
   const scrollToSection = (id: string) => {};
   const getDashboardRoute = () => "/dashboard";
 
@@ -74,9 +73,6 @@ export default function ArtistProfile() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
       <TopNavigation 
-        session={null}
-        userRole={null}
-        handleLogout={handleLogout}
         scrollToSection={scrollToSection}
         getDashboardRoute={getDashboardRoute}
       />

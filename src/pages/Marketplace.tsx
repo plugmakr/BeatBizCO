@@ -19,17 +19,12 @@ const genres = [
 export default function Marketplace() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Mock functions for TopNavigation props
-  const handleLogout = () => {};
   const scrollToSection = (id: string) => {};
   const getDashboardRoute = () => "/dashboard";
 
   return (
     <div className="min-h-screen bg-background">
       <TopNavigation 
-        session={null}
-        userRole={null}
-        handleLogout={handleLogout}
         scrollToSection={scrollToSection}
         getDashboardRoute={getDashboardRoute}
       />
