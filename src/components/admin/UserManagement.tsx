@@ -64,8 +64,22 @@ export function UserManagement() {
         });
         throw error;
       }
+
+      // Validate and transform the data to ensure it matches our Profile type
+      const validatedData = data?.map(user => {
+        if (!user.auth_users) {
+          return {
+            ...user,
+            auth_users: {
+              email: 'No email available',
+              created_at: user.created_at
+            }
+          };
+        }
+        return user;
+      });
       
-      return data as Profile[];
+      return validatedData as Profile[];
     },
   });
 
