@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import ClientForm from "./ClientForm";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,10 +95,13 @@ export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogP
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Add New Client</DialogTitle>
+          <DialogDescription>
+            Fill in the client details below. Required fields are marked with an asterisk (*).
+          </DialogDescription>
         </DialogHeader>
         <ClientForm onSubmit={handleSubmit} isLoading={isLoading} />
       </DialogContent>
