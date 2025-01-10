@@ -17,17 +17,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface TopNavigationProps {
-  session: any;
-  userRole: string | null;
-  handleLogout: () => void;
   scrollToSection: (id: string) => void;
   getDashboardRoute: () => string;
 }
 
 const TopNavigation = ({
-  session,
-  userRole,
-  handleLogout,
   scrollToSection,
   getDashboardRoute,
 }: TopNavigationProps) => {
@@ -79,49 +73,19 @@ const TopNavigation = ({
         </NavigationMenu>
 
         <div className="space-x-4">
-          {session ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="text-white hover:bg-white/20"
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Account
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate('/profile')}>
-                  <User className="h-4 w-4 mr-2" />
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate(getDashboardRoute())}>
-                  <Settings className="h-4 w-4 mr-2" />
-                  Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Button
-                variant="ghost"
-                onClick={() => navigate("/auth")}
-                className="text-white hover:bg-white/20"
-              >
-                Login
-              </Button>
-              <Button
-                onClick={() => navigate("/auth")}
-                className="bg-white/20 hover:bg-white/30 text-white"
-              >
-                Register
-              </Button>
-            </>
-          )}
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/producer")}
+            className="text-white hover:bg-white/20"
+          >
+            Producer Portal
+          </Button>
+          <Button
+            onClick={() => navigate("/auth")}
+            className="bg-white/20 hover:bg-white/30 text-white"
+          >
+            Register
+          </Button>
         </div>
       </div>
     </nav>
