@@ -25,7 +25,11 @@ const musicUploadSchema = z.object({
   description: z.string().optional(),
 });
 
-export function MusicUpload() {
+interface MusicUploadProps {
+  onSuccess?: () => void;
+}
+
+export function MusicUpload({ onSuccess }: MusicUploadProps) {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [artworkFile, setArtworkFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -117,6 +121,9 @@ export function MusicUpload() {
       setArtworkFile(null);
       setPreviewUrl(null);
       setUploadProgress(0);
+      
+      // Call onSuccess callback if provided
+      onSuccess?.();
     } catch (error) {
       console.error("Upload error:", error);
       toast({
