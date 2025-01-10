@@ -25,7 +25,7 @@ import { getProducerMenuItems, getArtistMenuItems, getAdminMenuItems } from "@/c
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [role, setRole] = useState<string>("producer");
+  const [role, setRole] = useState<string>("");
 
   useEffect(() => {
     const fetchProfile = async () => {
