@@ -1,22 +1,27 @@
 import { 
   LayoutDashboard, 
   Users, 
-  Folder, 
-  Wallet, 
-  ShoppingBag, 
-  Music2, 
-  Globe, 
-  Share2, 
-  MessageSquare, 
-  HelpCircle, 
-  Settings,
-  UserCircle,
-  BarChart,
+  ShoppingBag,
+  UsersRound,
+  FileText,
+  BarChart2,
+  MessageSquare,
+  CreditCard,
   Megaphone,
-  ShoppingCart,
-  Database,
+  Settings,
+  FileSearch,
+  Activity,
+  Bell,
+  UserCheck,
+  Store,
+  Handshake,
+  FileEdit,
+  PieChart,
   Shield,
-  Activity
+  Wallet,
+  Target,
+  Cog,
+  ClipboardList
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -43,7 +48,7 @@ export const getProducerMenuItems = (): MenuSection[] => [
       {
         title: "Profile",
         url: "/producer/profile",
-        icon: UserCircle
+        icon: UsersRound
       }
     ]
   },
@@ -58,12 +63,12 @@ export const getProducerMenuItems = (): MenuSection[] => [
       {
         title: "Projects",
         url: "/producer/projects",
-        icon: Folder
+        icon: FileText
       },
       {
         title: "Finances",
         url: "/producer/finances",
-        icon: Wallet
+        icon: CreditCard
       }
     ]
   },
@@ -78,7 +83,7 @@ export const getProducerMenuItems = (): MenuSection[] => [
       {
         title: "Sound Library",
         url: "/producer/sound-library",
-        icon: Music2
+        icon: Store
       },
       {
         title: "Website",
@@ -88,7 +93,7 @@ export const getProducerMenuItems = (): MenuSection[] => [
       {
         title: "Funnels",
         url: "/producer/funnels",
-        icon: Share2
+        icon: Handshake
       }
     ]
   },
@@ -103,7 +108,7 @@ export const getProducerMenuItems = (): MenuSection[] => [
       {
         title: "Help",
         url: "/producer/support",
-        icon: HelpCircle
+        icon: Megaphone
       },
       {
         title: "Settings",
@@ -126,7 +131,7 @@ export const getArtistMenuItems = (): MenuSection[] => [
       {
         title: "Analytics",
         url: "/artist/analytics",
-        icon: BarChart
+        icon: BarChart2
       }
     ]
   },
@@ -141,7 +146,7 @@ export const getArtistMenuItems = (): MenuSection[] => [
       {
         title: "Sales",
         url: "/artist/sales",
-        icon: ShoppingCart
+        icon: ShoppingBag
       }
     ]
   },
@@ -167,29 +172,74 @@ export const getAdminMenuItems = (): MenuSection[] => [
         icon: LayoutDashboard
       },
       {
-        title: "Analytics",
-        url: "/admin/analytics",
-        icon: Activity
+        title: "Notifications",
+        url: "/admin/notifications",
+        icon: Bell
       }
     ]
   },
   {
-    category: "Management",
+    category: "Users & Content",
     items: [
       {
-        title: "Users",
+        title: "User Management",
         url: "/admin/users",
         icon: Users
       },
       {
-        title: "Content",
-        url: "/admin/content",
-        icon: Database
+        title: "Marketplace",
+        url: "/admin/marketplace",
+        icon: Store
       },
       {
-        title: "Security",
-        url: "/admin/security",
-        icon: Shield
+        title: "Collaborations",
+        url: "/admin/collaborations",
+        icon: Handshake
+      },
+      {
+        title: "Content Management",
+        url: "/admin/content",
+        icon: FileEdit
+      }
+    ]
+  },
+  {
+    category: "Business",
+    items: [
+      {
+        title: "Analytics",
+        url: "/admin/analytics",
+        icon: PieChart
+      },
+      {
+        title: "Support",
+        url: "/admin/support",
+        icon: MessageSquare
+      },
+      {
+        title: "Payments",
+        url: "/admin/payments",
+        icon: Wallet
+      },
+      {
+        title: "Promotions",
+        url: "/admin/promotions",
+        icon: Target
+      }
+    ]
+  },
+  {
+    category: "System",
+    items: [
+      {
+        title: "Settings",
+        url: "/admin/settings",
+        icon: Cog
+      },
+      {
+        title: "Audit Logs",
+        url: "/admin/logs",
+        icon: ClipboardList
       }
     ]
   }

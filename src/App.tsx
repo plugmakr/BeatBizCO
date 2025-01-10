@@ -22,6 +22,17 @@ import ArtistSales from "./pages/artist/Sales";
 import ArtistWebsite from "./pages/artist/Website";
 import ArtistProfile from "./pages/ArtistProfile";
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminUsers from "./pages/admin/Users";
+import AdminMarketplace from "./pages/admin/Marketplace";
+import AdminCollaborations from "./pages/admin/Collaborations";
+import AdminContent from "./pages/admin/Content";
+import AdminAnalytics from "./pages/admin/Analytics";
+import AdminSupport from "./pages/admin/Support";
+import AdminPayments from "./pages/admin/Payments";
+import AdminPromotions from "./pages/admin/Promotions";
+import AdminSettings from "./pages/admin/Settings";
+import AdminLogs from "./pages/admin/Logs";
+import AdminNotifications from "./pages/admin/Notifications";
 import { ProducerLayout } from "./components/layouts/ProducerLayout";
 import { ArtistLayout } from "./components/layouts/ArtistLayout";
 import { AdminLayout } from "./components/layouts/AdminLayout";
@@ -77,6 +88,17 @@ function App() {
           <AdminLayout>
             <Routes>
               <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="notifications" element={<AdminNotifications />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="marketplace" element={<AdminMarketplace />} />
+              <Route path="collaborations" element={<AdminCollaborations />} />
+              <Route path="content" element={<AdminContent />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="support" element={<AdminSupport />} />
+              <Route path="payments" element={<AdminPayments />} />
+              <Route path="promotions" element={<AdminPromotions />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="logs" element={<AdminLogs />} />
             </Routes>
           </AdminLayout>
         } />
