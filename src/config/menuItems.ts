@@ -13,7 +13,10 @@ import {
   UserCircle,
   BarChart,
   Megaphone,
-  ShoppingCart
+  ShoppingCart,
+  Database,
+  Shield,
+  Activity
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -154,4 +157,40 @@ export const getArtistMenuItems = (): MenuSection[] => [
   }
 ];
 
-export const getAdminMenuItems = (): MenuSection[] => [];
+export const getAdminMenuItems = (): MenuSection[] => [
+  {
+    category: "Overview",
+    items: [
+      {
+        title: "Dashboard",
+        url: "/admin/dashboard",
+        icon: LayoutDashboard
+      },
+      {
+        title: "Analytics",
+        url: "/admin/analytics",
+        icon: Activity
+      }
+    ]
+  },
+  {
+    category: "Management",
+    items: [
+      {
+        title: "Users",
+        url: "/admin/users",
+        icon: Users
+      },
+      {
+        title: "Content",
+        url: "/admin/content",
+        icon: Database
+      },
+      {
+        title: "Security",
+        url: "/admin/security",
+        icon: Shield
+      }
+    ]
+  }
+];

@@ -24,6 +24,7 @@ import ArtistProfile from "./pages/ArtistProfile";
 import AdminDashboard from "./pages/admin/Dashboard";
 import { ProducerLayout } from "./components/layouts/ProducerLayout";
 import { ArtistLayout } from "./components/layouts/ArtistLayout";
+import { AdminLayout } from "./components/layouts/AdminLayout";
 
 function App() {
   return (
@@ -72,7 +73,13 @@ function App() {
 
         {/* Admin Routes */}
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/*" element={
+          <AdminLayout>
+            <Routes>
+              <Route path="dashboard" element={<AdminDashboard />} />
+            </Routes>
+          </AdminLayout>
+        } />
       </Routes>
     </Router>
   );
