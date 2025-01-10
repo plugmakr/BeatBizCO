@@ -38,29 +38,19 @@ const AuthForm = () => {
   const handleAuthStateChange = async (event: string, session: Session | null) => {
     if (event === 'SIGNED_UP' && session) {
       try {
-        // First check if a profile already exists
-        const { data: existingProfile } = await supabase
+        // Wait a short moment to allow the trigger to create the initial profile
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Update the profile with the selected role
+        const { error: updateError } = await supabase
           .from("profiles")
-          .select("id")
-          .eq("id", session.user.id)
-          .single();
+          .update({
+            role: role,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', session.user.id);
 
-        if (!existingProfile) {
-          // Only insert if profile doesn't exist
-          const { error: insertError } = await supabase
-            .from("profiles")
-            .insert({
-              id: session.user.id,
-              role: role,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            });
-
-          if (insertError) {
-            console.error("Error creating profile:", insertError);
-            throw insertError;
-          }
-        }
+        if (updateError) throw updateError;
 
         toast({
           title: "Welcome to BeatBiz!",
