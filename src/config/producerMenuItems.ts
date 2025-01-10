@@ -8,7 +8,6 @@ import {
   Library,
   GitFork,
   MessageSquare,
-  Bell,
   Settings,
   FolderKanban,
 } from "lucide-react";
@@ -73,19 +72,29 @@ export const getProducerMenuItems = () => [
 
 export const getArtistMenuItems = () => [
   {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    url: "/artist",
+  },
+  {
     title: "Profile",
     icon: Users2,
-    url: "/dashboard/profile",
+    url: "/artist/profile",
   },
   {
     title: "Browse Beats",
     icon: Library,
-    url: "/dashboard/browse",
+    url: "/artist/browse",
+  },
+  {
+    title: "Messages",
+    icon: MessageSquare,
+    url: "/artist/messages",
   },
   {
     title: "Settings",
     icon: Settings,
-    url: "/dashboard/settings",
+    url: "/artist/settings",
   },
 ];
 
@@ -94,6 +103,11 @@ export const getAdminMenuItems = () => [
     title: "Dashboard",
     icon: LayoutDashboard,
     url: "/admin",
+  },
+  {
+    title: "Users",
+    icon: Users2,
+    url: "/admin/users",
   },
   {
     title: "Settings",
