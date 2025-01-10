@@ -118,10 +118,10 @@ export function UserManagement() {
               Artists
             </Button>
             <Button
-              variant={selectedRole === "buyer" ? "default" : "outline"}
-              onClick={() => setSelectedRole("buyer")}
+              variant={selectedRole === "guest" ? "default" : "outline"}
+              onClick={() => setSelectedRole("guest")}
             >
-              Buyers
+              Guests
             </Button>
           </div>
         </div>
