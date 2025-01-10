@@ -21,6 +21,10 @@ import ArtistMarketing from "./pages/artist/Marketing";
 import ArtistSales from "./pages/artist/Sales";
 import ArtistWebsite from "./pages/artist/Website";
 import ArtistProfile from "./pages/ArtistProfile";
+import ArtistMessages from "./pages/artist/Messages";
+import ArtistSettings from "./pages/artist/Settings";
+import ArtistHelp from "./pages/artist/Help";
+import ArtistMyMusic from "./pages/artist/MyMusic";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminUsers from "./pages/admin/Users";
 import AdminMarketplace from "./pages/admin/Marketplace";
@@ -73,10 +77,14 @@ function App() {
           <ArtistLayout>
             <Routes>
               <Route path="dashboard" element={<ArtistDashboard />} />
+              <Route path="my-music" element={<ArtistMyMusic />} />
               <Route path="analytics" element={<ArtistAnalytics />} />
               <Route path="marketing" element={<ArtistMarketing />} />
               <Route path="sales" element={<ArtistSales />} />
               <Route path="website" element={<ArtistWebsite />} />
+              <Route path="messages" element={<ArtistMessages />} />
+              <Route path="settings" element={<ArtistSettings />} />
+              <Route path="help" element={<ArtistHelp />} />
               <Route path=":id" element={<ArtistProfile />} />
             </Routes>
           </ArtistLayout>

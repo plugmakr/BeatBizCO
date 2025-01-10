@@ -12,7 +12,7 @@ import {
   Handshake,
   UserCircle,
   FileText,
-  Store as StoreIcon,
+  StoreIcon,
   Globe,
   Bell,
   FileEdit,
@@ -20,7 +20,10 @@ import {
   Wallet,
   Target,
   Cog,
-  ClipboardList
+  ClipboardList,
+  Library,
+  MessageCircle,
+  HeadphonesIcon
 } from "lucide-react";
 import type { MenuSection } from "@/types/menu";
 
@@ -44,14 +47,14 @@ export const getArtistMenuItems = () => [
     category: "Business",
     items: [
       {
-        title: "Collaborations",
-        url: "/artist/collaborations",
-        icon: Handshake
+        title: "Analytics",
+        url: "/artist/analytics",
+        icon: BarChart2
       },
       {
-        title: "Messages",
-        url: "/artist/messages",
-        icon: MessageSquare
+        title: "Marketing",
+        url: "/artist/marketing",
+        icon: Megaphone
       },
       {
         title: "Sales",
@@ -61,17 +64,17 @@ export const getArtistMenuItems = () => [
     ]
   },
   {
-    category: "Analytics",
+    category: "Content",
     items: [
       {
-        title: "Performance",
-        url: "/artist/analytics",
-        icon: BarChart2
+        title: "Website",
+        url: "/artist/website",
+        icon: Globe
       },
       {
-        title: "Marketing",
-        url: "/artist/marketing",
-        icon: Megaphone
+        title: "Messages",
+        url: "/artist/messages",
+        icon: MessageCircle
       }
     ]
   },
