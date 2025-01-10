@@ -15,16 +15,26 @@ const AuthForm = () => {
   const [role, setRole] = useState<UserRole>("guest");
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange(handleAuthStateChange);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
     
     const checkExistingSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
           .single();
+
+        if (profileError) {
+          console.error("Error fetching profile:", profileError);
+          toast({
+            title: "Error",
+            description: "Failed to fetch user profile",
+            variant: "destructive",
+          });
+          return;
+        }
 
         if (profile) {
           handleRoleBasedRedirect(profile.role);
@@ -33,6 +43,10 @@ const AuthForm = () => {
     };
 
     checkExistingSession();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleAuthStateChange = async (event: string, session: Session | null) => {
