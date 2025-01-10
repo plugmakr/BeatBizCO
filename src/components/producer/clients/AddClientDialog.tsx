@@ -16,26 +16,37 @@ export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogP
   const [userId, setUserId] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Check authentication status when component mounts
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUserId(session?.user?.id || null);
+      if (!session?.user?.id) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to add clients",
+          variant: "destructive",
+        });
+        onClose();
+        return;
+      }
+      setUserId(session.user.id);
     };
 
     checkAuth();
 
+    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserId(session?.user?.id || null);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [onClose, toast]);
 
   const handleSubmit = async (formData: FormData) => {
     if (!userId) {
       toast({
-        title: "Error",
-        description: "You must be logged in to add clients",
+        title: "Authentication Required",
+        description: "Please sign in to add clients",
         variant: "destructive",
       });
       return;
