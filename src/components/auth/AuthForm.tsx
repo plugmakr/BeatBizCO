@@ -50,7 +50,15 @@ const AuthForm = () => {
           })
           .eq('id', session.user.id);
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          console.error("Error updating profile:", updateError);
+          toast({
+            title: "Error",
+            description: "There was an issue updating your profile. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
 
         toast({
           title: "Welcome to BeatBiz!",
@@ -74,7 +82,15 @@ const AuthForm = () => {
           .eq("id", session.user.id)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error getting user role:", error);
+          toast({
+            title: "Error",
+            description: "Failed to get user role. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
 
         toast({
           title: "Welcome back to BeatBiz!",
@@ -155,9 +171,15 @@ const AuthForm = () => {
               },
             }}
             providers={[]}
-            view="sign_in"
-            showLinks={true}
             redirectTo={window.location.origin}
+            onError={(error) => {
+              console.error("Auth error:", error);
+              toast({
+                title: "Authentication Error",
+                description: error.message,
+                variant: "destructive",
+              });
+            }}
           />
         </div>
       </CardContent>
