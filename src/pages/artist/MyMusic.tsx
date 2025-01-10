@@ -3,10 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus } from "lucide-react";
+import { Plus, Music2, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MusicUpload } from "@/components/artist/upload/MusicUpload";
 import { MusicPlayer } from "@/components/artist/MusicPlayer";
+import { MusicGrid } from "@/components/artist/music/MusicGrid";
+import { useToast } from "@/hooks/use-toast";
 
 interface Track {
   id: number;
@@ -16,14 +18,16 @@ interface Track {
   audio_url: string;
   artwork_url: string | null;
   created_at: string;
+  description?: string;
 }
 
 export default function MyMusic() {
   const [isUploading, setIsUploading] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const { toast } = useToast();
 
-  const { data: tracks, isLoading } = useQuery({
+  const { data: tracks, isLoading, refetch } = useQuery({
     queryKey: ["my-music"],
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -40,6 +44,30 @@ export default function MyMusic() {
     },
   });
 
+  const handleDelete = async (trackId: number) => {
+    try {
+      const { error } = await supabase
+        .from("music")
+        .delete()
+        .eq("id", trackId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Track deleted successfully",
+      });
+
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete track",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handlePlayToggle = () => {
     setIsPlaying(!isPlaying);
   };
@@ -47,7 +75,10 @@ export default function MyMusic() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">My Music</h1>
+        <div>
+          <h1 className="text-3xl font-bold">My Music</h1>
+          <p className="text-muted-foreground">Manage your music catalog</p>
+        </div>
         <Button onClick={() => setIsUploading(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Upload Music
@@ -56,8 +87,14 @@ export default function MyMusic() {
 
       <Tabs defaultValue="tracks" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="tracks">Tracks</TabsTrigger>
-          <TabsTrigger value="upload">Upload</TabsTrigger>
+          <TabsTrigger value="tracks" className="flex items-center gap-2">
+            <Music2 className="h-4 w-4" />
+            Tracks
+          </TabsTrigger>
+          <TabsTrigger value="upload" className="flex items-center gap-2">
+            <ImageIcon className="h-4 w-4" />
+            Upload
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="tracks">
@@ -67,36 +104,26 @@ export default function MyMusic() {
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div>Loading...</div>
+                <div className="flex items-center justify-center p-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
               ) : tracks?.length === 0 ? (
-                <div className="text-center text-muted-foreground">
-                  No tracks uploaded yet
+                <div className="text-center py-8">
+                  <Music2 className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                  <h3 className="mt-4 text-lg font-semibold">No tracks yet</h3>
+                  <p className="text-muted-foreground">
+                    Upload your first track to get started
+                  </p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {tracks?.map((track) => (
-                    <div
-                      key={track.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div>
-                        <h3 className="font-semibold">{track.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {track.genre}
-                        </p>
-                      </div>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setCurrentTrack(track);
-                          setIsPlaying(true);
-                        }}
-                      >
-                        Play
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                <MusicGrid
+                  tracks={tracks || []}
+                  onPlay={(track) => {
+                    setCurrentTrack(track);
+                    setIsPlaying(true);
+                  }}
+                  onDelete={handleDelete}
+                />
               )}
             </CardContent>
           </Card>
@@ -108,7 +135,10 @@ export default function MyMusic() {
               <CardTitle>Upload Music</CardTitle>
             </CardHeader>
             <CardContent>
-              <MusicUpload />
+              <MusicUpload onSuccess={() => {
+                refetch();
+                setIsUploading(false);
+              }} />
             </CardContent>
           </Card>
         </TabsContent>
