@@ -60,8 +60,11 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, role, created_at, updated_at)
-  values (new.id, 'guest', now(), now());
+  -- Only insert if profile doesn't exist
+  if not exists (select 1 from public.profiles where id = new.id) then
+    insert into public.profiles (id, role, created_at, updated_at)
+    values (new.id, 'guest', now(), now());
+  end if;
   return new;
 end;
 $$;
