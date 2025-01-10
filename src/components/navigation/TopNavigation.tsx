@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Music2, User, LogOut, Settings } from "lucide-react";
+import { Music2, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   NavigationMenu,
@@ -73,13 +73,24 @@ const TopNavigation = ({
         </NavigationMenu>
 
         <div className="space-x-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/producer")}
-            className="text-white hover:bg-white/20"
-          >
-            Producer Portal
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="text-white hover:bg-white/20">
+                Portals <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => navigate("/producer")}>
+                Producer Portal
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/artist")}>
+                Artist Portal
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/admin")}>
+                Admin Portal
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             onClick={() => navigate("/auth")}
             className="bg-white/20 hover:bg-white/30 text-white"
