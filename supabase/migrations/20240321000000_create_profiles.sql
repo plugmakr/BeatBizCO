@@ -19,18 +19,39 @@ create table if not exists public.profiles (
 -- Enable Row Level Security
 alter table public.profiles enable row level security;
 
--- Create policies
-create policy "Public profiles are viewable by everyone"
-  on profiles for select
-  using ( true );
+-- Create policies if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'profiles' 
+        AND policyname = 'Public profiles are viewable by everyone'
+    ) THEN
+        create policy "Public profiles are viewable by everyone"
+            on profiles for select
+            using ( true );
+    END IF;
 
-create policy "Users can insert their own profile"
-  on profiles for insert
-  with check ( auth.uid() = id );
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'profiles' 
+        AND policyname = 'Users can insert their own profile'
+    ) THEN
+        create policy "Users can insert their own profile"
+            on profiles for insert
+            with check ( auth.uid() = id );
+    END IF;
 
-create policy "Users can update their own profile"
-  on profiles for update
-  using ( auth.uid() = id );
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_policies 
+        WHERE tablename = 'profiles' 
+        AND policyname = 'Users can update their own profile'
+    ) THEN
+        create policy "Users can update their own profile"
+            on profiles for update
+            using ( auth.uid() = id );
+    END IF;
+END $$;
 
 -- Create function to handle new user creation
 create or replace function public.handle_new_user()
