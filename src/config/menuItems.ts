@@ -21,7 +21,8 @@ import {
   Wallet,
   Target,
   Cog,
-  ClipboardList
+  ClipboardList,
+  Globe as GlobeIcon // Renamed to avoid confusion
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -88,7 +89,7 @@ export const getProducerMenuItems = (): MenuSection[] => [
       {
         title: "Website",
         url: "/producer/website",
-        icon: Globe
+        icon: GlobeIcon
       },
       {
         title: "Funnels",
@@ -156,7 +157,7 @@ export const getArtistMenuItems = (): MenuSection[] => [
       {
         title: "Website",
         url: "/artist/website",
-        icon: Globe
+        icon: GlobeIcon
       }
     ]
   }
