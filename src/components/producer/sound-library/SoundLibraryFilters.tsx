@@ -10,11 +10,13 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+type SoundType = "beat" | "sound_kit" | "midi_kit" | "loop_kit" | "drum_kit" | "one_shot" | "sample" | null;
+
 interface SoundLibraryFiltersProps {
   selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
-  selectedType: string | null;
-  onTypeChange: (type: string | null) => void;
+  selectedType: SoundType;
+  onTypeChange: (type: SoundType) => void;
 }
 
 export function SoundLibraryFilters({
@@ -46,7 +48,10 @@ export function SoundLibraryFilters({
 
   return (
     <div className="p-4 border-b flex items-center gap-4">
-      <Select value={selectedType || "all"} onValueChange={(value) => onTypeChange(value === "all" ? null : value)}>
+      <Select 
+        value={selectedType || "all"} 
+        onValueChange={(value) => onTypeChange(value === "all" ? null : value as SoundType)}
+      >
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Filter by type" />
         </SelectTrigger>
