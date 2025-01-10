@@ -152,8 +152,8 @@ const AuthForm = () => {
               },
             }}
             providers={[]}
-            onlyThirdPartyProviders={false}
-            magicLink={false}
+            view="sign_in"
+            showLinks={true}
             redirectTo={window.location.origin}
           />
         </div>
