@@ -361,3 +361,4 @@ export default function ProjectFiles({ projectId }: { projectId: string }) {
       />
     </div>
   );
+}
