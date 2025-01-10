@@ -15,6 +15,8 @@ const AuthForm = () => {
   const [role, setRole] = useState<UserRole>("guest");
 
   useEffect(() => {
+    supabase.auth.onAuthStateChange(handleAuthStateChange);
+    
     const checkExistingSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -150,8 +152,9 @@ const AuthForm = () => {
               },
             }}
             providers={[]}
-            redirectTo={`${window.location.origin}/auth/callback`}
             onlyThirdPartyProviders={false}
+            magicLink={false}
+            redirectTo={window.location.origin}
           />
         </div>
       </CardContent>
