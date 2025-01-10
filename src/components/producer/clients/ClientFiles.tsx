@@ -14,6 +14,7 @@ import { CreateFolderDialog } from "./files/CreateFolderDialog";
 import { FolderPlus } from "lucide-react";
 import { FileExplanation } from "./files/FileExplanation";
 import { useDefaultFolders } from "./files/useDefaultFolders";
+import { useQuery } from "@tanstack/react-query";
 
 interface ClientFilesProps {
   client: Client;
@@ -59,7 +60,19 @@ export function ClientFiles({ client }: ClientFilesProps) {
   // Initialize default folders
   useDefaultFolders(client.id, fetchFiles);
 
+  // Get the current session
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    },
+  });
+
   async function fetchFiles() {
+    if (!session?.user?.id) return;
+
     try {
       // Fetch regular client files
       let query = supabase
