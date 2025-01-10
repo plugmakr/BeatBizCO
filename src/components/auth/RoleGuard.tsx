@@ -34,7 +34,26 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
           description: "You don't have permission to access this area.",
           variant: "destructive",
         });
-        navigate("/");
+        
+        // Redirect based on role
+        if (profile) {
+          switch (profile.role) {
+            case "admin":
+              navigate("/admin");
+              break;
+            case "producer":
+              navigate("/producer");
+              break;
+            case "artist":
+              navigate("/artist");
+              break;
+            default:
+              navigate("/");
+              break;
+          }
+        } else {
+          navigate("/");
+        }
         return;
       }
 

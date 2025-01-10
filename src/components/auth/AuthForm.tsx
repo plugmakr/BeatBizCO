@@ -7,12 +7,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Session } from "@supabase/supabase-js";
 
-type UserRole = "producer" | "artist" | "buyer" | "admin";
+type UserRole = "producer" | "artist" | "admin" | "guest";
 
 const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [role, setRole] = useState<UserRole>("buyer");
+  const [role, setRole] = useState<UserRole>("guest");
 
   useEffect(() => {
     // Check if user is already logged in
@@ -91,13 +91,11 @@ const AuthForm = () => {
       }
     } else if (event === 'SIGNED_IN' && session) {
       try {
-        const { error } = await supabase
+        const { data: profile, error } = await supabase
           .from("profiles")
-          .update({
-            role: role,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", session.user.id);
+          .select("role")
+          .eq("id", session.user.id)
+          .single();
 
         if (error) throw error;
 
@@ -106,12 +104,12 @@ const AuthForm = () => {
           description: "You've successfully signed in.",
         });
         
-        handleRoleBasedRedirect(role);
+        handleRoleBasedRedirect(profile.role);
       } catch (error) {
-        console.error("Error updating role:", error);
+        console.error("Error getting user role:", error);
         toast({
           title: "Error",
-          description: "Failed to update user role. Please try again.",
+          description: "Failed to get user role. Please try again.",
           variant: "destructive",
         });
       }
@@ -123,11 +121,14 @@ const AuthForm = () => {
       case "admin":
         navigate("/admin");
         break;
+      case "producer":
+        navigate("/producer");
+        break;
       case "artist":
         navigate("/artist");
         break;
       default:
-        navigate("/"); // Default route for other roles
+        navigate("/"); // Default route for guests
         break;
     }
   };
@@ -146,8 +147,8 @@ const AuthForm = () => {
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               I am a...
             </label>
-            <div className="grid grid-cols-3 gap-2">
-              {(["producer", "artist", "buyer"] as const).map((option) => (
+            <div className="grid grid-cols-4 gap-2">
+              {(["producer", "artist", "admin", "guest"] as const).map((option) => (
                 <button
                   key={option}
                   onClick={() => setRole(option)}

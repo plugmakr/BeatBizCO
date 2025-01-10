@@ -183,7 +183,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           genre_focus?: string | null
-          id?: string
+          id: string
           name: string
           notes?: string | null
           phone?: string | null
@@ -432,7 +432,7 @@ export type Database = {
           price?: number | null
           producer_id?: string | null
           terms?: string | null
-          type?: string
+          type: string
           updated_at?: string | null
         }
         Relationships: [
@@ -550,7 +550,7 @@ export type Database = {
           total_downloads?: number | null
           total_plays?: number | null
           total_sales?: number | null
-          type?: string
+          type: string
           updated_at?: string | null
           is_featured?: boolean; // Added is_featured property
         }
@@ -716,7 +716,7 @@ export type Database = {
           id: string
           role?: Database["public"]["Enums"]["user_role"] | null
           subscription_plan?: string | null
-          updated_at?: string
+          updated_at: string
           username?: string | null
           website?: string | null
         }
@@ -1035,7 +1035,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           project_id: string
-          sound_id?: string
+          sound_id: string
         }
         Relationships: [
           {
@@ -1181,7 +1181,7 @@ export type Database = {
         | "drum_kit"
         | "one_shot"
         | "sample"
-      user_role: "producer" | "artist" | "buyer" | "admin"
+      user_role: "producer" | "artist" | "guest" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
