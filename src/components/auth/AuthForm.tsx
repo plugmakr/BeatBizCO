@@ -38,16 +38,29 @@ const AuthForm = () => {
   const handleAuthStateChange = async (event: string, session: Session | null) => {
     if (event === 'SIGNED_UP' && session) {
       try {
-        const { error: insertError } = await supabase
+        // First check if a profile already exists
+        const { data: existingProfile } = await supabase
           .from("profiles")
-          .insert({
-            id: session.user.id,
-            role: role,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          });
+          .select("id")
+          .eq("id", session.user.id)
+          .single();
 
-        if (insertError) throw insertError;
+        if (!existingProfile) {
+          // Only insert if profile doesn't exist
+          const { error: insertError } = await supabase
+            .from("profiles")
+            .insert({
+              id: session.user.id,
+              role: role,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            });
+
+          if (insertError) {
+            console.error("Error creating profile:", insertError);
+            throw insertError;
+          }
+        }
 
         toast({
           title: "Welcome to BeatBiz!",
