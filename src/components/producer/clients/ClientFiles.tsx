@@ -20,13 +20,15 @@ interface ClientFilesProps {
   client: Client;
 }
 
+interface SoundLibraryProjectFile {
+  sound_library: SoundLibraryFile;
+  project?: {
+    name: string;
+  };
+}
+
 interface ProjectWithSoundLibrary extends Project {
-  sound_library_project_files?: {
-    sound_library: SoundLibraryFile;
-    project?: {
-      name: string;
-    };
-  }[];
+  sound_library_project_files?: SoundLibraryProjectFile[];
 }
 
 export function ClientFiles({ client }: ClientFilesProps) {
@@ -104,7 +106,8 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         if (projectsError) throw projectsError;
 
-        const projectFolders: ClientFile[] = (projects as ProjectWithSoundLibrary[] || []).map(project => ({
+        const typedProjects = projects as unknown as ProjectWithSoundLibrary[];
+        const projectFolders: ClientFile[] = (typedProjects || []).map(project => ({
           id: `project-${project.id}`,
           client_id: client.id,
           filename: project.name,
@@ -141,7 +144,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         if (projectFilesError) throw projectFilesError;
 
-        const soundLibraryFiles: ClientFile[] = (projectFiles || []).map(pf => ({
+        const soundLibraryFiles: ClientFile[] = (projectFiles as SoundLibraryProjectFile[] || []).map(pf => ({
           id: pf.sound_library.id,
           client_id: client.id,
           filename: pf.sound_library.title,
