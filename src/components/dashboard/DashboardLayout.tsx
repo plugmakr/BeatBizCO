@@ -20,7 +20,7 @@ import {
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getProducerMenuItems, getArtistMenuItems, getAdminMenuItems } from "@/config/producerMenuItems";
+import { getProducerMenuItems, getArtistMenuItems, getAdminMenuItems } from "@/config/menuItems";
 
 export const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
@@ -39,12 +39,34 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         
         if (profile) {
           setRole(profile.role);
+          // Redirect if user is on wrong portal
+          const currentPath = window.location.pathname;
+          if (profile.role === 'admin' && !currentPath.startsWith('/admin')) {
+            navigate('/admin');
+          } else if (profile.role === 'artist' && !currentPath.startsWith('/artist')) {
+            navigate('/artist');
+          } else if (profile.role === 'producer' && !currentPath.startsWith('/producer')) {
+            navigate('/producer');
+          }
         }
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [navigate]);
+
+  const getMenuItems = () => {
+    switch (role) {
+      case "producer":
+        return getProducerMenuItems();
+      case "artist":
+        return getArtistMenuItems();
+      case "admin":
+        return getAdminMenuItems();
+      default:
+        return [];
+    }
+  };
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -60,19 +82,6 @@ export const DashboardLayout = ({ children }: { children: React.ReactNode }) => 
         description: "You've been successfully signed out.",
       });
       navigate("/auth");
-    }
-  };
-
-  const getMenuItems = () => {
-    switch (role) {
-      case "producer":
-        return getProducerMenuItems();
-      case "artist":
-        return getArtistMenuItems();
-      case "admin":
-        return getAdminMenuItems();
-      default:
-        return [];
     }
   };
 
