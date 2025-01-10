@@ -1,45 +1,85 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-
-const soundLibrarySettingsSchema = z.object({
-  auto_organize: z.boolean(),
-  default_folder: z.string(),
-  auto_backup: z.boolean(),
-  backup_frequency: z.string(),
-});
+import { Loader2 } from "lucide-react";
 
 export function SoundLibrarySettings() {
-  const { toast } = useToast();
-  const form = useForm<z.infer<typeof soundLibrarySettingsSchema>>({
-    resolver: zodResolver(soundLibrarySettingsSchema),
-    defaultValues: {
-      auto_organize: true,
-      default_folder: "Uploads",
-      auto_backup: true,
-      backup_frequency: "daily",
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id || null);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const { data: folders, isLoading } = useQuery({
+    queryKey: ["sound-library-folders", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      
+      const { data, error } = await supabase
+        .from("sound_library_folders")
+        .select("*")
+        .eq("producer_id", userId);
+
+      if (error) throw error;
+      return data;
     },
+    enabled: !!userId,
   });
 
-  const onSubmit = async (values: z.infer<typeof soundLibrarySettingsSchema>) => {
-    toast({
-      title: "Success",
-      description: "Sound library settings have been updated.",
-    });
-  };
+  const { data: projects, isLoading: isLoadingProjects } = useQuery({
+    queryKey: ["active-projects", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+
+      const { data, error } = await supabase
+        .from("collaboration_projects")
+        .select("*")
+        .eq("created_by", userId)
+        .eq("status", "active");
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId,
+  });
+
+  if (!userId) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Sound Library Settings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Please sign in to view your sound library settings.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isLoading || isLoadingProjects) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Sound Library Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-center">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -47,89 +87,21 @@ export function SoundLibrarySettings() {
         <CardTitle>Sound Library Settings</CardTitle>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="auto_organize"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Auto-organize Files
-                    </FormLabel>
-                    <FormDescription>
-                      Automatically organize files by type and date
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="default_folder"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Default Upload Folder</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Default folder for new uploads
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="auto_backup"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Automatic Backup
-                    </FormLabel>
-                    <FormDescription>
-                      Automatically backup your sound library
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="backup_frequency"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Backup Frequency</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    How often to backup your library
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit">Save Library Settings</Button>
-          </form>
-        </Form>
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-medium">Folders</h3>
+            <p className="text-sm text-muted-foreground">
+              {folders?.length || 0} folders in your sound library
+            </p>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-medium">Active Projects</h3>
+            <p className="text-sm text-muted-foreground">
+              {projects?.length || 0} active projects
+            </p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
