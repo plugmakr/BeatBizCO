@@ -120,6 +120,8 @@ const AuthForm = () => {
           variant: "destructive",
         });
       }
+    } else if (event === 'SIGNED_OUT') {
+      navigate('/');
     }
   };
 
