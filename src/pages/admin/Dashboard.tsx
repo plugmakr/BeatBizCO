@@ -15,8 +15,7 @@ const AdminDashboard = () => {
       const [
         { count: totalUsers },
         { data: salesData },
-        { count: activeProjects },
-        { count: supportTickets }
+        { count: activeProjects }
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact' }),
         supabase.from('marketplace_sales')
@@ -24,10 +23,7 @@ const AdminDashboard = () => {
           .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
         supabase.from('collaboration_projects')
           .select('*', { count: 'exact' })
-          .eq('status', 'active'),
-        supabase.from('support_tickets')
-          .select('*', { count: 'exact' })
-          .eq('status', 'open')
+          .eq('status', 'active')
       ]);
 
       const totalSales = salesData?.reduce((acc, sale) => acc + sale.amount, 0) || 0;
@@ -36,7 +32,7 @@ const AdminDashboard = () => {
         totalUsers: totalUsers || 0,
         totalSales,
         activeProjects: activeProjects || 0,
-        supportTickets: supportTickets || 0
+        supportTickets: 0 // Placeholder until support_tickets table is created
       };
     }
   });

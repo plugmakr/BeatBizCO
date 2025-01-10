@@ -28,12 +28,19 @@ import { useToast } from "@/hooks/use-toast";
 import { MoreHorizontal, UserCheck, UserX } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
+  auth_users: {
+    email: string;
+    created_at: string;
+  };
+};
+
+type UserRole = "producer" | "artist" | "buyer" | "admin";
 
 export function UserManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
   // Fetch users with their profiles
   const { data: users, isLoading } = useQuery({
@@ -58,13 +65,13 @@ export function UserManagement() {
         throw error;
       }
       
-      return data as (Profile & { auth_users: { email: string, created_at: string } })[];
+      return data as Profile[];
     },
   });
 
   // Update user role mutation
   const updateUserRole = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: string, newRole: string }) => {
+    mutationFn: async ({ userId, newRole }: { userId: string, newRole: UserRole }) => {
       const { error } = await supabase
         .from('profiles')
         .update({ role: newRole })
@@ -91,7 +98,6 @@ export function UserManagement() {
   // Ban user mutation
   const banUser = useMutation({
     mutationFn: async (userId: string) => {
-      // In a real implementation, you would call your backend to disable the user's account
       const { error } = await supabase.auth.admin.updateUserById(userId, {
         ban_duration: 'infinite'
       });
