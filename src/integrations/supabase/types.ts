@@ -699,12 +699,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
-          created_at?: string
+          created_at: string
           full_name?: string | null
           id: string
           role?: Database["public"]["Enums"]["user_role"] | null
           subscription_plan?: string | null
-          updated_at?: string
+          updated_at: string
           username?: string | null
           website?: string | null
         }
@@ -785,7 +785,7 @@ export type Database = {
           file_type?: string
           filename?: string
           id?: string
-          project_id?: string
+          project_id: string
           size?: number
           uploaded_by?: string | null
         }
@@ -958,8 +958,8 @@ export type Database = {
           size?: number | null
           status?: string | null
           tags?: string[] | null
-          title?: string
-          type?: Database["public"]["Enums"]["sound_type"]
+          title: string
+          type: Database["public"]["Enums"]["sound_type"]
           updated_at?: string | null
           waveform_path?: string | null
         }
@@ -993,7 +993,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
-          name?: string
+          name: string
           parent_id?: string | null
           producer_id?: string | null
           updated_at?: string | null
@@ -1124,7 +1124,7 @@ export type Database = {
           description?: string | null
           id?: string
           producer_id?: string | null
-          type?: string
+          type: string
           updated_at?: string | null
         }
         Relationships: [
