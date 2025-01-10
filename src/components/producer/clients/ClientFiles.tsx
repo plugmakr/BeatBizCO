@@ -19,6 +19,23 @@ interface ClientFilesProps {
   client: Client;
 }
 
+interface SoundLibraryFile {
+  id: string;
+  title: string;
+  file_path: string;
+  type: string;
+  size: number;
+  created_at: string;
+}
+
+interface ProjectWithSoundLibrary {
+  id: string;
+  name: string;
+  sound_library_project_files?: {
+    sound_library: SoundLibraryFile;
+  }[];
+}
+
 export function ClientFiles({ client }: ClientFilesProps) {
   const [files, setFiles] = useState<ClientFile[]>([]);
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
@@ -79,7 +96,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
               )
             )
           `)
-          .eq('client_id', client.id);
+          .eq('client_id', client.id) as { data: ProjectWithSoundLibrary[] | null, error: any };
 
         if (projectsError) throw projectsError;
 
@@ -346,5 +363,4 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
       <FilePreviewDialog file={previewFile} onClose={() => setPreviewFile(null)} />
     </Card>
-  );
 }

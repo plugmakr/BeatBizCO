@@ -30,3 +30,7 @@ export interface ClientFile {
   fromSoundLibrary?: boolean;
   projectName?: string;
 }
+
+import type { Database } from '@/integrations/supabase/types';
+
+export type Tables = Database['public']['Tables'];
