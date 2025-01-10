@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
@@ -29,18 +28,31 @@ export function SoundLibrarySidebar({
   const [newFolderName, setNewFolderName] = useState("");
   const { toast } = useToast();
 
-  const { data: folders, refetch: refetchFolders } = useQuery({
-    queryKey: ["sound-library-folders"],
+  // Get the current session
+  const { data: session } = useQuery({
+    queryKey: ['session'],
     queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    },
+  });
+
+  const { data: folders, refetch: refetchFolders } = useQuery({
+    queryKey: ["sound-library-folders", session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      
       const { data, error } = await supabase
         .from("sound_library_folders")
         .select("*")
-        .eq("producer_id", (await supabase.auth.getSession()).data.session?.user.id)
+        .eq("producer_id", session.user.id)
         .order("name");
       
       if (error) throw error;
       return data;
     },
+    enabled: !!session?.user?.id,
   });
 
   const createFolder = async () => {
