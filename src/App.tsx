@@ -22,6 +22,7 @@ import ArtistSales from "./pages/artist/Sales";
 import ArtistWebsite from "./pages/artist/Website";
 import ArtistProfile from "./pages/ArtistProfile";
 import AdminDashboard from "./pages/admin/Dashboard";
+import { ProducerLayout } from "./components/layouts/ProducerLayout";
 
 function App() {
   return (
@@ -34,18 +35,24 @@ function App() {
         
         {/* Producer Routes */}
         <Route path="/producer" element={<Navigate to="/producer/dashboard" replace />} />
-        <Route path="/producer/dashboard" element={<ProducerDashboard />} />
-        <Route path="/producer/profile" element={<ProducerProfile />} />
-        <Route path="/producer/clients" element={<ProducerClients />} />
-        <Route path="/producer/projects" element={<ProducerProjects />} />
-        <Route path="/producer/finances" element={<ProducerFinances />} />
-        <Route path="/producer/marketplace" element={<ProducerMarketplace />} />
-        <Route path="/producer/sound-library" element={<ProducerSoundLibrary />} />
-        <Route path="/producer/support" element={<ProducerSupport />} />
-        <Route path="/producer/website" element={<ProducerWebsite />} />
-        <Route path="/producer/funnels" element={<ProducerFunnels />} />
-        <Route path="/producer/messages" element={<ProducerMessages />} />
-        <Route path="/producer/settings" element={<ProducerSettings />} />
+        <Route path="/producer/*" element={
+          <ProducerLayout>
+            <Routes>
+              <Route path="dashboard" element={<ProducerDashboard />} />
+              <Route path="profile" element={<ProducerProfile />} />
+              <Route path="clients" element={<ProducerClients />} />
+              <Route path="projects" element={<ProducerProjects />} />
+              <Route path="finances" element={<ProducerFinances />} />
+              <Route path="marketplace" element={<ProducerMarketplace />} />
+              <Route path="sound-library" element={<ProducerSoundLibrary />} />
+              <Route path="support" element={<ProducerSupport />} />
+              <Route path="website" element={<ProducerWebsite />} />
+              <Route path="funnels" element={<ProducerFunnels />} />
+              <Route path="messages" element={<ProducerMessages />} />
+              <Route path="settings" element={<ProducerSettings />} />
+            </Routes>
+          </ProducerLayout>
+        } />
 
         {/* Artist Routes */}
         <Route path="/artist" element={<Navigate to="/artist/dashboard" replace />} />
