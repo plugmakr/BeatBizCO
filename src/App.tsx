@@ -33,7 +33,7 @@ function App() {
         <Route path="/marketplace" element={<Marketplace />} />
         
         {/* Producer Routes */}
-        <Route path="/producer" element={<ProducerDashboard />} />
+        <Route path="/producer/dashboard" element={<ProducerDashboard />} />
         <Route path="/producer/profile" element={<ProducerProfile />} />
         <Route path="/producer/clients" element={<ProducerClients />} />
         <Route path="/producer/projects" element={<ProducerProjects />} />
@@ -47,7 +47,7 @@ function App() {
         <Route path="/producer/settings" element={<ProducerSettings />} />
 
         {/* Artist Routes */}
-        <Route path="/artist" element={<ArtistDashboard />} />
+        <Route path="/artist/dashboard" element={<ArtistDashboard />} />
         <Route path="/artist/analytics" element={<ArtistAnalytics />} />
         <Route path="/artist/marketing" element={<ArtistMarketing />} />
         <Route path="/artist/sales" element={<ArtistSales />} />
@@ -55,7 +55,7 @@ function App() {
         <Route path="/artist/:id" element={<ArtistProfile />} />
 
         {/* Admin Routes */}
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );
