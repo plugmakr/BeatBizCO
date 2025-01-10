@@ -15,8 +15,8 @@ const AuthForm = () => {
   const [role, setRole] = useState<UserRole>("guest");
 
   useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    const checkExistingSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         const { data: profile } = await supabase
           .from('profiles')
@@ -28,52 +28,24 @@ const AuthForm = () => {
           handleRoleBasedRedirect(profile.role);
         }
       }
-    });
-
-    // Listen for auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(handleAuthStateChange);
-
-    return () => {
-      subscription.unsubscribe();
     };
-  }, [navigate]);
+
+    checkExistingSession();
+  }, []);
 
   const handleAuthStateChange = async (event: string, session: Session | null) => {
     if (event === 'SIGNED_UP' && session) {
       try {
-        // First, ensure the profile exists
-        const { data: existingProfile, error: profileCheckError } = await supabase
+        const { error: insertError } = await supabase
           .from("profiles")
-          .select("id")
-          .eq("id", session.user.id)
-          .single();
+          .insert({
+            id: session.user.id,
+            role: role,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
 
-        if (profileCheckError) {
-          // If profile doesn't exist, create it
-          const { error: insertError } = await supabase
-            .from("profiles")
-            .insert({
-              id: session.user.id,
-              role: role,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            });
-
-          if (insertError) throw insertError;
-        } else {
-          // If profile exists, update it
-          const { error: updateError } = await supabase
-            .from("profiles")
-            .update({
-              role: role,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", session.user.id);
-
-          if (updateError) throw updateError;
-        }
+        if (insertError) throw insertError;
 
         toast({
           title: "Welcome to BeatBiz!",
@@ -85,7 +57,7 @@ const AuthForm = () => {
         console.error("Error setting up profile:", error);
         toast({
           title: "Error",
-          description: "There was an issue setting up your profile. Please try again or contact support.",
+          description: "There was an issue setting up your profile. Please try again.",
           variant: "destructive",
         });
       }
@@ -128,7 +100,7 @@ const AuthForm = () => {
         navigate("/artist");
         break;
       default:
-        navigate("/"); // Default route for guests
+        navigate("/");
         break;
     }
   };

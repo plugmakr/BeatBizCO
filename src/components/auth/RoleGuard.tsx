@@ -15,27 +15,31 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
 
   useEffect(() => {
     const checkRole = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (!session) {
+      if (sessionError || !session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to access this area.",
+          variant: "destructive",
+        });
         navigate("/auth");
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', session.user.id)
         .single();
 
-      if (!profile || !allowedRoles.includes(profile.role)) {
+      if (profileError || !profile || !allowedRoles.includes(profile.role)) {
         toast({
           title: "Access Denied",
           description: "You don't have permission to access this area.",
           variant: "destructive",
         });
         
-        // Redirect based on role
         if (profile) {
           switch (profile.role) {
             case "admin":
@@ -61,7 +65,7 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
     };
 
     checkRole();
-  }, [navigate, allowedRoles]);
+  }, [navigate, allowedRoles, toast]);
 
   if (!isAuthorized) {
     return null;
