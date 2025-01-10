@@ -114,7 +114,10 @@ export function ClientFiles({ client }: ClientFilesProps) {
           `)
           .eq('client_id', client.id)
           .eq('created_by', session.user.id)
-          .eq('status', 'active');
+          .eq('status', 'active') as { 
+            data: ProjectWithSoundLibrary[] | null;
+            error: any;
+          };
 
         if (projectsError) throw projectsError;
 
