@@ -8,7 +8,7 @@ create table if not exists public.marketplace_categories (
     updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Add is_featured column to marketplace_items
+-- Add is_featured column to marketplace_items if it doesn't exist
 alter table public.marketplace_items 
 add column if not exists is_featured boolean default false;
 
@@ -29,3 +29,14 @@ create policy "Allow all actions for admin users"
             and profiles.role = 'admin'
         )
     );
+
+-- Insert default categories
+insert into public.marketplace_categories (name) values
+    ('Beats'),
+    ('Loop Kits'),
+    ('MIDI Kits'),
+    ('Sample Kits'),
+    ('Drum Kits'),
+    ('Stem Kits'),
+    ('Albums'),
+    ('Singles');
