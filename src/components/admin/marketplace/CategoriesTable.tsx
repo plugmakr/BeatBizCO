@@ -13,8 +13,19 @@ import {
 import { Edit } from "lucide-react";
 import type { MarketplaceCategory } from "./types";
 
+const DEFAULT_CATEGORIES: MarketplaceCategory[] = [
+  { id: '1', name: 'Beats', item_count: 0, is_active: true },
+  { id: '2', name: 'Loop Kits', item_count: 0, is_active: true },
+  { id: '3', name: 'MIDI Kits', item_count: 0, is_active: true },
+  { id: '4', name: 'Sample Kits', item_count: 0, is_active: true },
+  { id: '5', name: 'Drum Kits', item_count: 0, is_active: true },
+  { id: '6', name: 'Stem Kits', item_count: 0, is_active: true },
+  { id: '7', name: 'Albums', item_count: 0, is_active: true },
+  { id: '8', name: 'Singles', item_count: 0, is_active: true }
+];
+
 export function CategoriesTable() {
-  const { data: categories } = useQuery({
+  const { data: categories, isError } = useQuery({
     queryKey: ["marketplace-categories"],
     queryFn: async () => {
       try {
@@ -25,25 +36,19 @@ export function CategoriesTable() {
 
         if (error) {
           console.error("Error fetching categories:", error);
-          // Return default categories if table doesn't exist
-          return [
-            { id: '1', name: 'Beats', item_count: 0, is_active: true },
-            { id: '2', name: 'Loop Kits', item_count: 0, is_active: true },
-            { id: '3', name: 'MIDI Kits', item_count: 0, is_active: true },
-            { id: '4', name: 'Sample Kits', item_count: 0, is_active: true },
-            { id: '5', name: 'Drum Kits', item_count: 0, is_active: true },
-            { id: '6', name: 'Stem Kits', item_count: 0, is_active: true },
-            { id: '7', name: 'Albums', item_count: 0, is_active: true },
-            { id: '8', name: 'Singles', item_count: 0, is_active: true }
-          ];
+          return DEFAULT_CATEGORIES;
         }
+
         return data as MarketplaceCategory[];
       } catch (error) {
         console.error("Error in categories query:", error);
-        return [];
+        return DEFAULT_CATEGORIES;
       }
     },
   });
+
+  // If there's an error or no categories, show default categories
+  const displayCategories = categories || DEFAULT_CATEGORIES;
 
   return (
     <div className="rounded-md border">
@@ -57,7 +62,7 @@ export function CategoriesTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {categories?.map((category) => (
+          {displayCategories.map((category) => (
             <TableRow key={category.id}>
               <TableCell className="font-medium">
                 {category.name}
