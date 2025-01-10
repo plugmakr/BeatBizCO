@@ -95,8 +95,16 @@ export function AddClientDialog({ isOpen, onClose, onSuccess }: AddClientDialogP
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[600px]">
+    <Dialog open={isOpen} onOpenChange={(isOpen) => {
+      if (!isOpen && !isLoading) {
+        onClose();
+      }
+    }}>
+      <DialogContent className="sm:max-w-[600px]" onPointerDownOutside={(e) => {
+        if (!isLoading) {
+          e.preventDefault();
+        }
+      }}>
         <DialogHeader>
           <DialogTitle>Add New Client</DialogTitle>
           <DialogDescription>
