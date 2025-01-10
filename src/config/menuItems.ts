@@ -9,8 +9,20 @@ import {
   Settings,
   HelpCircle,
   ShoppingBag,
-  Handshake
+  Handshake,
+  UserCircle,
+  FileText,
+  Store as StoreIcon,
+  Globe,
+  Bell,
+  FileEdit,
+  PieChart,
+  Wallet,
+  Target,
+  Cog,
+  ClipboardList
 } from "lucide-react";
+import type { MenuSection } from "@/types/menu";
 
 export const getArtistMenuItems = () => [
   {
@@ -92,7 +104,7 @@ export const getProducerMenuItems = (): MenuSection[] => [
       {
         title: "Profile",
         url: "/producer/profile",
-        icon: UsersRound
+        icon: UserCircle
       }
     ]
   },
@@ -127,12 +139,12 @@ export const getProducerMenuItems = (): MenuSection[] => [
       {
         title: "Sound Library",
         url: "/producer/sound-library",
-        icon: Store
+        icon: StoreIcon
       },
       {
         title: "Website",
         url: "/producer/website",
-        icon: GlobeIcon
+        icon: Globe
       },
       {
         title: "Funnels",
@@ -190,7 +202,7 @@ export const getAdminMenuItems = (): MenuSection[] => [
       {
         title: "Marketplace",
         url: "/admin/marketplace",
-        icon: Store
+        icon: StoreIcon
       },
       {
         title: "Collaborations",
