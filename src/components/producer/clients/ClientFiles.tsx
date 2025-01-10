@@ -33,6 +33,9 @@ interface ProjectWithSoundLibrary {
   name: string;
   sound_library_project_files?: {
     sound_library: SoundLibraryFile;
+    project?: {
+      name: string;
+    };
   }[];
 }
 
@@ -137,7 +140,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         if (projectFilesError) throw projectFilesError;
 
-        const soundLibraryFiles: ClientFile[] = projectFiles?.map(pf => ({
+        const soundLibraryFiles: ClientFile[] = (projectFiles || []).map(pf => ({
           id: pf.sound_library.id,
           client_id: client.id,
           filename: pf.sound_library.title,
@@ -152,7 +155,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
           uploaded_by: null,
           fromSoundLibrary: true,
           projectName: pf.project?.name
-        })) || [];
+        }));
 
         setFiles(soundLibraryFiles);
       } else {

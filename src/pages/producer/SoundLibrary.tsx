@@ -20,13 +20,26 @@ export default function ProducerSoundLibrary() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: sounds, isLoading } = useQuery({
-    queryKey: ["sounds", selectedFolder, searchQuery, selectedTags, selectedType],
+  // First query to get the session
+  const { data: session } = useQuery({
+    queryKey: ['session'],
     queryFn: async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) throw error;
+      return session;
+    },
+  });
+
+  // Only fetch sounds if we have a valid session
+  const { data: sounds, isLoading } = useQuery({
+    queryKey: ["sounds", selectedFolder, searchQuery, selectedTags, selectedType, session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      
       let query = supabase
         .from("sound_library")
         .select("*")
-        .eq("producer_id", (await supabase.auth.getSession()).data.session?.user.id);
+        .eq("producer_id", session.user.id);
 
       if (selectedFolder) {
         query = query.eq("folder_path", selectedFolder);
@@ -48,6 +61,7 @@ export default function ProducerSoundLibrary() {
       if (error) throw error;
       return data;
     },
+    enabled: !!session?.user?.id,
   });
 
   const handleMoveFile = async (soundId: string, folderId: string | null) => {

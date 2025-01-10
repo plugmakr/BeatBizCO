@@ -33,4 +33,5 @@ export interface ClientFile {
 
 import type { Database } from '@/integrations/supabase/types';
 
-export type Tables = Database['public']['Tables'];
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
+export { Database };
