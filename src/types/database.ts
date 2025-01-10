@@ -3,40 +3,12 @@ import type { Database } from '@/integrations/supabase/types';
 // Export the Tables type helper
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 
-export interface Client {
-  id: string;
-  producer_id: string | null;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  website: string | null;
-  budget_range: string | null;
-  genre_focus: string | null;
-  project_type: string | null;
-  social_media: string | null;
-  notes: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-}
-
-export interface ClientFile {
-  id: string;
-  client_id: string;
-  filename: string;
-  file_path: string;
-  file_type: string;
-  size: number;
-  uploaded_by: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-  parent_id: string | null;
-  type: 'folder' | 'file';
-  display_name: string | null;
+export interface Client extends Tables<'clients'> {}
+export interface ClientFile extends Tables<'client_files'> {
   fromSoundLibrary?: boolean;
   projectName?: string;
 }
-
-export type SoundLibraryFile = Database['public']['Tables']['sound_library']['Row'];
-export type Project = Database['public']['Tables']['collaboration_projects']['Row'];
+export type SoundLibraryFile = Tables<'sound_library'>;
+export type Project = Tables<'collaboration_projects'>;
 
 export { Database };

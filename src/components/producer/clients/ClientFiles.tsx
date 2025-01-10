@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import type { Client, ClientFile, SoundLibraryFile, Project } from "@/types/database";
+import type { Client, ClientFile } from "@/types/database";
 import { FileUploadButton } from "./FileUploadButton";
 import { FilePreviewDialog } from "./files/FilePreviewDialog";
 import { FileList } from "./FileList";
@@ -20,23 +20,34 @@ interface ClientFilesProps {
   client: Client;
 }
 
-interface SoundLibraryProjectFile {
-  sound_library: {
-    id: string;
-    title: string;
-    file_path: string;
-    type: string;
-    size: number;
-    created_at: string;
-  };
-  project?: {
-    name: string;
-  };
+interface SoundLibraryData {
+  id: string;
+  title: string;
+  file_path: string;
+  type: string;
+  size: number;
+  created_at: string;
 }
 
-interface ProjectWithSoundLibrary extends Project {
+interface ProjectData {
+  name: string;
+}
+
+interface SoundLibraryProjectFile {
+  sound_library: SoundLibraryData;
+  project: ProjectData | null;
+}
+
+interface CollaborationProject {
   id: string;
   name: string;
+  client_id: string;
+  created_at: string | null;
+  created_by: string | null;
+  deadline: string | null;
+  description: string | null;
+  status: string | null;
+  updated_at: string | null;
   sound_library_project_files?: SoundLibraryProjectFile[];
 }
 
@@ -95,6 +106,13 @@ export function ClientFiles({ client }: ClientFilesProps) {
           .select(`
             id,
             name,
+            client_id,
+            created_at,
+            created_by,
+            deadline,
+            description,
+            status,
+            updated_at,
             sound_library_project_files (
               sound_library (
                 id,
@@ -115,7 +133,7 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         if (projectsError) throw projectsError;
 
-        const projectFolders: ClientFile[] = (projects || []).map((project: ProjectWithSoundLibrary) => ({
+        const projectFolders: ClientFile[] = (projects as CollaborationProject[]).map(project => ({
           id: `project-${project.id}`,
           client_id: client.id,
           filename: project.name,
@@ -152,8 +170,8 @@ export function ClientFiles({ client }: ClientFilesProps) {
 
         if (projectFilesError) throw projectFilesError;
 
-        const projectFiles = data as SoundLibraryProjectFile[];
-        const soundLibraryFiles: ClientFile[] = (projectFiles || []).map(pf => ({
+        const typedData = data as unknown as SoundLibraryProjectFile[];
+        const soundLibraryFiles: ClientFile[] = (typedData || []).map(pf => ({
           id: pf.sound_library.id,
           client_id: client.id,
           filename: pf.sound_library.title,
