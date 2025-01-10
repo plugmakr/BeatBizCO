@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import HowItWorks from "./pages/HowItWorks";
@@ -33,6 +33,7 @@ function App() {
         <Route path="/marketplace" element={<Marketplace />} />
         
         {/* Producer Routes */}
+        <Route path="/producer" element={<Navigate to="/producer/dashboard" replace />} />
         <Route path="/producer/dashboard" element={<ProducerDashboard />} />
         <Route path="/producer/profile" element={<ProducerProfile />} />
         <Route path="/producer/clients" element={<ProducerClients />} />
@@ -47,6 +48,7 @@ function App() {
         <Route path="/producer/settings" element={<ProducerSettings />} />
 
         {/* Artist Routes */}
+        <Route path="/artist" element={<Navigate to="/artist/dashboard" replace />} />
         <Route path="/artist/dashboard" element={<ArtistDashboard />} />
         <Route path="/artist/analytics" element={<ArtistAnalytics />} />
         <Route path="/artist/marketing" element={<ArtistMarketing />} />
@@ -55,6 +57,7 @@ function App() {
         <Route path="/artist/:id" element={<ArtistProfile />} />
 
         {/* Admin Routes */}
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
     </Router>
