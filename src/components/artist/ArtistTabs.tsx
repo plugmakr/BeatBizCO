@@ -4,11 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Play, ShoppingCart, Heart, Pause } from "lucide-react";
 
 interface Track {
-  id: number;
+  id: string;
   title: string;
   duration: string;
   price: number;
   plays: string;
+  genre: string;
+  audio_url: string | null;
+  artwork_url: string | null;
+  created_at: string;
+  description?: string | null;
+  artist_id: string | null;
+  status: string | null;
 }
 
 interface Album {
@@ -41,9 +48,9 @@ interface ArtistTabsProps {
   singles: Single[];
   collaborations: Collaboration[];
   socialMedia: SocialMedia;
-  currentTrack: number | null;
+  currentTrack: string | null;
   isPlaying: boolean;
-  onPlayToggle: (trackId: number) => void;
+  onPlayToggle: (trackId: string) => void;
 }
 
 export function ArtistTabs({
