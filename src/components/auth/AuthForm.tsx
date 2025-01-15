@@ -5,13 +5,15 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Session, AuthError } from "@supabase/supabase-js";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   ShoppingCart, 
   Music2, 
-  Mic2, 
-  Shield 
+  Mic2,
+  Loader2
 } from "lucide-react";
 
 type UserRole = "producer" | "artist" | "admin" | "guest";
@@ -30,8 +32,10 @@ const AuthForm = () => {
   const isSignUp = searchParams.get("mode") === "signup";
   const [role, setRole] = useState<UserRole>("guest");
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  // Filter out admin role for signup, but keep it in the type for system use
   const roleOptions: RoleOption[] = [
     {
       value: "guest",
@@ -84,38 +88,69 @@ const AuthForm = () => {
     };
   }, []);
 
-  const handleAuthStateChange = async (event: string, session: Session | null) => {
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
     setError(null);
 
-    if (event === 'SIGNED_UP' && session) {
-      try {
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .update({
-            role: role,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', session.user.id);
-
-        if (profileError) {
-          console.error("Error updating profile:", profileError);
-          setError("There was an issue creating your profile. Please try again.");
-          await supabase.auth.signOut();
-          return;
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role: role
+          }
         }
+      });
 
+      if (error) throw error;
+
+      if (data.user) {
         toast({
-          title: "Welcome to BeatBiz!",
-          description: "Your account has been created successfully.",
+          title: "Success!",
+          description: "Please check your email to verify your account.",
         });
-        
-        handleRoleBasedRedirect(role);
-      } catch (error) {
-        console.error("Error setting up profile:", error);
-        setError("There was an issue setting up your profile. Please try again.");
-        await supabase.auth.signOut();
       }
-    } else if (event === 'SIGNED_IN' && session) {
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      setError(error.message || "An error occurred during signup");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in.",
+        });
+      }
+    } catch (error: any) {
+      console.error("Signin error:", error);
+      setError(error.message || "An error occurred during signin");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAuthStateChange = async (event: string, session: any) => {
+    setError(null);
+
+    if (event === 'SIGNED_IN' && session) {
       try {
         const { data: profile, error } = await supabase
           .from("profiles")
@@ -130,7 +165,7 @@ const AuthForm = () => {
         }
 
         toast({
-          title: "Welcome back to BeatBiz!",
+          title: "Welcome to BeatBiz!",
           description: "You've successfully signed in.",
         });
         
@@ -180,7 +215,7 @@ const AuthForm = () => {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        <div className="space-y-4">
+        <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
           {isSignUp && (
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -189,6 +224,7 @@ const AuthForm = () => {
               <div className="grid grid-cols-1 gap-2">
                 {roleOptions.map((option) => (
                   <button
+                    type="button"
                     key={option.value}
                     onClick={() => setRole(option.value)}
                     className={`flex items-center space-x-3 p-3 rounded-lg transition-colors
@@ -210,29 +246,35 @@ const AuthForm = () => {
               </div>
             </div>
           )}
-          <Auth
-            supabaseClient={supabase}
-            view={isSignUp ? "sign_up" : "sign_in"}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: "rgb(var(--primary))",
-                    brandAccent: "rgb(var(--primary))",
-                    inputText: "white",
-                    inputPlaceholder: "rgb(156 163 175)",
-                  },
-                },
-              },
-              className: {
-                input: "!text-white !placeholder-gray-400",
-              },
-            }}
-            providers={[]}
-            redirectTo={window.location.origin}
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSignUp ? "Create Account" : "Sign In"}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );
