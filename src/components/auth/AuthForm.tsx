@@ -7,8 +7,21 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Session, AuthError } from "@supabase/supabase-js";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { 
+  ShoppingCart, 
+  Music2, 
+  Mic2, 
+  Shield 
+} from "lucide-react";
 
 type UserRole = "producer" | "artist" | "admin" | "guest";
+
+interface RoleOption {
+  value: UserRole;
+  label: string;
+  description: string;
+  icon: JSX.Element;
+}
 
 const AuthForm = () => {
   const navigate = useNavigate();
@@ -17,6 +30,33 @@ const AuthForm = () => {
   const isSignUp = searchParams.get("mode") === "signup";
   const [role, setRole] = useState<UserRole>("guest");
   const [error, setError] = useState<string | null>(null);
+
+  const roleOptions: RoleOption[] = [
+    {
+      value: "guest",
+      label: "Guest",
+      description: "Browse and purchase beats and music",
+      icon: <ShoppingCart className="h-5 w-5" />
+    },
+    {
+      value: "producer",
+      label: "Producer",
+      description: "Sell beats and manage your business",
+      icon: <Music2 className="h-5 w-5" />
+    },
+    {
+      value: "artist",
+      label: "Artist",
+      description: "Share and sell your music",
+      icon: <Mic2 className="h-5 w-5" />
+    },
+    {
+      value: "admin",
+      label: "Admin",
+      description: "Manage platform and users",
+      icon: <Shield className="h-5 w-5" />
+    }
+  ];
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
@@ -151,19 +191,25 @@ const AuthForm = () => {
               <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 I am a...
               </label>
-              <div className="grid grid-cols-4 gap-2">
-                {(["producer", "artist", "admin", "guest"] as const).map((option) => (
+              <div className="grid grid-cols-1 gap-2">
+                {roleOptions.map((option) => (
                   <button
-                    key={option}
-                    onClick={() => setRole(option)}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
+                    key={option.value}
+                    onClick={() => setRole(option.value)}
+                    className={`flex items-center space-x-3 p-3 rounded-lg transition-colors
                       ${
-                        role === option
+                        role === option.value
                           ? "bg-primary text-primary-foreground"
                           : "bg-secondary hover:bg-secondary/80"
                       }`}
                   >
-                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                    <div className={`${role === option.value ? "text-primary-foreground" : "text-primary"}`}>
+                      {option.icon}
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium">{option.label}</div>
+                      <div className="text-sm opacity-90">{option.description}</div>
+                    </div>
                   </button>
                 ))}
               </div>
