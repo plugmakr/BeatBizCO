@@ -14,8 +14,9 @@ import {
   Loader2
 } from "lucide-react";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { Database } from "@/integrations/supabase/types";
 
-type UserRole = "producer" | "artist" | "admin" | "guest";
+type UserRole = Database["public"]["Enums"]["user_role"];
 
 interface RoleOption {
   value: UserRole;
@@ -63,7 +64,8 @@ const AuthForm = () => {
       message: error.message,
       name: error.name,
       status: error instanceof AuthApiError ? error.status : 'unknown',
-      details: error
+      details: error,
+      stack: error.stack // Add stack trace for better debugging
     });
     
     // Map specific error messages to user-friendly messages
@@ -93,47 +95,6 @@ const AuthForm = () => {
     }
   };
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
-    
-    const checkExistingSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          console.log("Existing session found:", session);
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-
-          if (profileError) {
-            console.error("Error fetching profile:", profileError);
-            throw profileError;
-          }
-
-          if (profile) {
-            console.log("User profile found:", profile);
-            handleRoleBasedRedirect(profile.role);
-          } else {
-            console.log("No profile found for user:", session.user.id);
-            // Handle case where profile doesn't exist
-            setError("Profile not found. Please contact support.");
-          }
-        }
-      } catch (error) {
-        console.error("Session check error:", error);
-        handleAuthError(error as AuthError);
-      }
-    };
-
-    checkExistingSession();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -146,7 +107,7 @@ const AuthForm = () => {
         password,
         options: {
           data: {
-            role: role
+            role: role // Ensure role is being passed correctly
           },
           emailRedirectTo: REDIRECT_URL
         }
@@ -155,7 +116,25 @@ const AuthForm = () => {
       if (error) throw error;
 
       if (data.user) {
-        console.log("Signup successful:", data.user);
+        console.log("Signup successful. User data:", {
+          id: data.user.id,
+          email: data.user.email,
+          metadata: data.user.user_metadata
+        });
+        
+        // Verify profile creation
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profileError) {
+          console.error("Error verifying profile creation:", profileError);
+        } else {
+          console.log("Profile created successfully:", profile);
+        }
+
         toast({
           title: "Success!",
           description: "Please check your email to verify your account.",
@@ -165,7 +144,9 @@ const AuthForm = () => {
       console.error("Signup error details:", {
         error,
         message: error.message,
-        status: error instanceof AuthApiError ? error.status : 'unknown'
+        status: error instanceof AuthApiError ? error.status : 'unknown',
+        metadata: error.metadata || {},
+        stack: error.stack
       });
       handleAuthError(error);
     } finally {
