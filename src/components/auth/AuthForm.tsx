@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,17 +61,11 @@ const AuthForm = () => {
     const checkExistingSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
           .single();
-
-        if (profileError) {
-          console.error("Error fetching profile:", profileError);
-          setError("Failed to fetch user profile. Please try again.");
-          return;
-        }
 
         if (profile) {
           handleRoleBasedRedirect(profile.role);
@@ -100,7 +92,8 @@ const AuthForm = () => {
         options: {
           data: {
             role: role
-          }
+          },
+          emailRedirectTo: window.location.origin + '/auth'
         }
       });
 
@@ -128,7 +121,7 @@ const AuthForm = () => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
       });
 
       if (error) throw error;
