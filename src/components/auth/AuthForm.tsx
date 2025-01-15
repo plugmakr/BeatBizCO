@@ -169,8 +169,13 @@ const AuthForm = () => {
                   colors: {
                     brand: "rgb(var(--primary))",
                     brandAccent: "rgb(var(--primary))",
+                    inputText: "white",
+                    inputPlaceholder: "rgb(156 163 175)",
                   },
                 },
+              },
+              className: {
+                input: "!text-white !placeholder-gray-400",
               },
             }}
             providers={[]}
