@@ -31,6 +31,7 @@ const AuthForm = () => {
   const [role, setRole] = useState<UserRole>("guest");
   const [error, setError] = useState<string | null>(null);
 
+  // Filter out admin role for signup, but keep it in the type for system use
   const roleOptions: RoleOption[] = [
     {
       value: "guest",
@@ -49,12 +50,6 @@ const AuthForm = () => {
       label: "Artist",
       description: "Share and sell your music",
       icon: <Mic2 className="h-5 w-5" />
-    },
-    {
-      value: "admin",
-      label: "Admin",
-      description: "Manage platform and users",
-      icon: <Shield className="h-5 w-5" />
     }
   ];
 
