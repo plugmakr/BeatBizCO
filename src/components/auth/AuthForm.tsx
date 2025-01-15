@@ -5,7 +5,8 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Session } from "@supabase/supabase-js";
+import { Session, AuthError } from "@supabase/supabase-js";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type UserRole = "producer" | "artist" | "admin" | "guest";
 
@@ -13,6 +14,7 @@ const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [role, setRole] = useState<UserRole>("guest");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
@@ -28,11 +30,7 @@ const AuthForm = () => {
 
         if (profileError) {
           console.error("Error fetching profile:", profileError);
-          toast({
-            title: "Error",
-            description: "Failed to fetch user profile. Please try again.",
-            variant: "destructive",
-          });
+          setError("Failed to fetch user profile. Please try again.");
           return;
         }
 
@@ -50,26 +48,21 @@ const AuthForm = () => {
   }, []);
 
   const handleAuthStateChange = async (event: string, session: Session | null) => {
+    setError(null); // Clear any previous errors
+
     if (event === 'SIGNED_UP' && session) {
       try {
-        // Create the profile immediately after signup
         const { error: profileError } = await supabase
           .from("profiles")
-          .insert({
-            id: session.user.id,
+          .update({
             role: role,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          });
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', session.user.id);
 
         if (profileError) {
-          console.error("Error creating profile:", profileError);
-          toast({
-            title: "Error",
-            description: "There was an issue creating your profile. Please try again.",
-            variant: "destructive",
-          });
-          // Sign out the user if profile creation fails
+          console.error("Error updating profile:", profileError);
+          setError("There was an issue creating your profile. Please try again.");
           await supabase.auth.signOut();
           return;
         }
@@ -82,12 +75,7 @@ const AuthForm = () => {
         handleRoleBasedRedirect(role);
       } catch (error) {
         console.error("Error setting up profile:", error);
-        toast({
-          title: "Error",
-          description: "There was an issue setting up your profile. Please try again.",
-          variant: "destructive",
-        });
-        // Sign out the user if there's an error
+        setError("There was an issue setting up your profile. Please try again.");
         await supabase.auth.signOut();
       }
     } else if (event === 'SIGNED_IN' && session) {
@@ -100,11 +88,7 @@ const AuthForm = () => {
 
         if (error) {
           console.error("Error getting user role:", error);
-          toast({
-            title: "Error",
-            description: "Failed to get user role. Please try again.",
-            variant: "destructive",
-          });
+          setError("Failed to get user role. Please try again.");
           return;
         }
 
@@ -116,11 +100,7 @@ const AuthForm = () => {
         handleRoleBasedRedirect(profile.role);
       } catch (error) {
         console.error("Error getting user role:", error);
-        toast({
-          title: "Error",
-          description: "Failed to get user role. Please try again.",
-          variant: "destructive",
-        });
+        setError("Failed to get user role. Please try again.");
       }
     } else if (event === 'SIGNED_OUT') {
       navigate('/');
@@ -153,6 +133,11 @@ const AuthForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
