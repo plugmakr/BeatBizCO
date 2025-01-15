@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,8 @@ type UserRole = "producer" | "artist" | "admin" | "guest";
 const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const isSignUp = searchParams.get("mode") === "signup";
   const [role, setRole] = useState<UserRole>("guest");
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +50,7 @@ const AuthForm = () => {
   }, []);
 
   const handleAuthStateChange = async (event: string, session: Session | null) => {
-    setError(null); // Clear any previous errors
+    setError(null);
 
     if (event === 'SIGNED_UP' && session) {
       try {
@@ -127,9 +129,14 @@ const AuthForm = () => {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold tracking-tight">Welcome to BeatBiz</CardTitle>
+        <CardTitle className="text-2xl font-bold tracking-tight">
+          {isSignUp ? "Create your BeatBiz account" : "Welcome back to BeatBiz"}
+        </CardTitle>
         <CardDescription>
-          Sign in to start creating, collaborating, and selling your music
+          {isSignUp 
+            ? "Sign up to start creating, collaborating, and selling your music"
+            : "Sign in to continue your music journey"
+          }
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -139,29 +146,32 @@ const AuthForm = () => {
           </Alert>
         )}
         <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              I am a...
-            </label>
-            <div className="grid grid-cols-4 gap-2">
-              {(["producer", "artist", "admin", "guest"] as const).map((option) => (
-                <button
-                  key={option}
-                  onClick={() => setRole(option)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                    ${
-                      role === option
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary hover:bg-secondary/80"
-                    }`}
-                >
-                  {option.charAt(0).toUpperCase() + option.slice(1)}
-                </button>
-              ))}
+          {isSignUp && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                I am a...
+              </label>
+              <div className="grid grid-cols-4 gap-2">
+                {(["producer", "artist", "admin", "guest"] as const).map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => setRole(option)}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
+                      ${
+                        role === option
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-secondary hover:bg-secondary/80"
+                      }`}
+                  >
+                    {option.charAt(0).toUpperCase() + option.slice(1)}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           <Auth
             supabaseClient={supabase}
+            view={isSignUp ? "sign_up" : "sign_in"}
             appearance={{
               theme: ThemeSupa,
               variables: {
