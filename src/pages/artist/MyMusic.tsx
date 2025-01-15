@@ -11,14 +11,17 @@ import { MusicGrid } from "@/components/artist/music/MusicGrid";
 import { useToast } from "@/hooks/use-toast";
 
 interface Track {
-  id: number;
+  id: string;
   title: string;
-  genre: string;
-  price: number;
-  audio_url: string;
+  genre: string | null;
+  price: number | null;
+  audio_url: string | null;
   artwork_url: string | null;
   created_at: string;
-  description?: string;
+  description?: string | null;
+  producer_id: string | null;
+  status: string | null;
+  bpm: number | null;
 }
 
 export default function MyMusic() {
@@ -34,9 +37,9 @@ export default function MyMusic() {
       if (!session) throw new Error("No session");
 
       const { data, error } = await supabase
-        .from("music")
+        .from("beats")
         .select("*")
-        .eq("artist_id", session.user.id)
+        .eq("producer_id", session.user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -44,10 +47,10 @@ export default function MyMusic() {
     },
   });
 
-  const handleDelete = async (trackId: number) => {
+  const handleDelete = async (trackId: string) => {
     try {
       const { error } = await supabase
-        .from("music")
+        .from("beats")
         .delete()
         .eq("id", trackId);
 

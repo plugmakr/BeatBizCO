@@ -79,7 +79,7 @@ export function MusicUpload({ onSuccess }: MusicUploadProps) {
       // Upload audio file
       const audioFileName = `${session.user.id}/${Date.now()}_${audioFile.name}`;
       const { error: audioError } = await supabase.storage
-        .from("music")
+        .from("sound_library")
         .upload(audioFileName, audioFile);
 
       if (audioError) throw audioError;
@@ -97,7 +97,7 @@ export function MusicUpload({ onSuccess }: MusicUploadProps) {
 
       // Create music entry in database
       const { error: dbError } = await supabase
-        .from("music")
+        .from("beats")
         .insert({
           title: values.title,
           genre: values.genre,
@@ -105,7 +105,7 @@ export function MusicUpload({ onSuccess }: MusicUploadProps) {
           description: values.description,
           audio_url: audioFileName,
           artwork_url: artworkFileName,
-          artist_id: session.user.id,
+          producer_id: session.user.id,
         });
 
       if (dbError) throw dbError;

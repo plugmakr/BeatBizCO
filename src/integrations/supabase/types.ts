@@ -520,6 +520,7 @@ export type Database = {
           download_url: string | null
           genre: string | null
           id: string
+          is_featured: boolean | null
           key: string | null
           preview_url: string | null
           price: number
@@ -542,6 +543,7 @@ export type Database = {
           download_url?: string | null
           genre?: string | null
           id?: string
+          is_featured?: boolean | null
           key?: string | null
           preview_url?: string | null
           price: number
@@ -564,6 +566,7 @@ export type Database = {
           download_url?: string | null
           genre?: string | null
           id?: string
+          is_featured?: boolean | null
           key?: string | null
           preview_url?: string | null
           price?: number
