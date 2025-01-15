@@ -1,34 +1,23 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  ShoppingCart, 
-  Music2, 
-  Mic2,
-  Loader2
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { AuthError, AuthApiError } from "@supabase/supabase-js";
 import { Database } from "@/integrations/supabase/types";
+import { RoleSelector } from "./components/RoleSelector";
+import { AuthError as AuthErrorComponent } from "./components/AuthError";
+import { useAuthRedirect } from "./hooks/useAuthRedirect";
 
 type UserRole = Database["public"]["Enums"]["user_role"];
-
-interface RoleOption {
-  value: UserRole;
-  label: string;
-  description: string;
-  icon: JSX.Element;
-}
 
 const REDIRECT_URL = 'https://beatbiz.co/auth';
 
 const AuthForm = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const isSignUp = searchParams.get("mode") === "signup";
@@ -38,37 +27,15 @@ const AuthForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const roleOptions: RoleOption[] = [
-    {
-      value: "guest",
-      label: "Guest",
-      description: "Browse and purchase beats and music",
-      icon: <ShoppingCart className="h-5 w-5" />
-    },
-    {
-      value: "producer",
-      label: "Producer",
-      description: "Sell beats and manage your business",
-      icon: <Music2 className="h-5 w-5" />
-    },
-    {
-      value: "artist",
-      label: "Artist",
-      description: "Share and sell your music",
-      icon: <Mic2 className="h-5 w-5" />
-    }
-  ];
-
   const handleAuthError = (error: AuthError) => {
     console.error("Auth error details:", {
       message: error.message,
       name: error.name,
       status: error instanceof AuthApiError ? error.status : 'unknown',
       details: error,
-      stack: error.stack // Add stack trace for better debugging
+      stack: error.stack
     });
     
-    // Map specific error messages to user-friendly messages
     const errorMessages: Record<string, string> = {
       "invalid_credentials": "Invalid email or password. Please try again.",
       "user_not_found": "No account found with this email. Please sign up.",
@@ -80,11 +47,9 @@ const AuthForm = () => {
       "Database error finding user": "Unable to access user information. Please try again."
     };
 
-    // Get user-friendly message or use error message directly
     const userMessage = errorMessages[error.message] || error.message;
     setError(userMessage);
     
-    // Show toast for critical errors
     if (error.message.includes("database_error") || 
         error.message.includes("Database error saving new user")) {
       toast({
@@ -107,7 +72,7 @@ const AuthForm = () => {
         password,
         options: {
           data: {
-            role: role // Ensure role is being passed correctly
+            role: role
           },
           emailRedirectTo: REDIRECT_URL
         }
@@ -122,7 +87,6 @@ const AuthForm = () => {
           metadata: data.user.user_metadata
         });
         
-        // Verify profile creation
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -131,10 +95,10 @@ const AuthForm = () => {
           
         if (profileError) {
           console.error("Error verifying profile creation:", profileError);
-        } else {
-          console.log("Profile created successfully:", profile);
+          throw profileError;
         }
 
+        console.log("Profile created successfully:", profile);
         toast({
           title: "Success!",
           description: "Please check your email to verify your account.",
@@ -187,57 +151,6 @@ const AuthForm = () => {
     }
   };
 
-  const handleAuthStateChange = async (event: string, session: any) => {
-    setError(null);
-    console.log("Auth state changed:", event, session);
-
-    if (event === 'SIGNED_IN' && session) {
-      try {
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-
-        if (profileError) {
-          console.error("Error getting user role:", profileError);
-          throw profileError;
-        }
-
-        console.log("User profile retrieved:", profile);
-        toast({
-          title: "Welcome to BeatBiz!",
-          description: "You've successfully signed in.",
-        });
-        
-        handleRoleBasedRedirect(profile.role);
-      } catch (error) {
-        console.error("Error in auth state change:", error);
-        setError("Failed to get user role. Please try again.");
-      }
-    } else if (event === 'SIGNED_OUT') {
-      navigate('/');
-    }
-  };
-
-  const handleRoleBasedRedirect = (userRole: string) => {
-    console.log("Redirecting based on role:", userRole);
-    switch (userRole) {
-      case "admin":
-        navigate("/admin/dashboard");
-        break;
-      case "producer":
-        navigate("/producer/dashboard");
-        break;
-      case "artist":
-        navigate("/artist/dashboard");
-        break;
-      default:
-        navigate("/");
-        break;
-    }
-  };
-
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
@@ -252,41 +165,10 @@ const AuthForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+        <AuthErrorComponent error={error} />
         <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
           {isSignUp && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                I am a...
-              </label>
-              <div className="grid grid-cols-1 gap-2">
-                {roleOptions.map((option) => (
-                  <button
-                    type="button"
-                    key={option.value}
-                    onClick={() => setRole(option.value)}
-                    className={`flex items-center space-x-3 p-3 rounded-lg transition-colors
-                      ${
-                        role === option.value
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-secondary hover:bg-secondary/80"
-                      }`}
-                  >
-                    <div className={`${role === option.value ? "text-primary-foreground" : "text-primary"}`}>
-                      {option.icon}
-                    </div>
-                    <div className="text-left">
-                      <div className="font-medium">{option.label}</div>
-                      <div className="text-sm opacity-90">{option.description}</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
+            <RoleSelector selectedRole={role} onRoleSelect={setRole} />
           )}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
