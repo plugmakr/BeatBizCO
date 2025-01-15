@@ -92,6 +92,13 @@ const TopNavigation = ({
             </DropdownMenuContent>
           </DropdownMenu>
           <Button
+            onClick={() => navigate("/auth")}
+            variant="ghost"
+            className="text-white hover:bg-white/20"
+          >
+            Sign In
+          </Button>
+          <Button
             onClick={() => navigate("/auth?mode=signup")}
             className="bg-white/20 hover:bg-white/30 text-white"
           >
