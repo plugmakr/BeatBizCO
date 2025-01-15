@@ -67,19 +67,26 @@ const AuthForm = () => {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${REDIRECT_URL}?reset=true`
+      // Use Netlify form submission
+      const formData = new FormData();
+      formData.append("form-name", "password-reset");
+      formData.append("email", email);
+
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(formData as any).toString(),
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to submit form");
 
       toast({
-        title: "Password Reset Email Sent",
-        description: "Please check your email for password reset instructions.",
+        title: "Password Reset Request Sent",
+        description: "Please check your email for further instructions.",
       });
       setIsResetMode(false);
     } catch (error: any) {
-      handleAuthError(error);
+      setError("Failed to send password reset request. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -196,9 +203,19 @@ const AuthForm = () => {
       </CardHeader>
       <CardContent>
         <AuthErrorComponent error={error} />
+        {/* Add hidden Netlify form */}
+        <form name="password-reset" data-netlify="true" hidden>
+          <input type="email" name="email" />
+        </form>
         <form 
           onSubmit={isResetMode ? handlePasswordReset : isSignUp ? handleSignUp : handleSignIn} 
           className="space-y-4"
+          // Add these attributes for Netlify form handling when in reset mode
+          {...(isResetMode ? {
+            name: "password-reset",
+            method: "POST",
+            "data-netlify": "true"
+          } : {})}
         >
           {isSignUp && !isResetMode && (
             <RoleSelector selectedRole={role} onRoleSelect={setRole} />
@@ -208,6 +225,7 @@ const AuthForm = () => {
             <Input
               id="email"
               type="email"
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
