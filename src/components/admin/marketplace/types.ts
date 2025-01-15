@@ -21,3 +21,10 @@ export interface MarketplaceItem {
     full_name: string | null;
   };
 }
+
+export interface MarketplaceCategory {
+  id: string;
+  name: string;
+  item_count: number;
+  is_active: boolean;
+}

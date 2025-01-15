@@ -19,9 +19,8 @@ interface Track {
   artwork_url: string | null;
   created_at: string;
   description?: string | null;
-  producer_id: string | null;
+  artist_id: string | null;
   status: string | null;
-  bpm: number | null;
 }
 
 export default function MyMusic() {
@@ -37,9 +36,9 @@ export default function MyMusic() {
       if (!session) throw new Error("No session");
 
       const { data, error } = await supabase
-        .from("beats")
+        .from("music")
         .select("*")
-        .eq("producer_id", session.user.id)
+        .eq("artist_id", session.user.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -50,7 +49,7 @@ export default function MyMusic() {
   const handleDelete = async (trackId: string) => {
     try {
       const { error } = await supabase
-        .from("beats")
+        .from("music")
         .delete()
         .eq("id", trackId);
 
