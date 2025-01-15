@@ -23,6 +23,8 @@ interface RoleOption {
   icon: JSX.Element;
 }
 
+const REDIRECT_URL = 'https://beatbiz.co/auth';
+
 const AuthForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -93,7 +95,7 @@ const AuthForm = () => {
           data: {
             role: role
           },
-          emailRedirectTo: window.location.origin + '/auth'
+          emailRedirectTo: REDIRECT_URL
         }
       });
 
