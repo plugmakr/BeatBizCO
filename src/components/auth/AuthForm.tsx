@@ -13,7 +13,7 @@ import {
   Mic2,
   Loader2
 } from "lucide-react";
-import { AuthError } from "@supabase/supabase-js";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
 
 type UserRole = "producer" | "artist" | "admin" | "guest";
 
@@ -59,7 +59,12 @@ const AuthForm = () => {
   ];
 
   const handleAuthError = (error: AuthError) => {
-    console.error("Auth error:", error);
+    console.error("Auth error details:", {
+      message: error.message,
+      name: error.name,
+      status: error instanceof AuthApiError ? error.status : 'unknown',
+      details: error
+    });
     
     // Map specific error messages to user-friendly messages
     const errorMessages: Record<string, string> = {
@@ -68,7 +73,9 @@ const AuthForm = () => {
       "email_taken": "An account with this email already exists.",
       "database_error": "There was a problem creating your account. Please try again.",
       "invalid_email": "Please enter a valid email address.",
-      "weak_password": "Password should be at least 6 characters long."
+      "weak_password": "Password should be at least 6 characters long.",
+      "Database error saving new user": "Unable to create account. Please try again later.",
+      "Database error finding user": "Unable to access user information. Please try again."
     };
 
     // Get user-friendly message or use error message directly
@@ -76,7 +83,8 @@ const AuthForm = () => {
     setError(userMessage);
     
     // Show toast for critical errors
-    if (error.message.includes("database_error")) {
+    if (error.message.includes("database_error") || 
+        error.message.includes("Database error saving new user")) {
       toast({
         title: "System Error",
         description: "We're experiencing technical difficulties. Please try again later.",
@@ -93,21 +101,29 @@ const AuthForm = () => {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           console.log("Existing session found:", session);
-          const { data: profile } = await supabase
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', session.user.id)
             .single();
+
+          if (profileError) {
+            console.error("Error fetching profile:", profileError);
+            throw profileError;
+          }
 
           if (profile) {
             console.log("User profile found:", profile);
             handleRoleBasedRedirect(profile.role);
           } else {
             console.log("No profile found for user:", session.user.id);
+            // Handle case where profile doesn't exist
+            setError("Profile not found. Please contact support.");
           }
         }
       } catch (error) {
         console.error("Session check error:", error);
+        handleAuthError(error as AuthError);
       }
     };
 
@@ -146,7 +162,11 @@ const AuthForm = () => {
         });
       }
     } catch (error: any) {
-      console.error("Signup error:", error);
+      console.error("Signup error details:", {
+        error,
+        message: error.message,
+        status: error instanceof AuthApiError ? error.status : 'unknown'
+      });
       handleAuthError(error);
     } finally {
       setIsLoading(false);
@@ -175,7 +195,11 @@ const AuthForm = () => {
         });
       }
     } catch (error: any) {
-      console.error("Signin error:", error);
+      console.error("Signin error details:", {
+        error,
+        message: error.message,
+        status: error instanceof AuthApiError ? error.status : 'unknown'
+      });
       handleAuthError(error);
     } finally {
       setIsLoading(false);
@@ -188,15 +212,15 @@ const AuthForm = () => {
 
     if (event === 'SIGNED_IN' && session) {
       try {
-        const { data: profile, error } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("role")
           .eq("id", session.user.id)
           .single();
 
-        if (error) {
-          console.error("Error getting user role:", error);
-          throw error;
+        if (profileError) {
+          console.error("Error getting user role:", profileError);
+          throw profileError;
         }
 
         console.log("User profile retrieved:", profile);
