@@ -13,6 +13,7 @@ import {
   Mic2,
   Loader2
 } from "lucide-react";
+import { AuthError } from "@supabase/supabase-js";
 
 type UserRole = "producer" | "artist" | "admin" | "guest";
 
@@ -57,21 +58,56 @@ const AuthForm = () => {
     }
   ];
 
+  const handleAuthError = (error: AuthError) => {
+    console.error("Auth error:", error);
+    
+    // Map specific error messages to user-friendly messages
+    const errorMessages: Record<string, string> = {
+      "invalid_credentials": "Invalid email or password. Please try again.",
+      "user_not_found": "No account found with this email. Please sign up.",
+      "email_taken": "An account with this email already exists.",
+      "database_error": "There was a problem creating your account. Please try again.",
+      "invalid_email": "Please enter a valid email address.",
+      "weak_password": "Password should be at least 6 characters long."
+    };
+
+    // Get user-friendly message or use error message directly
+    const userMessage = errorMessages[error.message] || error.message;
+    setError(userMessage);
+    
+    // Show toast for critical errors
+    if (error.message.includes("database_error")) {
+      toast({
+        title: "System Error",
+        description: "We're experiencing technical difficulties. Please try again later.",
+        variant: "destructive"
+      });
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
     
     const checkExistingSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          console.log("Existing session found:", session);
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
 
-        if (profile) {
-          handleRoleBasedRedirect(profile.role);
+          if (profile) {
+            console.log("User profile found:", profile);
+            handleRoleBasedRedirect(profile.role);
+          } else {
+            console.log("No profile found for user:", session.user.id);
+          }
         }
+      } catch (error) {
+        console.error("Session check error:", error);
       }
     };
 
@@ -88,6 +124,7 @@ const AuthForm = () => {
     setError(null);
 
     try {
+      console.log("Attempting signup with role:", role);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -102,6 +139,7 @@ const AuthForm = () => {
       if (error) throw error;
 
       if (data.user) {
+        console.log("Signup successful:", data.user);
         toast({
           title: "Success!",
           description: "Please check your email to verify your account.",
@@ -109,7 +147,7 @@ const AuthForm = () => {
       }
     } catch (error: any) {
       console.error("Signup error:", error);
-      setError(error.message || "An error occurred during signup");
+      handleAuthError(error);
     } finally {
       setIsLoading(false);
     }
@@ -121,6 +159,7 @@ const AuthForm = () => {
     setError(null);
 
     try {
+      console.log("Attempting signin");
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -129,6 +168,7 @@ const AuthForm = () => {
       if (error) throw error;
 
       if (data.user) {
+        console.log("Signin successful:", data.user);
         toast({
           title: "Welcome back!",
           description: "You've successfully signed in.",
@@ -136,7 +176,7 @@ const AuthForm = () => {
       }
     } catch (error: any) {
       console.error("Signin error:", error);
-      setError(error.message || "An error occurred during signin");
+      handleAuthError(error);
     } finally {
       setIsLoading(false);
     }
@@ -144,6 +184,7 @@ const AuthForm = () => {
 
   const handleAuthStateChange = async (event: string, session: any) => {
     setError(null);
+    console.log("Auth state changed:", event, session);
 
     if (event === 'SIGNED_IN' && session) {
       try {
@@ -155,10 +196,10 @@ const AuthForm = () => {
 
         if (error) {
           console.error("Error getting user role:", error);
-          setError("Failed to get user role. Please try again.");
-          return;
+          throw error;
         }
 
+        console.log("User profile retrieved:", profile);
         toast({
           title: "Welcome to BeatBiz!",
           description: "You've successfully signed in.",
@@ -166,7 +207,7 @@ const AuthForm = () => {
         
         handleRoleBasedRedirect(profile.role);
       } catch (error) {
-        console.error("Error getting user role:", error);
+        console.error("Error in auth state change:", error);
         setError("Failed to get user role. Please try again.");
       }
     } else if (event === 'SIGNED_OUT') {
@@ -175,6 +216,7 @@ const AuthForm = () => {
   };
 
   const handleRoleBasedRedirect = (userRole: string) => {
+    console.log("Redirecting based on role:", userRole);
     switch (userRole) {
       case "admin":
         navigate("/admin/dashboard");
