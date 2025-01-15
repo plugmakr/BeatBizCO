@@ -1248,7 +1248,7 @@ export type Database = {
         | "drum_kit"
         | "one_shot"
         | "sample"
-      user_role: "producer" | "artist" | "buyer"
+      user_role: "producer" | "artist" | "buyer" | "admin" | "guest"
       user_status: "active" | "inactive" | "suspended" | "pending"
     }
     CompositeTypes: {
