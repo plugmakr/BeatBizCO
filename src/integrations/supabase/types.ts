@@ -675,6 +675,54 @@ export type Database = {
           },
         ]
       }
+      music: {
+        Row: {
+          artist_id: string | null
+          artwork_url: string | null
+          audio_url: string | null
+          created_at: string
+          description: string | null
+          downloads: number | null
+          genre: string | null
+          id: string
+          plays: number | null
+          price: number | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          artist_id?: string | null
+          artwork_url?: string | null
+          audio_url?: string | null
+          created_at?: string
+          description?: string | null
+          downloads?: number | null
+          genre?: string | null
+          id?: string
+          plays?: number | null
+          price?: number | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          artist_id?: string | null
+          artwork_url?: string | null
+          audio_url?: string | null
+          created_at?: string
+          description?: string | null
+          downloads?: number | null
+          genre?: string | null
+          id?: string
+          plays?: number | null
+          price?: number | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           content: string

@@ -30,7 +30,7 @@ const AuthForm = () => {
           console.error("Error fetching profile:", profileError);
           toast({
             title: "Error",
-            description: "Failed to fetch user profile",
+            description: "Failed to fetch user profile. Please try again.",
             variant: "destructive",
           });
           return;
@@ -52,25 +52,25 @@ const AuthForm = () => {
   const handleAuthStateChange = async (event: string, session: Session | null) => {
     if (event === 'SIGNED_UP' && session) {
       try {
-        // Wait a short moment to allow the trigger to create the initial profile
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Update the profile with the selected role
-        const { error: updateError } = await supabase
+        // Create the profile immediately after signup
+        const { error: profileError } = await supabase
           .from("profiles")
-          .update({
+          .insert({
+            id: session.user.id,
             role: role,
+            created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-          })
-          .eq('id', session.user.id);
+          });
 
-        if (updateError) {
-          console.error("Error updating profile:", updateError);
+        if (profileError) {
+          console.error("Error creating profile:", profileError);
           toast({
             title: "Error",
-            description: "There was an issue updating your profile. Please try again.",
+            description: "There was an issue creating your profile. Please try again.",
             variant: "destructive",
           });
+          // Sign out the user if profile creation fails
+          await supabase.auth.signOut();
           return;
         }
 
@@ -87,6 +87,8 @@ const AuthForm = () => {
           description: "There was an issue setting up your profile. Please try again.",
           variant: "destructive",
         });
+        // Sign out the user if there's an error
+        await supabase.auth.signOut();
       }
     } else if (event === 'SIGNED_IN' && session) {
       try {
@@ -128,13 +130,13 @@ const AuthForm = () => {
   const handleRoleBasedRedirect = (userRole: string) => {
     switch (userRole) {
       case "admin":
-        navigate("/admin");
+        navigate("/admin/dashboard");
         break;
       case "producer":
-        navigate("/producer");
+        navigate("/producer/dashboard");
         break;
       case "artist":
-        navigate("/artist");
+        navigate("/artist/dashboard");
         break;
       default:
         navigate("/");
