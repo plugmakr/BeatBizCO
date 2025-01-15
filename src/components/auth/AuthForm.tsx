@@ -26,6 +26,7 @@ const AuthForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isResetMode, setIsResetMode] = useState(false);
 
   const handleAuthError = (error: AuthError) => {
     console.error("Auth error details:", {
@@ -57,6 +58,30 @@ const AuthForm = () => {
         description: "We're experiencing technical difficulties. Please try again later.",
         variant: "destructive"
       });
+    }
+  };
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${REDIRECT_URL}?reset=true`
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Reset Email Sent",
+        description: "Please check your email for password reset instructions.",
+      });
+      setIsResetMode(false);
+    } catch (error: any) {
+      handleAuthError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -155,19 +180,27 @@ const AuthForm = () => {
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold tracking-tight">
-          {isSignUp ? "Create your BeatBiz account" : "Welcome back to BeatBiz"}
+          {isResetMode 
+            ? "Reset Password"
+            : isSignUp 
+              ? "Create your BeatBiz account" 
+              : "Welcome back to BeatBiz"}
         </CardTitle>
         <CardDescription>
-          {isSignUp 
-            ? "Sign up to start creating, collaborating, and selling your music"
-            : "Sign in to continue your music journey"
-          }
+          {isResetMode 
+            ? "Enter your email to receive password reset instructions"
+            : isSignUp 
+              ? "Sign up to start creating, collaborating, and selling your music"
+              : "Sign in to continue your music journey"}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <AuthErrorComponent error={error} />
-        <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
-          {isSignUp && (
+        <form 
+          onSubmit={isResetMode ? handlePasswordReset : isSignUp ? handleSignUp : handleSignIn} 
+          className="space-y-4"
+        >
+          {isSignUp && !isResetMode && (
             <RoleSelector selectedRole={role} onRoleSelect={setRole} />
           )}
           <div className="space-y-2">
@@ -180,24 +213,52 @@ const AuthForm = () => {
               required
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          {!isResetMode && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          )}
           <Button
             type="submit"
             className="w-full"
             disabled={isLoading}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isSignUp ? "Create Account" : "Sign In"}
+            {isResetMode 
+              ? "Send Reset Instructions"
+              : isSignUp 
+                ? "Create Account" 
+                : "Sign In"}
           </Button>
+          
+          {!isSignUp && !isResetMode && (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full mt-2"
+              onClick={() => setIsResetMode(true)}
+            >
+              Forgot Password?
+            </Button>
+          )}
+          
+          {isResetMode && (
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full mt-2"
+              onClick={() => setIsResetMode(false)}
+            >
+              Back to Sign In
+            </Button>
+          )}
         </form>
       </CardContent>
     </Card>
