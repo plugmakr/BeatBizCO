@@ -2,12 +2,20 @@ import { Button } from "@/components/ui/button";
 import { Play, Pause, Heart, ShoppingCart } from "lucide-react";
 
 interface Track {
-  id: number;
+  id: string;
   title: string;
+  genre: string | null;
+  price: number | null;
+  audio_url: string | null;
+  artwork_url: string | null;
+  created_at: string;
+  description?: string | null;
+  artist_id: string | null;
+  status: string | null;
 }
 
 interface MusicPlayerProps {
-  currentTrack: Track | undefined;
+  currentTrack: Track | null;
   isPlaying: boolean;
   artistName: string;
   onPlayToggle: () => void;

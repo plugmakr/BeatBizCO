@@ -14,20 +14,22 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface Track {
-  id: number;
+  id: string;
   title: string;
-  genre: string;
-  price: number;
-  audio_url: string;
+  genre: string | null;
+  price: number | null;
+  audio_url: string | null;
   artwork_url: string | null;
   created_at: string;
-  description?: string;
+  description?: string | null;
+  artist_id: string | null;
+  status: string | null;
 }
 
 interface MusicGridProps {
   tracks: Track[];
   onPlay: (track: Track) => void;
-  onDelete: (trackId: number) => void;
+  onDelete: (trackId: string) => void;
 }
 
 export function MusicGrid({ tracks, onPlay, onDelete }: MusicGridProps) {
