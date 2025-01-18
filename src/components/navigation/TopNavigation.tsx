@@ -35,21 +35,63 @@ const TopNavigation = ({
 
   useEffect(() => {
     const getUserData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-        setUserRole(profile?.role || null);
+      try {
+        console.log('Getting user session...');
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          console.log('Found session, user:', session.user);
+          setUser(session.user);
+          
+          // Try to get role from localStorage first
+          const cachedRole = localStorage.getItem('userRole');
+          if (cachedRole) {
+            console.log('Using cached role:', cachedRole);
+            setUserRole(cachedRole);
+          }
+          
+          // Then verify/update from database
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (error) {
+            console.error('Error fetching profile:', error);
+            return;
+          }
+
+          if (profile?.role) {
+            console.log('Setting role from profile:', profile.role);
+            setUserRole(profile.role);
+            localStorage.setItem('userRole', profile.role);
+          }
+        } else {
+          console.log('No session found');
+          setUser(null);
+          setUserRole(null);
+          localStorage.removeItem('userRole');
+        }
+      } catch (error) {
+        console.error('Error in getUserData:', error);
       }
     };
 
     getUserData();
 
+    const handleAuthEvent = (event: any) => {
+      console.log('Auth event received:', event);
+      if (event.detail) {
+        setUser(event.detail.user);
+        setUserRole(event.detail.role);
+      }
+    };
+
+    window.addEventListener('userAuthenticated', handleAuthEvent);
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session?.user?.id);
       if (session?.user) {
         setUser(session.user);
         const { data: profile } = await supabase
@@ -57,15 +99,21 @@ const TopNavigation = ({
           .select('role')
           .eq('id', session.user.id)
           .single();
-        setUserRole(profile?.role || null);
+          
+        if (profile?.role) {
+          setUserRole(profile.role);
+          localStorage.setItem('userRole', profile.role);
+        }
       } else {
         setUser(null);
         setUserRole(null);
+        localStorage.removeItem('userRole');
       }
     });
 
     return () => {
       subscription.unsubscribe();
+      window.removeEventListener('userAuthenticated', handleAuthEvent);
     };
   }, []);
 

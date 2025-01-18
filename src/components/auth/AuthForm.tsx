@@ -89,31 +89,55 @@ const AuthForm = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log('Starting sign in...');
 
     try {
+      console.log('Attempting to sign in with:', { email });
       const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) throw signInError;
-
-      if (session) {
-        // Get user's role from profile
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profileError) throw profileError;
-
-        if (!profile?.role) {
-          throw new Error("User role not found");
-        }
-
-        window.location.href = `/${profile.role}/dashboard`; // Force full page reload
+      if (signInError) {
+        console.error('Sign in error:', signInError);
+        throw signInError;
       }
+
+      if (!session?.user) {
+        console.error('No session or user after sign in');
+        throw new Error('No session after sign in');
+      }
+
+      console.log('Successfully signed in, fetching profile...');
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        throw profileError;
+      }
+
+      if (!profile?.role) {
+        console.error('No role found in profile');
+        throw new Error('User role not found');
+      }
+
+      console.log('Got profile, role:', profile.role);
+      
+      // Store role in localStorage for persistence
+      localStorage.setItem('userRole', profile.role);
+      
+      // Update auth state in TopNavigation
+      const event = new CustomEvent('userAuthenticated', { 
+        detail: { user: session.user, role: profile.role } 
+      });
+      window.dispatchEvent(event);
+
+      console.log('Redirecting to dashboard...');
+      window.location.href = `/${profile.role}/dashboard`;
     } catch (error: any) {
       console.error('Error:', error);
       toast({
@@ -121,7 +145,7 @@ const AuthForm = () => {
         description: error.message || "Invalid email or password.",
         variant: "destructive",
       });
-      setIsLoading(false); // Only set loading to false on error
+      setIsLoading(false);
     }
   };
 
