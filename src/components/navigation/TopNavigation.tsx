@@ -72,8 +72,13 @@ const TopNavigation = ({
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      navigate('/');
-      window.location.reload(); // Force reload to clear any cached state
+      
+      // Clear any cached data
+      window.sessionStorage.clear();
+      window.localStorage.clear();
+      
+      // Force a hard reload and redirect to home
+      window.location.href = '/';
     } catch (error: any) {
       console.error('Sign out error:', error);
       toast({
