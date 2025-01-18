@@ -7,20 +7,35 @@ drop policy if exists "Public profiles are viewable by everyone" on profiles;
 drop policy if exists "Users can insert their own profile" on profiles;
 drop policy if exists "Users can update their own profile" on profiles;
 
--- Recreate the profiles table with better constraints
-drop table if exists public.profiles;
-create table public.profiles (
-    id uuid primary key references auth.users(id) on delete cascade,
-    role user_role not null default 'guest',
-    full_name text,
-    avatar_url text,
-    email text unique not null,
-    is_email_verified boolean default false,
-    created_at timestamptz default now() not null,
-    updated_at timestamptz default now() not null,
-    last_sign_in timestamptz,
-    constraint profiles_email_check check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
-);
+-- Alter existing profiles table
+alter table public.profiles 
+    add column if not exists email text,
+    add column if not exists is_email_verified boolean default false,
+    add column if not exists last_sign_in timestamptz;
+
+-- Add constraints after data migration
+do $$
+begin
+    -- First, copy emails from auth.users
+    update public.profiles p
+    set email = u.email
+    from auth.users u
+    where p.id = u.id
+    and p.email is null;
+
+    -- Then add constraints
+    if not exists (
+        select 1
+        from information_schema.table_constraints
+        where table_name = 'profiles'
+        and constraint_name = 'profiles_email_unique'
+    ) then
+        alter table public.profiles
+            alter column email set not null,
+            add constraint profiles_email_unique unique (email),
+            add constraint profiles_email_check check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+    end if;
+end $$;
 
 -- Create index for faster lookups
 create index if not exists profiles_email_idx on profiles(email);
@@ -70,6 +85,7 @@ end;
 $$;
 
 -- Create trigger for profile updates
+drop trigger if exists on_profile_updated on profiles;
 create trigger on_profile_updated
     before update on profiles
     for each row
@@ -98,7 +114,7 @@ begin
             values (
                 new.id,
                 new.email,
-                'guest',
+                coalesce(new.raw_user_meta_data->>'role', 'guest'),
                 now(),
                 now()
             )
@@ -139,6 +155,7 @@ end;
 $$;
 
 -- Create trigger for email verification
+drop trigger if exists on_email_verified on auth.users;
 create trigger on_email_verified
     after update of email_confirmed_at on auth.users
     for each row
@@ -160,6 +177,7 @@ end;
 $$;
 
 -- Create trigger for sign ins
+drop trigger if exists on_auth_sign_in on auth.users;
 create trigger on_auth_sign_in
     after update of last_sign_in_at on auth.users
     for each row
