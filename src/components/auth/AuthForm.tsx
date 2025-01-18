@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import { AuthError } from "@supabase/supabase-js";
 import { Database } from "@/integrations/supabase/types";
 import { RoleSelector } from "./components/RoleSelector";
 import { AuthError as AuthErrorComponent } from "./components/AuthError";
@@ -28,39 +27,6 @@ const AuthForm = () => {
   const [password, setPassword] = useState("");
   const { handleAuthRedirect } = useAuthRedirect();
 
-  const handleAuthError = (error: Error) => {
-    console.error("Auth error:", error);
-    
-    const errorMessages: Record<string, string> = {
-      "Invalid login credentials": "Invalid email or password",
-      "User already registered": "Email already in use",
-      "Email not confirmed": "Please check your email to confirm your account",
-      "Invalid email": "Please enter a valid email",
-      "Password should be at least 6 characters": "Password must be at least 6 characters",
-    };
-
-    const message = errorMessages[error.message] || "An error occurred. Please try again.";
-    setError(message);
-    setIsLoading(false);
-  };
-
-  const createProfile = async (userId: string) => {
-    const { error } = await supabase
-      .from('profiles')
-      .insert([{
-        id: userId,
-        email,
-        role,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }]);
-
-    if (error) {
-      console.error('Profile creation error:', error);
-      // Continue even if profile creation fails - it will be handled by the trigger
-    }
-  };
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -71,21 +37,20 @@ const AuthForm = () => {
         email,
         password,
         options: {
-          emailRedirectTo: REDIRECT_URL
+          emailRedirectTo: REDIRECT_URL,
+          data: { role }
         }
       });
 
       if (error) throw error;
-      if (!data?.user) throw new Error("No user data returned");
-
-      await createProfile(data.user.id);
 
       toast({
         title: "Check your email",
         description: "We sent you a confirmation link to complete your registration.",
       });
     } catch (error) {
-      handleAuthError(error as Error);
+      console.error("Signup error:", error);
+      setError("Unable to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -97,23 +62,16 @@ const AuthForm = () => {
     setError(null);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
       });
 
       if (error) throw error;
-      if (!data?.user) throw new Error("No user data returned");
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', data.user.id)
-        .single();
-
-      handleAuthRedirect(profile?.role || 'guest');
+      handleAuthRedirect('guest');
     } catch (error) {
-      handleAuthError(error as Error);
+      console.error("Signin error:", error);
+      setError("Invalid email or password");
     } finally {
       setIsLoading(false);
     }
