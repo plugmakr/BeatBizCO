@@ -52,17 +52,30 @@ const AuthForm = () => {
   const handleAuthStateChange = async (event: string, session: Session | null) => {
     if (event === 'SIGNED_UP' && session) {
       try {
-        // Wait a short moment to allow the trigger to create the initial profile
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait longer and retry profile update if needed
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
-        // Update the profile with the selected role
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({
-            role: role,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', session.user.id);
+        let retries = 3;
+        let updateError = null;
+        
+        while (retries > 0) {
+          const { error } = await supabase
+            .from("profiles")
+            .update({
+              role: role,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', session.user.id);
+            
+          if (!error) {
+            updateError = null;
+            break;
+          }
+          
+          updateError = error;
+          retries--;
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
 
         if (updateError) {
           console.error("Error updating profile:", updateError);
@@ -187,7 +200,11 @@ const AuthForm = () => {
               },
             }}
             providers={[]}
-            redirectTo={window.location.origin}
+            redirectTo="https://beatbiz.co/auth"
+            onlyThirdPartyProviders={false}
+            magicLink={false}
+            view="sign_in"
+            showLinks={true}
           />
         </div>
       </CardContent>
