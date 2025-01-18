@@ -115,3 +115,8 @@ CREATE POLICY "Project owners can manage collaborators"
             SELECT created_by FROM collaboration_projects WHERE id = project_id
         )
     );
+
+-- Set seth@audicode.com as admin
+UPDATE public.profiles
+SET role = 'admin'
+WHERE email = 'seth@audicode.com';

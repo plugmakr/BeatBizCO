@@ -108,7 +108,11 @@ const AuthForm = () => {
 
         if (profileError) throw profileError;
 
-        navigate(`/${profile.role}/dashboard`);
+        if (!profile?.role) {
+          throw new Error("User role not found");
+        }
+
+        window.location.href = `/${profile.role}/dashboard`; // Force full page reload
       }
     } catch (error: any) {
       console.error('Error:', error);
@@ -117,8 +121,7 @@ const AuthForm = () => {
         description: error.message || "Invalid email or password.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Only set loading to false on error
     }
   };
 

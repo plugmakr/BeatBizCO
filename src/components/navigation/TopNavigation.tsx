@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/toast";
 
 interface TopNavigationProps {
   scrollToSection: (id: string) => void;
@@ -68,8 +69,19 @@ const TopNavigation = ({
   }, []);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate('/');
+      window.location.reload(); // Force reload to clear any cached state
+    } catch (error: any) {
+      console.error('Sign out error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sign out.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
