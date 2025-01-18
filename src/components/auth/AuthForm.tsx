@@ -28,14 +28,8 @@ const AuthForm = () => {
   const [password, setPassword] = useState("");
   const { handleAuthRedirect } = useAuthRedirect();
 
-  const handleAuthError = (error: AuthError) => {
-    console.error("Auth error details:", {
-      message: error.message,
-      name: error.name,
-      status: error instanceof AuthApiError ? error.status : 'unknown',
-      details: error,
-      stack: error.stack
-    });
+  const handleAuthError = (error: AuthError | Error) => {
+    console.error("Auth error:", error);
     
     const errorMessages: Record<string, string> = {
       "invalid_credentials": "Invalid email or password. Please try again.",
@@ -48,29 +42,12 @@ const AuthForm = () => {
       "Database error finding user": "Unable to access user information. Please try again."
     };
 
-    const message = errorMessages[error.message] || error.message;
+    const message = error instanceof AuthError && errorMessages[error.message] 
+      ? errorMessages[error.message] 
+      : error.message;
+      
     setError(message);
     setIsLoading(false);
-  };
-
-  const createProfile = async (userId: string) => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: userId,
-            role: role,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        ]);
-
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error creating profile:', error);
-      throw error;
-    }
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -79,28 +56,31 @@ const AuthForm = () => {
     setError(null);
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // Step 1: Create auth user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: REDIRECT_URL
+          emailRedirectTo: REDIRECT_URL,
+          data: {
+            role: role
+          }
         }
       });
 
-      if (authError) throw authError;
+      if (signUpError) throw signUpError;
       if (!authData.user) throw new Error("No user data returned");
 
-      await createProfile(authData.user.id);
-
+      // Step 2: Create profile (will be handled by trigger)
       toast({
         title: "Check your email",
         description: "We sent you a confirmation link to complete your registration.",
       });
+
     } catch (error) {
-      if (error instanceof AuthError) {
+      if (error instanceof AuthError || error instanceof Error) {
         handleAuthError(error);
       } else {
-        console.error('Signup error:', error);
         setError('An unexpected error occurred. Please try again.');
       }
     } finally {
@@ -114,14 +94,28 @@ const AuthForm = () => {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (signInError) throw signInError;
+      if (!authData.user) throw new Error("No user data returned");
+
+      // Get user profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+      if (!profile) throw new Error("No profile found");
+
+      handleAuthRedirect(profile.role);
+
     } catch (error) {
-      if (error instanceof AuthError) {
+      if (error instanceof AuthError || error instanceof Error) {
         handleAuthError(error);
       }
     } finally {

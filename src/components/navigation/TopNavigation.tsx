@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Music2, ChevronDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -30,17 +30,17 @@ const TopNavigation = ({
   return (
     <nav className="border-b backdrop-blur-sm bg-white/10 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
           <Music2 className="h-6 w-6 text-white" />
           <span className="text-xl font-bold text-white">BeatBiz</span>
-        </div>
+        </Link>
         
         <NavigationMenu>
           <NavigationMenuList className="hidden md:flex space-x-8">
             <NavigationMenuItem>
               <NavigationMenuLink 
                 className="text-white hover:text-white/80 cursor-pointer"
-                onClick={() => scrollToSection('features')}
+                onClick={() => navigate('/#features')}
               >
                 Features
               </NavigationMenuLink>
@@ -100,9 +100,10 @@ const TopNavigation = ({
           </Button>
           <Button
             onClick={() => navigate("/auth?mode=signup")}
-            className="bg-white/20 hover:bg-white/30 text-white"
+            variant="default"
+            className="bg-white text-black hover:bg-white/90"
           >
-            Register
+            Get Started
           </Button>
         </div>
       </div>
