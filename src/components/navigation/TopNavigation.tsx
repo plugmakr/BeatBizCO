@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface TopNavigationProps {
   scrollToSection: (id: string) => void;
@@ -29,6 +29,7 @@ const TopNavigation = ({
   getDashboardRoute,
 }: TopNavigationProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
 
