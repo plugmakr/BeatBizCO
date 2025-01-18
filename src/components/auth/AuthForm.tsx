@@ -58,6 +58,13 @@ const AuthForm = () => {
         throw error;
       }
 
+      // If we have a session, user was auto-confirmed
+      if (data?.session) {
+        console.log("User was auto-confirmed, redirecting...");
+        handleAuthRedirect(role);
+        return;
+      }
+
       toast({
         title: "Check your email",
         description: "We sent you a confirmation link to complete your registration.",
