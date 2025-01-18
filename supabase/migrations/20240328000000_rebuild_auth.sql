@@ -7,6 +7,9 @@ drop policy if exists "Public profiles are viewable by everyone" on profiles;
 drop policy if exists "Users can insert their own profile" on profiles;
 drop policy if exists "Users can update their own profile" on profiles;
 drop policy if exists "Users can update own profile role" on profiles;
+drop policy if exists "profiles_select_policy" on profiles;
+drop policy if exists "profiles_insert_policy" on profiles;
+drop policy if exists "profiles_update_policy" on profiles;
 
 -- Alter existing profiles table
 alter table public.profiles 
@@ -45,11 +48,12 @@ create index if not exists profiles_role_idx on profiles(role);
 -- Enable RLS
 alter table public.profiles enable row level security;
 
--- Create better RLS policies
+-- Create select policy
 create policy "profiles_select_policy"
     on profiles for select
     using (true);
 
+-- Create insert policy
 create policy "profiles_insert_policy"
     on profiles for insert
     with check (
@@ -57,18 +61,24 @@ create policy "profiles_insert_policy"
         and email = auth.email()
     );
 
-create policy "profiles_update_policy"
+-- Create update policy for basic profile info
+create policy "profiles_update_basic_info"
+    on profiles for update
+    using (auth.uid() = id)
+    with check (auth.uid() = id);
+
+-- Create update policy specifically for role changes
+create policy "profiles_update_role"
     on profiles for update
     using (auth.uid() = id)
     with check (
         auth.uid() = id 
         and (
-            case when auth.role() = 'authenticated' then
-                case 
-                    when old.role = 'guest' then true
-                    else role = old.role
-                end
-            else false
+            case 
+                when auth.role() = 'authenticated' 
+                and (select role from profiles where id = auth.uid()) = 'guest' 
+                then true
+                else false
             end
         )
     );
