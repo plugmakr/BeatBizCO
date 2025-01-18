@@ -1,212 +1,156 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Session } from "@supabase/supabase-js";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { AuthError, AuthApiError } from "@supabase/supabase-js";
+import { Database } from "@/integrations/supabase/types";
+import { RoleSelector } from "./components/RoleSelector";
+import { AuthError as AuthErrorComponent } from "./components/AuthError";
+import { useAuthRedirect } from "./hooks/useAuthRedirect";
 
-type UserRole = "producer" | "artist" | "admin" | "guest";
+type UserRole = Database["public"]["Enums"]["user_role"];
+
+const REDIRECT_URL = 'https://beatbiz.co/auth';
 
 const AuthForm = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const isSignUp = searchParams.get("mode") === "signup";
   const [role, setRole] = useState<UserRole>("guest");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { handleAuthRedirect } = useAuthRedirect();
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
+  const handleAuthError = (error: AuthError) => {
+    console.error("Auth error details:", {
+      message: error.message,
+      name: error.name,
+      status: error instanceof AuthApiError ? error.status : 'unknown',
+      details: error,
+      stack: error.stack
+    });
     
-    const checkExistingSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profileError) {
-          console.error("Error fetching profile:", profileError);
-          toast({
-            title: "Error",
-            description: "Failed to fetch user profile",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        if (profile) {
-          handleRoleBasedRedirect(profile.role);
-        }
-      }
+    const errorMessages: Record<string, string> = {
+      "invalid_credentials": "Invalid email or password. Please try again.",
+      "user_not_found": "No account found with this email. Please sign up.",
+      "email_taken": "An account with this email already exists.",
+      "database_error": "There was a problem creating your account. Please try again.",
+      "invalid_email": "Please enter a valid email address.",
+      "weak_password": "Password should be at least 6 characters long.",
+      "Database error saving new user": "Unable to create account. Please try again later.",
+      "Database error finding user": "Unable to access user information. Please try again."
     };
 
-    checkExistingSession();
+    const message = errorMessages[error.message] || error.message;
+    setError(message);
+    setIsLoading(false);
+  };
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
-  const handleAuthStateChange = async (event: string, session: Session | null) => {
-    if (event === 'SIGNED_UP' && session) {
-      try {
-        // Wait longer and retry profile update if needed
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        let retries = 3;
-        let updateError = null;
-        
-        while (retries > 0) {
-          const { error } = await supabase
-            .from("profiles")
-            .update({
-              role: role,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', session.user.id);
-            
-          if (!error) {
-            updateError = null;
-            break;
-          }
-          
-          updateError = error;
-          retries--;
-          await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { role },
+          emailRedirectTo: REDIRECT_URL
         }
+      });
 
-        if (updateError) {
-          console.error("Error updating profile:", updateError);
-          toast({
-            title: "Error",
-            description: "There was an issue updating your profile. Please try again.",
-            variant: "destructive",
-          });
-          return;
-        }
+      if (error) throw error;
 
-        toast({
-          title: "Welcome to BeatBiz!",
-          description: "Your account has been created successfully.",
-        });
-        
-        handleRoleBasedRedirect(role);
-      } catch (error) {
-        console.error("Error setting up profile:", error);
-        toast({
-          title: "Error",
-          description: "There was an issue setting up your profile. Please try again.",
-          variant: "destructive",
-        });
+      toast({
+        title: "Check your email",
+        description: "We sent you a confirmation link to complete your registration.",
+      });
+    } catch (error) {
+      if (error instanceof AuthError) {
+        handleAuthError(error);
       }
-    } else if (event === 'SIGNED_IN' && session) {
-      try {
-        const { data: profile, error } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", session.user.id)
-          .single();
-
-        if (error) {
-          console.error("Error getting user role:", error);
-          toast({
-            title: "Error",
-            description: "Failed to get user role. Please try again.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        toast({
-          title: "Welcome back to BeatBiz!",
-          description: "You've successfully signed in.",
-        });
-        
-        handleRoleBasedRedirect(profile.role);
-      } catch (error) {
-        console.error("Error getting user role:", error);
-        toast({
-          title: "Error",
-          description: "Failed to get user role. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } else if (event === 'SIGNED_OUT') {
-      navigate('/');
     }
   };
 
-  const handleRoleBasedRedirect = (userRole: string) => {
-    switch (userRole) {
-      case "admin":
-        navigate("/admin");
-        break;
-      case "producer":
-        navigate("/producer");
-        break;
-      case "artist":
-        navigate("/artist");
-        break;
-      default:
-        navigate("/");
-        break;
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      if (error instanceof AuthError) {
+        handleAuthError(error);
+      }
     }
   };
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold tracking-tight">Welcome to BeatBiz</CardTitle>
+        <CardTitle className="text-2xl font-bold tracking-tight">
+          {isSignUp ? "Create an account" : "Welcome back"}
+        </CardTitle>
         <CardDescription>
-          Sign in to start creating, collaborating, and selling your music
+          {isSignUp
+            ? "Enter your email to create your account"
+            : "Enter your email to sign in to your account"}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <form onSubmit={isSignUp ? handleSignUp : handleSignIn} className="space-y-4">
+          {error && <AuthErrorComponent message={error} />}
+          
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              I am a...
-            </label>
-            <div className="grid grid-cols-4 gap-2">
-              {(["producer", "artist", "admin", "guest"] as const).map((option) => (
-                <button
-                  key={option}
-                  onClick={() => setRole(option)}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                    ${
-                      role === option
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary hover:bg-secondary/80"
-                    }`}
-                >
-                  {option.charAt(0).toUpperCase() + option.slice(1)}
-                </button>
-              ))}
-            </div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="m@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
-          <Auth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: "rgb(var(--primary))",
-                    brandAccent: "rgb(var(--primary))",
-                  },
-                },
-              },
-            }}
-            providers={[]}
-            redirectTo="https://beatbiz.co/auth"
-            onlyThirdPartyProviders={false}
-            magicLink={false}
-            view="sign_in"
-            showLinks={true}
-          />
-        </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {isSignUp && (
+            <div className="space-y-2">
+              <Label>I am a...</Label>
+              <RoleSelector role={role} onRoleChange={setRole} />
+            </div>
+          )}
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSignUp ? "Sign up" : "Sign in"}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );

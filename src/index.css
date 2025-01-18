@@ -46,6 +46,10 @@
     background: linear-gradient(to bottom right, rgba(26, 31, 44, 0.97), rgba(26, 31, 44, 0.93));
     z-index: -1;
   }
+
+  input, textarea {
+    @apply text-white placeholder:text-gray-400;
+  }
 }
 
 @layer components {

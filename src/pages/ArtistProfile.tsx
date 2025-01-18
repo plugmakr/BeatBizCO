@@ -14,9 +14,48 @@ const artistData = {
   followers: "2.5M",
   genres: ["Hip Hop", "R&B", "Soul"],
   featuredTracks: [
-    { id: 1, title: "Summer Nights", duration: "3:45", price: 299, plays: "1.2M" },
-    { id: 2, title: "City Lights", duration: "4:12", price: 349, plays: "980K" },
-    { id: 3, title: "Midnight Drive", duration: "3:58", price: 299, plays: "850K" },
+    {
+      id: "1",
+      title: "Summer Nights",
+      genre: "Hip Hop",
+      price: 299,
+      audio_url: null,
+      artwork_url: null,
+      created_at: new Date().toISOString(),
+      description: "Summer vibes track",
+      artist_id: null,
+      status: "active",
+      duration: "3:45",
+      plays: "1.2M"
+    },
+    {
+      id: "2",
+      title: "City Lights",
+      genre: "R&B",
+      price: 349,
+      audio_url: null,
+      artwork_url: null,
+      created_at: new Date().toISOString(),
+      description: "City nights inspiration",
+      artist_id: null,
+      status: "active",
+      duration: "4:12",
+      plays: "980K"
+    },
+    {
+      id: "3",
+      title: "Midnight Drive",
+      genre: "Soul",
+      price: 299,
+      audio_url: null,
+      artwork_url: null,
+      created_at: new Date().toISOString(),
+      description: "Late night cruise",
+      artist_id: null,
+      status: "active",
+      duration: "3:58",
+      plays: "850K"
+    }
   ],
   socialMedia: {
     instagram: "@jcole",
@@ -43,14 +82,14 @@ const artistData = {
 
 export default function ArtistProfile() {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState<number | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<string | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
 
   // Mock functions for TopNavigation props
   const scrollToSection = (id: string) => {};
   const getDashboardRoute = () => "/dashboard";
 
-  const togglePlay = (trackId: number) => {
+  const togglePlay = (trackId: string) => {
     if (currentTrack === trackId) {
       setIsPlaying(!isPlaying);
     } else {
@@ -68,7 +107,7 @@ export default function ArtistProfile() {
     toast.success("Message feature coming soon!");
   };
 
-  const currentTrackData = artistData.featuredTracks.find(t => t.id === currentTrack);
+  const currentTrackData = artistData.featuredTracks.find(t => t.id === currentTrack) || null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
