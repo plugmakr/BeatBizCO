@@ -33,6 +33,11 @@ const AuthForm = () => {
     setError(null);
 
     try {
+      console.log("Starting signup process...");
+      console.log("Email:", email);
+      console.log("Role:", role);
+      console.log("Redirect URL:", REDIRECT_URL);
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -42,15 +47,24 @@ const AuthForm = () => {
         }
       });
 
-      if (error) throw error;
+      console.log("Signup response:", { data, error });
+
+      if (error) {
+        console.error("Signup error details:", {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        throw error;
+      }
 
       toast({
         title: "Check your email",
         description: "We sent you a confirmation link to complete your registration.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Signup error:", error);
-      setError("Unable to create account. Please try again.");
+      setError(error?.message || "Unable to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -62,16 +76,27 @@ const AuthForm = () => {
     setError(null);
 
     try {
+      console.log("Starting signin process...");
+      console.log("Email:", email);
+
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Signin error details:", {
+          message: error.message,
+          status: error.status,
+          name: error.name
+        });
+        throw error;
+      }
+
       handleAuthRedirect('guest');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Signin error:", error);
-      setError("Invalid email or password");
+      setError(error?.message || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }
