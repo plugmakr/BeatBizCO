@@ -11,11 +11,11 @@ interface RoleOption {
 }
 
 interface RoleSelectorProps {
-  selectedRole: UserRole;
-  onRoleSelect: (role: UserRole) => void;
+  role: UserRole;
+  onRoleChange: (role: UserRole) => void;
 }
 
-export const RoleSelector = ({ selectedRole, onRoleSelect }: RoleSelectorProps) => {
+export const RoleSelector = ({ role, onRoleChange }: RoleSelectorProps) => {
   const roleOptions: RoleOption[] = [
     {
       value: "guest",
@@ -38,33 +38,22 @@ export const RoleSelector = ({ selectedRole, onRoleSelect }: RoleSelectorProps) 
   ];
 
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        I am a...
-      </label>
-      <div className="grid grid-cols-1 gap-2">
-        {roleOptions.map((option) => (
-          <button
-            type="button"
-            key={option.value}
-            onClick={() => onRoleSelect(option.value)}
-            className={`flex items-center space-x-3 p-3 rounded-lg transition-colors
-              ${
-                selectedRole === option.value
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary hover:bg-secondary/80"
-              }`}
-          >
-            <div className={`${selectedRole === option.value ? "text-primary-foreground" : "text-primary"}`}>
-              {option.icon}
-            </div>
-            <div className="text-left">
-              <div className="font-medium">{option.label}</div>
-              <div className="text-sm opacity-90">{option.description}</div>
-            </div>
-          </button>
-        ))}
-      </div>
+    <div className="grid grid-cols-3 gap-2">
+      {roleOptions.map((option) => (
+        <button
+          type="button"
+          key={option.value}
+          onClick={() => onRoleChange(option.value)}
+          className={`flex flex-col items-center justify-center p-3 rounded-lg transition-colors
+            ${role === option.value 
+              ? "bg-primary text-primary-foreground"
+              : "bg-secondary hover:bg-secondary/80"
+            }`}
+        >
+          {option.icon}
+          <span className="mt-2 text-sm font-medium">{option.label}</span>
+        </button>
+      ))}
     </div>
   );
 };
