@@ -11,6 +11,7 @@ import { Database } from "@/integrations/supabase/types";
 import { RoleSelector } from "./components/RoleSelector";
 import { AuthError as AuthErrorComponent } from "./components/AuthError";
 import { useAuthRedirect } from "./hooks/useAuthRedirect";
+import { useNavigate } from "react-router-dom";
 
 type UserRole = Database["public"]["Enums"]["user_role"];
 
@@ -18,6 +19,7 @@ const REDIRECT_URL = 'https://beatbiz.co/auth';
 
 const AuthForm = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isSignUp = searchParams.get("mode") === "signup";
   const [role, setRole] = useState<UserRole>("guest");
@@ -30,48 +32,55 @@ const AuthForm = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
 
     try {
-      console.log("Starting signup process...");
-      console.log("Email:", email);
-      console.log("Role:", role);
-      console.log("Redirect URL:", REDIRECT_URL);
-
-      const { data, error } = await supabase.auth.signUp({
+      // Sign up the user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: REDIRECT_URL,
-          data: { role }
-        }
       });
 
-      console.log("Signup response:", { data, error });
+      if (signUpError) throw signUpError;
 
-      if (error) {
-        console.error("Signup error details:", {
-          message: error.message,
-          status: error.status,
-          name: error.name
+      if (authData.user) {
+        // Create a profile with the selected role
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: authData.user.id,
+              role: role,
+              email: email,
+              created_at: new Date().toISOString(),
+            }
+          ]);
+
+        if (profileError) throw profileError;
+
+        toast({
+          title: "Account created successfully",
+          description: "You can now sign in with your credentials.",
         });
-        throw error;
-      }
 
-      // If we have a session, user was auto-confirmed
-      if (data?.session) {
-        console.log("User was auto-confirmed, redirecting...");
-        handleAuthRedirect(role);
-        return;
-      }
+        // Auto-login after signup
+        const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-      toast({
-        title: "Check your email",
-        description: "We sent you a confirmation link to complete your registration.",
-      });
+        if (signInError) throw signInError;
+
+        if (session) {
+          navigate(`/${role}/dashboard`);
+        }
+      }
     } catch (error: any) {
-      console.error("Signup error:", error);
-      setError(error?.message || "Unable to create account. Please try again.");
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred during sign up.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -80,30 +89,34 @@ const AuthForm = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
 
     try {
-      console.log("Starting signin process...");
-      console.log("Email:", email);
-
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) {
-        console.error("Signin error details:", {
-          message: error.message,
-          status: error.status,
-          name: error.name
-        });
-        throw error;
-      }
+      if (signInError) throw signInError;
 
-      handleAuthRedirect('guest');
+      if (session) {
+        // Get user's role from profile
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        navigate(`/${profile.role}/dashboard`);
+      }
     } catch (error: any) {
-      console.error("Signin error:", error);
-      setError(error?.message || "Invalid email or password");
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Invalid email or password.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

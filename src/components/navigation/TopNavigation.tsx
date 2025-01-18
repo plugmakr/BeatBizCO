@@ -15,6 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TopNavigationProps {
   scrollToSection: (id: string) => void;
@@ -26,6 +28,49 @@ const TopNavigation = ({
   getDashboardRoute,
 }: TopNavigationProps) => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        setUserRole(profile?.role || null);
+      }
+    };
+
+    getUserData();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        setUserRole(profile?.role || null);
+      } else {
+        setUser(null);
+        setUserRole(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   return (
     <nav className="border-b backdrop-blur-sm bg-white/10 sticky top-0 z-50">
@@ -73,38 +118,54 @@ const TopNavigation = ({
         </NavigationMenu>
 
         <div className="space-x-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="text-white hover:bg-white/20">
-                Portals <ChevronDown className="ml-2 h-4 w-4" />
+          {user ? (
+            <>
+              {userRole && (
+                <Button
+                  variant="ghost"
+                  className="text-white hover:bg-white/20"
+                  onClick={() => navigate(`/${userRole}/dashboard`)}
+                >
+                  Dashboard
+                </Button>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="text-white hover:bg-white/20">
+                    Account <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => navigate(`/${userRole}/profile`)}>
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate(`/${userRole}/settings`)}>
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Button
+                onClick={() => navigate("/auth")}
+                variant="ghost"
+                className="text-white hover:bg-white/20"
+              >
+                Sign In
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => navigate("/producer")}>
-                Producer Portal
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/artist")}>
-                Artist Portal
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/admin")}>
-                Admin Portal
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button
-            onClick={() => navigate("/auth")}
-            variant="ghost"
-            className="text-white hover:bg-white/20"
-          >
-            Sign In
-          </Button>
-          <Button
-            onClick={() => navigate("/auth?mode=signup")}
-            variant="default"
-            className="bg-white text-black hover:bg-white/90"
-          >
-            Get Started
-          </Button>
+              <Button
+                onClick={() => navigate("/auth?mode=signup")}
+                variant="default"
+                className="bg-white text-black hover:bg-white/90"
+              >
+                Register
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </nav>
