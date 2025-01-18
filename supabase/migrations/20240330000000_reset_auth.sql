@@ -1,4 +1,4 @@
--- Drop everything and start fresh
+-- Drop existing policies
 drop policy if exists "Enable read access for all users" on profiles;
 drop policy if exists "Enable insert for authenticated users only" on profiles;
 drop policy if exists "Enable update for users based on id" on profiles;
@@ -24,15 +24,16 @@ drop function if exists public.handle_user_update();
 drop function if exists public.handle_email_verification();
 drop function if exists public.handle_user_sign_in();
 
--- Drop and recreate profiles table
-drop table if exists profiles;
-
-create table profiles (
-    id uuid references auth.users(id) primary key,
-    role text not null default 'guest',
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
-);
+-- Reset profiles table
+alter table profiles
+    -- Drop non-essential columns if they exist
+    drop column if exists email,
+    drop column if exists is_email_verified,
+    drop column if exists last_sign_in,
+    -- Ensure essential columns exist with correct defaults
+    alter column role set default 'guest',
+    alter column created_at set default now(),
+    alter column updated_at set default now();
 
 -- Basic RLS
 alter table profiles enable row level security;
@@ -44,6 +45,13 @@ create policy "Anyone can read profiles"
 create policy "Users can update own profile"
     on profiles for update
     using (auth.uid() = id);
+
+create policy "Authenticated users can insert profiles"
+    on profiles for insert
+    with check (
+        auth.role() = 'authenticated' 
+        and auth.uid() = id
+    );
 
 -- Create index
 create index if not exists profiles_role_idx on profiles(role);
