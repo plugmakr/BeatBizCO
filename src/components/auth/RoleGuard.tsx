@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -11,6 +11,7 @@ interface RoleGuardProps {
 
 const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -18,9 +19,11 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   useEffect(() => {
     const checkRole = async () => {
       try {
+        console.log('RoleGuard: Checking role...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError || !session) {
+          console.log('RoleGuard: No session found');
           toast({
             title: "Authentication Required",
             description: "Please sign in to access this area.",
@@ -30,6 +33,11 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
           return;
         }
 
+        // Try to get role from localStorage first
+        const cachedRole = localStorage.getItem('userRole');
+        console.log('RoleGuard: Cached role:', cachedRole);
+
+        // Always verify with database
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
@@ -37,7 +45,7 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
           .single();
 
         if (profileError) {
-          console.error("Profile error:", profileError);
+          console.error("RoleGuard: Profile error:", profileError);
           toast({
             title: "Error",
             description: "Unable to verify your access level.",
@@ -47,25 +55,32 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
           return;
         }
 
-        if (!profile || !allowedRoles.includes(profile.role)) {
+        const userRole = profile?.role;
+        console.log('RoleGuard: Database role:', userRole);
+        console.log('RoleGuard: Allowed roles:', allowedRoles);
+
+        if (!userRole || !allowedRoles.includes(userRole)) {
+          console.log('RoleGuard: Access denied');
           toast({
             title: "Access Denied",
             description: "You don't have permission to access this area.",
             variant: "destructive",
           });
           
-          // Redirect based on user's role
-          if (profile?.role) {
-            navigate(`/${profile.role}/dashboard`);
+          if (userRole) {
+            console.log('RoleGuard: Redirecting to user dashboard');
+            navigate(`/${userRole}/dashboard`);
           } else {
             navigate("/auth");
           }
           return;
         }
 
+        console.log('RoleGuard: Access granted');
         setIsAuthorized(true);
+        localStorage.setItem('userRole', userRole);
       } catch (error) {
-        console.error("Role check error:", error);
+        console.error("RoleGuard: Error in checkRole:", error);
         navigate("/auth");
       } finally {
         setIsLoading(false);
@@ -74,14 +89,17 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
 
     checkRole();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const handleAuthEvent = (event: any) => {
+      console.log('RoleGuard: Auth event received:', event);
       checkRole();
-    });
+    };
+
+    window.addEventListener('userAuthenticated', handleAuthEvent);
 
     return () => {
-      subscription.unsubscribe();
+      window.removeEventListener('userAuthenticated', handleAuthEvent);
     };
-  }, [navigate, toast, allowedRoles]);
+  }, [navigate, toast, allowedRoles, location.pathname]);
 
   if (isLoading) {
     return (
