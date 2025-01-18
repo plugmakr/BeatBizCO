@@ -6,6 +6,7 @@ drop function if exists public.handle_new_user();
 drop policy if exists "Public profiles are viewable by everyone" on profiles;
 drop policy if exists "Users can insert their own profile" on profiles;
 drop policy if exists "Users can update their own profile" on profiles;
+drop policy if exists "Users can update own profile role" on profiles;
 
 -- Alter existing profiles table
 alter table public.profiles 
@@ -37,7 +38,7 @@ begin
     end if;
 end $$;
 
--- Create index for faster lookups
+-- Create index for faster lookups if they don't exist
 create index if not exists profiles_email_idx on profiles(email);
 create index if not exists profiles_role_idx on profiles(role);
 
@@ -45,18 +46,18 @@ create index if not exists profiles_role_idx on profiles(role);
 alter table public.profiles enable row level security;
 
 -- Create better RLS policies
-create policy "Profiles are viewable by everyone"
+create policy "profiles_select_policy"
     on profiles for select
     using (true);
 
-create policy "Users can insert their own profile"
+create policy "profiles_insert_policy"
     on profiles for insert
     with check (
         auth.uid() = id
         and email = auth.email()
     );
 
-create policy "Users can update their own profile"
+create policy "profiles_update_policy"
     on profiles for update
     using (auth.uid() = id)
     with check (
