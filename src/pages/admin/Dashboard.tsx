@@ -6,35 +6,41 @@ import { Loading } from "@/components/ui/loading";
 import { Activity, Users, ShoppingBag, MessageSquare } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAdminStats } from "@/hooks/queries/useAdminStats";
 
 const AdminDashboard = () => {
-  // Fetch dashboard statistics
-  const { data: stats } = useQuery({
-    queryKey: ['admin-dashboard-stats'],
+  const { data: stats, isLoading: isStatsLoading } = useAdminStats();
+
+  const { data: recentUsers, isLoading: isUsersLoading } = useQuery({
+    queryKey: ["recent-users"],
     queryFn: async () => {
-      const [
-        { count: totalUsers },
-        { data: salesData },
-        { count: activeProjects }
-      ] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact' }),
-        supabase.from('marketplace_sales')
-          .select('amount')
-          .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
-        supabase.from('collaboration_projects')
-          .select('*', { count: 'exact' })
-          .eq('status', 'active')
-      ]);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5);
 
-      const totalSales = salesData?.reduce((acc, sale) => acc + sale.amount, 0) || 0;
+      if (error) throw error;
+      return data;
+    },
+  });
 
-      return {
-        totalUsers: totalUsers || 0,
-        totalSales,
-        activeProjects: activeProjects || 0,
-        supportTickets: 0 // Placeholder until support_tickets table is created
-      };
-    }
+  const { data: recentSales, isLoading: isSalesLoading } = useQuery({
+    queryKey: ["recent-sales"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("marketplace_sales")
+        .select(`
+          *,
+          marketplace_items!inner(title, price),
+          profiles!buyer_id(role)
+        `)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      return data;
+    },
   });
 
   return (
@@ -59,7 +65,9 @@ const AdminDashboard = () => {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats?.totalUsers || 0}</div>
+                  <div className="text-2xl font-bold">
+                    {isStatsLoading ? "..." : stats?.totalUsers || 0}
+                  </div>
                   <p className="text-xs text-muted-foreground">Platform users</p>
                 </CardContent>
               </Card>
@@ -71,7 +79,7 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    ${stats?.totalSales?.toLocaleString() || 0}
+                    ${isStatsLoading ? "..." : stats?.totalRevenue?.toLocaleString() || 0}
                   </div>
                   <p className="text-xs text-muted-foreground">Last 30 days</p>
                 </CardContent>
@@ -83,7 +91,9 @@ const AdminDashboard = () => {
                   <Activity className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats?.activeProjects || 0}</div>
+                  <div className="text-2xl font-bold">
+                    {isStatsLoading ? "..." : stats?.activeProjects || 0}
+                  </div>
                   <p className="text-xs text-muted-foreground">Ongoing collaborations</p>
                 </CardContent>
               </Card>
@@ -94,8 +104,67 @@ const AdminDashboard = () => {
                   <MessageSquare className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats?.supportTickets || 0}</div>
+                  <div className="text-2xl font-bold">
+                    {isStatsLoading ? "..." : stats?.supportTickets || 0}
+                  </div>
                   <p className="text-xs text-muted-foreground">Open tickets</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Users</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {isUsersLoading ? (
+                      <div>Loading...</div>
+                    ) : recentUsers?.map((user) => (
+                      <div key={user.id} className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">{user.id}</p>
+                          <p className="text-sm text-muted-foreground">{user.role}</p>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Sales</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {isSalesLoading ? (
+                      <div>Loading...</div>
+                    ) : recentSales?.map((sale) => (
+                      <div key={sale.id} className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">
+                            {sale.marketplace_items.title}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {sale.profiles.role}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-medium">
+                            ${sale.amount}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(sale.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             </div>

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { ProducerStats } from "@/components/producer/ProducerStats";
 import { ProducerNews } from "@/components/producer/ProducerNews";
@@ -5,8 +6,62 @@ import FinancialOverview from "@/components/producer/finances/FinancialOverview"
 import RevenueChart from "@/components/producer/finances/RevenueChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useProducerStats } from "@/hooks/queries/useProducerStats";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const ProducerDashboard = () => {
+  const { toast } = useToast();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
+
+  const { data: stats, isLoading: isStatsLoading } = useProducerStats(user?.id);
+  const { data: recentCollabs, isLoading: isCollabsLoading } = useQuery({
+    queryKey: ["recent-collabs", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaboration_projects")
+        .select("*")
+        .eq("created_by", user?.id)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: recentSales, isLoading: isSalesLoading } = useQuery({
+    queryKey: ["recent-sales", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("marketplace_sales")
+        .select(`
+          *,
+          marketplace_items!inner(
+            title,
+            producer_id
+          )
+        `)
+        .eq("marketplace_items.producer_id", user?.id)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -14,10 +69,10 @@ const ProducerDashboard = () => {
           <h1 className="text-3xl font-bold">Dashboard</h1>
         </div>
 
-        <ProducerStats />
+        <ProducerStats stats={stats} isLoading={isStatsLoading} />
 
         <div className="grid gap-4 grid-cols-1">
-          <FinancialOverview />
+          <FinancialOverview stats={stats} isLoading={isStatsLoading} />
         </div>
 
         <Tabs defaultValue="overview" className="space-y-4">
@@ -35,27 +90,19 @@ const ProducerDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Drake - Certified Lover Boy</p>
-                        <p className="text-sm text-muted-foreground">In Progress</p>
+                    {isCollabsLoading ? (
+                      <div>Loading...</div>
+                    ) : recentCollabs?.map((collab) => (
+                      <div key={collab.id} className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">{collab.title}</p>
+                          <p className="text-sm text-muted-foreground">{collab.status}</p>
+                        </div>
+                        <span className="text-sm text-yellow-500">
+                          {collab.status === "completed" ? "100%" : "In Progress"}
+                        </span>
                       </div>
-                      <span className="text-sm text-yellow-500">70%</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">The Weeknd - New Single</p>
-                        <p className="text-sm text-muted-foreground">Completed</p>
-                      </div>
-                      <span className="text-sm text-green-500">100%</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Future - Upcoming Album</p>
-                        <p className="text-sm text-muted-foreground">Planning</p>
-                      </div>
-                      <span className="text-sm text-blue-500">25%</span>
-                    </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -66,27 +113,19 @@ const ProducerDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Summer Vibes Beat Pack</p>
-                        <p className="text-sm text-muted-foreground">10 minutes ago</p>
+                    {isSalesLoading ? (
+                      <div>Loading...</div>
+                    ) : recentSales?.map((sale) => (
+                      <div key={sale.id} className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">{sale.marketplace_items.title}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(sale.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <span className="text-sm font-medium">${sale.amount}</span>
                       </div>
-                      <span className="text-sm font-medium">$299</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">Trap Essentials Vol. 2</p>
-                        <p className="text-sm text-muted-foreground">2 hours ago</p>
-                      </div>
-                      <span className="text-sm font-medium">$149</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium">R&B Soul Kit</p>
-                        <p className="text-sm text-muted-foreground">5 hours ago</p>
-                      </div>
-                      <span className="text-sm font-medium">$199</span>
-                    </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
@@ -94,7 +133,7 @@ const ProducerDashboard = () => {
           </TabsContent>
 
           <TabsContent value="revenue">
-            <RevenueChart />
+            <RevenueChart producerId={user?.id} />
           </TabsContent>
 
           <TabsContent value="news">

@@ -1,10 +1,70 @@
+import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, Music, Users, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useArtistStats } from "@/hooks/queries/useArtistStats";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const ArtistDashboard = () => {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
+
+  const { data: stats, isLoading: isStatsLoading } = useArtistStats(user?.id);
+  const { data: recentPurchases, isLoading: isPurchasesLoading } = useQuery({
+    queryKey: ["recent-purchases", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("marketplace_sales")
+        .select(`
+          *,
+          marketplace_items!inner(
+            title,
+            price,
+            license_type
+          )
+        `)
+        .eq("buyer_id", user?.id)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: recentReleases, isLoading: isReleasesLoading } = useQuery({
+    queryKey: ["recent-releases", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("collaboration_projects")
+        .select("*")
+        .eq("status", "completed")
+        .in("id", 
+          supabase
+            .from("project_collaborators")
+            .select("project_id")
+            .eq("user_id", user?.id)
+        )
+        .order("updated_at", { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -22,7 +82,9 @@ const ArtistDashboard = () => {
                 <span className="text-sm font-medium">Released Tracks</span>
               </div>
               <div className="mt-4">
-                <span className="text-2xl font-bold">12</span>
+                <span className="text-2xl font-bold">
+                  {isStatsLoading ? "..." : stats?.releasedTracks || 0}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -33,7 +95,9 @@ const ArtistDashboard = () => {
                 <span className="text-sm font-medium">Purchased Beats</span>
               </div>
               <div className="mt-4">
-                <span className="text-2xl font-bold">8</span>
+                <span className="text-2xl font-bold">
+                  {isStatsLoading ? "..." : stats?.purchasedBeats || 0}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -44,7 +108,9 @@ const ArtistDashboard = () => {
                 <span className="text-sm font-medium">Collaborations</span>
               </div>
               <div className="mt-4">
-                <span className="text-2xl font-bold">5</span>
+                <span className="text-2xl font-bold">
+                  {isStatsLoading ? "..." : stats?.collaborations || 0}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -55,7 +121,9 @@ const ArtistDashboard = () => {
                 <span className="text-sm font-medium">Active Projects</span>
               </div>
               <div className="mt-4">
-                <span className="text-2xl font-bold">3</span>
+                <span className="text-2xl font-bold">
+                  {isStatsLoading ? "..." : stats?.activeProjects || 0}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -69,11 +137,15 @@ const ArtistDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[1, 2, 3].map((purchase) => (
-                  <div key={purchase} className="flex items-center justify-between p-4 border rounded-lg">
+                {isPurchasesLoading ? (
+                  <div>Loading...</div>
+                ) : recentPurchases?.map((purchase) => (
+                  <div key={purchase.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
-                      <h3 className="font-semibold">Summer Vibes Beat</h3>
-                      <p className="text-sm text-muted-foreground">Purchased 2 days ago</p>
+                      <h3 className="font-semibold">{purchase.marketplace_items.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(purchase.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                     <Button variant="outline" size="sm">Download</Button>
                   </div>
@@ -92,50 +164,25 @@ const ArtistDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[1, 2, 3].map((release) => (
-                  <div key={release} className="flex items-center justify-between p-4 border rounded-lg">
+                {isReleasesLoading ? (
+                  <div>Loading...</div>
+                ) : recentReleases?.map((release) => (
+                  <div key={release.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div>
-                      <h3 className="font-semibold">Night Drive</h3>
-                      <p className="text-sm text-muted-foreground">Released 1 week ago</p>
+                      <h3 className="font-semibold">{release.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(release.updated_at).toLocaleDateString()}
+                      </p>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      1.2k plays
+                      Completed
                     </div>
                   </div>
                 ))}
-                <Link to="/artist/releases">
-                  <Button className="w-full">Manage Releases</Button>
-                </Link>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* Active Projects */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Active Projects</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[1, 2].map((project) => (
-                <div key={project} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <h3 className="font-semibold">New Album Project</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Collaborating with: Metro Boomin
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-yellow-500">In Progress</span>
-                    <Button variant="outline" size="sm">View Details</Button>
-                  </div>
-                </div>
-              ))}
-              <Button className="w-full">Start New Project</Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </DashboardLayout>
   );
