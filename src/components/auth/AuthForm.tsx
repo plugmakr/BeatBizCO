@@ -53,22 +53,44 @@ const AuthForm = () => {
     setIsLoading(false);
   };
 
+  const createProfile = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: userId,
+            role: role,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+        ]);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      throw error;
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { role },
           emailRedirectTo: REDIRECT_URL
         }
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("No user data returned");
+
+      await createProfile(authData.user.id);
 
       toast({
         title: "Check your email",
@@ -77,7 +99,12 @@ const AuthForm = () => {
     } catch (error) {
       if (error instanceof AuthError) {
         handleAuthError(error);
+      } else {
+        console.error('Signup error:', error);
+        setError('An unexpected error occurred. Please try again.');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -97,6 +124,8 @@ const AuthForm = () => {
       if (error instanceof AuthError) {
         handleAuthError(error);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
