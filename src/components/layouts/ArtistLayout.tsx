@@ -1,4 +1,3 @@
-import { getArtistMenuItems } from "@/config/menuItems";
 import {
   Sidebar,
   SidebarContent,
@@ -9,17 +8,52 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar"
+import { getArtistMenuItems } from "@/config/menuItems"
+import { Link, useNavigate } from "react-router-dom"
+import { Home, LogOut } from "lucide-react"
+import { supabase } from "@/integrations/supabase/client"
+import { useToast } from "@/hooks/use-toast"
 
 export function ArtistLayout({ children }: { children: React.ReactNode }) {
-  const menuSections = getArtistMenuItems();
+  const menuSections = getArtistMenuItems()
+  const { toast } = useToast()
+  const navigate = useNavigate()
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      })
+    } else {
+      localStorage.removeItem('userRole')
+      navigate('/')
+    }
+  }
 
   return (
-    <SidebarProvider defaultOpen>
-      <div className="flex min-h-screen w-full">
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
         <Sidebar>
           <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/">
+                        <Home className="h-4 w-4" />
+                        <span>Home</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
             {menuSections.map((section) => (
               <SidebarGroup key={section.category}>
                 <SidebarGroupLabel>{section.category}</SidebarGroupLabel>
@@ -28,10 +62,10 @@ export function ArtistLayout({ children }: { children: React.ReactNode }) {
                     {section.items.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton asChild>
-                          <a href={item.url}>
+                          <Link to={item.url}>
                             <item.icon className="h-4 w-4" />
                             <span>{item.title}</span>
-                          </a>
+                          </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
@@ -39,13 +73,28 @@ export function ArtistLayout({ children }: { children: React.ReactNode }) {
                 </SidebarGroupContent>
               </SidebarGroup>
             ))}
+
+            <SidebarGroup>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      onClick={handleSignOut}
+                      className="text-red-600 hover:text-red-600 hover:bg-red-100"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
           </SidebarContent>
         </Sidebar>
         <main className="flex-1 p-6">
-          <SidebarTrigger className="mb-4" />
           {children}
         </main>
       </div>
     </SidebarProvider>
-  );
+  )
 }

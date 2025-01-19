@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 function TopNavigation() {
-  const { user, userRole, signOut } = useAuth();
+  const { user, userRole } = useAuth();
   const { toast } = useToast();
 
   const handleSignOut = async () => {
@@ -35,7 +35,7 @@ function TopNavigation() {
     return email
       .split('@')[0]
       .split('.')
-      .map(part => part[0])
+      .map((n) => n[0])
       .join('')
       .toUpperCase();
   };
