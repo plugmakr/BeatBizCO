@@ -1,158 +1,119 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 function TopNavigation() {
-  const { user, userRole, setUser, setRole } = useAuth();
+  const { user, userRole, signOut } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
-      // Clear local storage first
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userProfile');
-
-      // Sign out from Supabase
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      // Clear any other state
-      setUser(null);
-      setRole(null);
-
-      // Dispatch event to notify other components
-      window.dispatchEvent(new Event('userSignedOut'));
-
-      // Navigate to home page
-      navigate('/', { replace: true });
-
-      toast({
-        title: "Signed out successfully",
-      });
+      await signOut();
     } catch (error: any) {
-      console.error('Sign out error:', error);
       toast({
         title: "Error signing out",
-        description: error.message,
+        description: "Please try again",
         variant: "destructive",
       });
     }
   };
 
-  const getInitials = (email: string) => {
-    return email
-      .split('@')[0]
-      .split('.')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase();
-  };
-
   return (
-    <nav className="border-b">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 justify-between items-center">
-          <div className="flex-shrink-0">
-            <Link to="/" className="text-2xl font-bold">
+    <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <div className="mr-4 hidden md:flex">
+          <Link className="mr-6 flex items-center space-x-2" to="/">
+            <span className="hidden font-bold sm:inline-block">
               BeatBiz
-            </Link>
-          </div>
-
-          <div className="hidden md:flex flex-1 justify-center items-center space-x-8">
-            <Link to="/features" className="text-sm font-medium hover:text-primary">
-              Features
-            </Link>
-            <Link to="/marketplace" className="text-sm font-medium hover:text-primary">
-              Marketplace
-            </Link>
-            <Link to="/how-it-works" className="text-sm font-medium hover:text-primary">
+            </span>
+          </Link>
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            <Link
+              to="/how-it-works"
+              className="transition-colors hover:text-foreground/80 text-foreground"
+            >
               How it Works
             </Link>
-            <Link to="/pricing" className="text-sm font-medium hover:text-primary">
+            <Link
+              to="/pricing"
+              className="transition-colors hover:text-foreground/80 text-foreground"
+            >
               Pricing
             </Link>
-          </div>
-
-          <div className="flex items-center space-x-4">
+            <Link
+              to="/about"
+              className="transition-colors hover:text-foreground/80 text-foreground"
+            >
+              About
+            </Link>
+          </nav>
+        </div>
+        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+          <nav className="flex items-center">
             {user ? (
-              <>
-                {userRole && (
-                  <Link
-                    to={`/${userRole}/dashboard`}
-                    className="text-sm font-medium hover:text-primary"
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
                   >
-                    Dashboard
-                  </Link>
-                )}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                          {getInitials(user.email || '')}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {user.email}
-                        </p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {userRole?.charAt(0).toUpperCase() + userRole?.slice(1)}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/">Home</Link>
-                    </DropdownMenuItem>
-                    {userRole && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/${userRole}/profile`}>Profile</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/${userRole}/settings`}>Settings</Link>
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="cursor-pointer text-red-600 focus:text-red-600"
-                      onClick={handleSignOut}
+                    <span className="sr-only">Open user menu</span>
+                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                      {user.email?.[0].toUpperCase()}
+                    </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <Link
+                      to={`/${userRole}/dashboard`}
+                      className="w-full"
                     >
-                      Sign Out
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link
+                      to={`/${userRole}/profile`}
+                      className="w-full"
+                    >
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  {userRole === 'admin' && (
+                    <DropdownMenuItem>
+                      <Link
+                        to="/admin/users"
+                        className="w-full"
+                      >
+                        User Management
+                      </Link>
                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
+                  )}
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <>
-                <Button variant="ghost" asChild>
-                  <Link to="/auth">Sign In</Link>
-                </Button>
-                <Button asChild>
-                  <Link to="/auth?register=true">Register</Link>
-                </Button>
-              </>
+              <div className="flex gap-2">
+                <Link to="/auth">
+                  <Button variant="ghost">Sign in</Button>
+                </Link>
+                <Link to="/auth?register=true">
+                  <Button>Sign up</Button>
+                </Link>
+              </div>
             )}
-          </div>
+          </nav>
         </div>
       </div>
     </nav>

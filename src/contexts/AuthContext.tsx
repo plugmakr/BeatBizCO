@@ -16,6 +16,8 @@ interface AuthContextType extends AuthState {
   signUp: (email: string, password: string, role: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
+  setUser: (user: User | null) => void;
+  setRole: (role: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,6 +31,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     userRole: null,
     isLoading: true,
   });
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event);
+      if (event === 'SIGNED_OUT') {
+        setState({
+          session: null,
+          user: null,
+          userRole: null,
+          isLoading: false,
+        });
+        localStorage.clear(); // Clear all localStorage
+        navigate('/', { replace: true });
+      } else if (session) {
+        await refreshSession();
+      }
+    });
+
+    refreshSession();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const refreshSession = async () => {
     try {
@@ -54,6 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
 
         localStorage.setItem('userRole', profile?.role || '');
+        localStorage.setItem('userId', session.user.id);
       } else {
         setState({
           session: null,
@@ -61,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userRole: null,
           isLoading: false,
         });
-        localStorage.removeItem('userRole');
+        localStorage.clear();
       }
     } catch (error) {
       console.error('Session refresh error:', error);
@@ -97,123 +124,98 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       localStorage.setItem('userRole', profile.role);
-      window.location.href = `${window.location.origin}/${profile.role}/dashboard`;
+      localStorage.setItem('userId', session.user.id);
+      
+      navigate(`/${profile.role}/dashboard`, { replace: true });
     } catch (error: any) {
       console.error('Sign in error:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to sign in',
-        variant: 'destructive',
+        title: "Error signing in",
+        description: error.message,
+        variant: "destructive",
       });
+      throw error;
     }
   };
 
   const signUp = async (email: string, password: string, role: string) => {
     try {
-      console.log('Signing up with role:', role);
-      const { data: { session }, error: signUpError } = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            role: role
-          }
+          data: { role }
         }
       });
 
       if (signUpError) throw signUpError;
-      if (!session?.user) throw new Error('No session after sign up');
+      if (!data.user) throw new Error('No user returned from sign up');
 
-      // Create profile
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
           {
-            id: session.user.id,
-            email,
+            id: data.user.id,
             role,
+            email,
             created_at: new Date().toISOString(),
           }
         ]);
 
       if (profileError) throw profileError;
 
-      setState({
-        session,
-        user: session.user,
-        userRole: role,
-        isLoading: false,
-      });
-
-      localStorage.setItem('userRole', role);
-      
-      // Update auth state
-      const event = new CustomEvent('userAuthenticated', { 
-        detail: { user: session.user, role } 
-      });
-      window.dispatchEvent(event);
-
-      // Redirect to dashboard
-      window.location.href = `${window.location.origin}/${role}/dashboard`;
+      // Auto sign in after signup
+      await signIn(email, password);
     } catch (error: any) {
       console.error('Sign up error:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to create account',
-        variant: 'destructive',
+        title: "Error signing up",
+        description: error.message,
+        variant: "destructive",
       });
+      throw error;
     }
   };
 
   const signOut = async () => {
     try {
-      console.log('Signing out...');
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
+      // Clear all state and storage
       setState({
         session: null,
         user: null,
         userRole: null,
         isLoading: false,
       });
-
+      
       localStorage.clear();
-      window.location.href = `${window.location.origin}/`;
+      
+      // Force navigation to home
+      navigate('/', { replace: true });
+      
+      toast({
+        title: "Signed out successfully",
+      });
     } catch (error: any) {
       console.error('Sign out error:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to sign out',
-        variant: 'destructive',
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
       });
+      throw error;
     }
   };
 
-  useEffect(() => {
-    console.log('Setting up auth subscriptions...');
-    refreshSession();
+  const setUser = (user: User | null) => {
+    setState(prev => ({ ...prev, user }));
+  };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
-      if (event === 'SIGNED_OUT') {
-        setState({
-          session: null,
-          user: null,
-          userRole: null,
-          isLoading: false,
-        });
-        localStorage.clear();
-        window.location.href = `${window.location.origin}/`;
-      } else if (session) {
-        await refreshSession();
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+  const setRole = (role: string | null) => {
+    setState(prev => ({ ...prev, userRole: role }));
+  };
 
   return (
     <AuthContext.Provider
@@ -223,6 +225,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signUp,
         signOut,
         refreshSession,
+        setUser,
+        setRole,
       }}
     >
       {children}
