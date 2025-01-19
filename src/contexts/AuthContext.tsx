@@ -110,16 +110,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, role: string) => {
     try {
-      console.log('Signing up...');
+      console.log('Signing up with role:', role);
       const { data: { session }, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            role: role
+          }
+        }
       });
 
       if (signUpError) throw signUpError;
-      if (!session) throw new Error('No session after sign up');
+      if (!session?.user) throw new Error('No session after sign up');
 
-      // Profile will be created by database trigger
+      // Create profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: session.user.id,
+            email,
+            role,
+            created_at: new Date().toISOString(),
+          }
+        ]);
+
+      if (profileError) throw profileError;
+
       setState({
         session,
         user: session.user,
@@ -128,11 +146,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       localStorage.setItem('userRole', role);
-      toast({
-        title: 'Success',
-        description: 'Account created successfully! Please check your email to verify your account.',
+      
+      // Update auth state
+      const event = new CustomEvent('userAuthenticated', { 
+        detail: { user: session.user, role } 
       });
-      window.location.href = `${window.location.origin}/auth`;
+      window.dispatchEvent(event);
+
+      // Redirect to dashboard
+      window.location.href = `${window.location.origin}/${role}/dashboard`;
     } catch (error: any) {
       console.error('Sign up error:', error);
       toast({
