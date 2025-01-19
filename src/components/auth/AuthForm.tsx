@@ -32,12 +32,18 @@ const AuthForm = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    console.log('Starting sign up with role:', role);
 
     try {
       // Sign up the user
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            role: role // Store role in auth metadata
+          }
+        }
       });
 
       if (signUpError) throw signUpError;
@@ -59,7 +65,7 @@ const AuthForm = () => {
 
         toast({
           title: "Account created successfully",
-          description: "You can now sign in with your credentials.",
+          description: "Signing you in...",
         });
 
         // Auto-login after signup
@@ -71,7 +77,18 @@ const AuthForm = () => {
         if (signInError) throw signInError;
 
         if (session) {
-          navigate(`/${role}/dashboard`);
+          // Store role in localStorage
+          localStorage.setItem('userRole', role);
+          
+          // Update auth state
+          const event = new CustomEvent('userAuthenticated', { 
+            detail: { user: session.user, role: role } 
+          });
+          window.dispatchEvent(event);
+
+          // Redirect to dashboard
+          console.log('Redirecting to dashboard:', `/${role}/dashboard`);
+          navigate(`/${role}/dashboard`, { replace: true });
         }
       }
     } catch (error: any) {
