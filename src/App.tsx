@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
 import AuthGuard from "./components/auth/AuthGuard";
 import RoleGuard from "./components/auth/RoleGuard";
 import Index from "./pages/Index";
@@ -42,7 +43,6 @@ import AdminNotifications from "./pages/admin/Notifications";
 import { ProducerLayout } from "./components/layouts/ProducerLayout";
 import { ArtistLayout } from "./components/layouts/ArtistLayout";
 import { AdminLayout } from "./components/layouts/AdminLayout";
-import { AuthProvider } from "./components/auth/AuthProvider";
 
 function App() {
   return (
