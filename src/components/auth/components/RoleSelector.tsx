@@ -18,12 +18,6 @@ interface RoleSelectorProps {
 export const RoleSelector = ({ role, onRoleChange }: RoleSelectorProps) => {
   const roleOptions: RoleOption[] = [
     {
-      value: "guest",
-      label: "Guest",
-      description: "Browse and purchase beats and music",
-      icon: <ShoppingCart className="h-5 w-5" />
-    },
-    {
       value: "producer",
       label: "Producer",
       description: "Sell beats and manage your business",
@@ -38,7 +32,7 @@ export const RoleSelector = ({ role, onRoleChange }: RoleSelectorProps) => {
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 gap-4">
       {roleOptions.map((option) => (
         <button
           type="button"

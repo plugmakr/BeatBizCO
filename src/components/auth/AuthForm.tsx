@@ -21,8 +21,8 @@ const AuthForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const isSignUp = searchParams.get("mode") === "signup";
-  const [role, setRole] = useState<UserRole>("guest");
+  const isSignUp = searchParams.get("register") === "true";
+  const [role, setRole] = useState<UserRole>("producer");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");

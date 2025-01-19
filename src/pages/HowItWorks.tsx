@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import TopNavigation from "@/components/navigation/TopNavigation";
 import {
   Upload,
   Users,
@@ -15,19 +16,7 @@ const HowItWorks = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900/20 to-blue-900/20">
-      {/* Navigation */}
-      <nav className="border-b backdrop-blur-sm bg-white/10 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="text-white hover:bg-white/20"
-          >
-            Back to Home
-          </Button>
-        </div>
-      </nav>
-
+      <TopNavigation />
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto space-y-12">
