@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -31,6 +32,8 @@ interface User {
   email: string;
   role: string;
   created_at: string;
+  full_name?: string;
+  username?: string;
 }
 
 function UserManagement() {
@@ -38,6 +41,8 @@ function UserManagement() {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -45,14 +50,15 @@ function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setUsers(data || []);
+      if (profilesError) throw profilesError;
+      setUsers(profiles || []);
     } catch (error: any) {
+      console.error('Error fetching users:', error);
       toast({
         title: "Error fetching users",
         description: error.message,
@@ -63,28 +69,35 @@ function UserManagement() {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRoleChange = async () => {
+    if (!selectedUser || !selectedRole) return;
+    
+    setUpdating(true);
     try {
-      const { error } = await supabase
+      // Update profile role
+      const { error: profileError } = await supabase
         .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
+        .update({ role: selectedRole })
+        .eq('id', selectedUser.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
       toast({
         title: "Role updated",
         description: "User role has been updated successfully.",
       });
 
-      fetchUsers();
+      await fetchUsers();
       setEditDialogOpen(false);
     } catch (error: any) {
+      console.error('Error updating role:', error);
       toast({
         title: "Error updating role",
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -92,12 +105,13 @@ function UserManagement() {
     if (!confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      const { error } = await supabase
+      // Delete from profiles
+      const { error: profileError } = await supabase
         .from('profiles')
         .delete()
         .eq('id', userId);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
       toast({
         title: "User deleted",
@@ -106,6 +120,7 @@ function UserManagement() {
 
       fetchUsers();
     } catch (error: any) {
+      console.error('Error deleting user:', error);
       toast({
         title: "Error deleting user",
         description: error.message,
@@ -131,6 +146,8 @@ function UserManagement() {
           <TableHeader>
             <TableRow>
               <TableHead>Email</TableHead>
+              <TableHead>Username</TableHead>
+              <TableHead>Full Name</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Created At</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -140,17 +157,27 @@ function UserManagement() {
             {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.email}</TableCell>
+                <TableCell>{user.username || 'Not set'}</TableCell>
+                <TableCell>{user.full_name || 'Not set'}</TableCell>
                 <TableCell className="capitalize">{user.role}</TableCell>
                 <TableCell>
                   {new Date(user.created_at).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="text-right">
-                  <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                <TableCell className="text-right space-x-2">
+                  <Dialog 
+                    open={editDialogOpen && selectedUser?.id === user.id} 
+                    onOpenChange={(open) => {
+                      setEditDialogOpen(open);
+                      if (open) {
+                        setSelectedUser(user);
+                        setSelectedRole(user.role);
+                      }
+                    }}
+                  >
                     <DialogTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => setSelectedUser(user)}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -161,12 +188,11 @@ function UserManagement() {
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
                         <div className="space-y-2">
-                          <p className="text-sm font-medium">Select Role</p>
+                          <p className="text-sm font-medium">Current Role: <span className="capitalize">{user.role}</span></p>
+                          <p className="text-sm font-medium">Select New Role</p>
                           <Select
-                            defaultValue={selectedUser?.role}
-                            onValueChange={(value) =>
-                              selectedUser && handleRoleChange(selectedUser.id, value)
-                            }
+                            value={selectedRole}
+                            onValueChange={setSelectedRole}
                           >
                             <SelectTrigger>
                               <SelectValue placeholder="Select role" />
@@ -179,6 +205,24 @@ function UserManagement() {
                           </Select>
                         </div>
                       </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button 
+                          onClick={handleRoleChange} 
+                          disabled={updating || selectedRole === user.role}
+                        >
+                          {updating ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Updating...
+                            </>
+                          ) : (
+                            'Save Changes'
+                          )}
+                        </Button>
+                      </DialogFooter>
                     </DialogContent>
                   </Dialog>
 
