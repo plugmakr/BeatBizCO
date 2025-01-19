@@ -9,7 +9,7 @@ import {
   Settings,
   HelpCircle,
   ShoppingBag,
-  Handshake,
+  Users2,
   UserCircle,
   FileText,
   StoreIcon,
@@ -152,7 +152,7 @@ export const getProducerMenuItems = (): MenuSection[] => [
       {
         title: "Funnels",
         url: "/producer/funnels",
-        icon: Handshake
+        icon: Users2
       }
     ]
   },
@@ -210,7 +210,7 @@ export const getAdminMenuItems = (): MenuSection[] => [
       {
         title: "Collaborations",
         url: "/admin/collaborations",
-        icon: Handshake
+        icon: Users2
       },
       {
         title: "Content Management",

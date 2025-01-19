@@ -1,7 +1,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { 
   Package, 
-  ChartBar, 
+  BarChart, 
   Edit2, 
   DollarSign,
   Percent 
@@ -20,7 +20,7 @@ export function MarketplaceSubmenu() {
           Products
         </TabsTrigger>
         <TabsTrigger value="analytics" className="flex items-center gap-2">
-          <ChartBar className="h-4 w-4" />
+          <BarChart className="h-4 w-4" />
           Analytics
         </TabsTrigger>
         <TabsTrigger value="edit" className="flex items-center gap-2">
