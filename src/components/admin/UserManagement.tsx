@@ -50,7 +50,9 @@ function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      // First get all profiles
+      setLoading(true);
+      
+      // Get profiles first
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -58,13 +60,13 @@ function UserManagement() {
 
       if (profilesError) throw profilesError;
 
-      // Then get auth users to get email addresses
-      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
+      // Get auth users
+      const { data, error: authError } = await supabase.auth.admin.listUsers();
       if (authError) throw authError;
 
       // Merge profile and auth data
       const mergedUsers = profiles?.map(profile => {
-        const authUser = authUsers.find(u => u.id === profile.id);
+        const authUser = data.users.find(u => u.id === profile.id);
         return {
           ...profile,
           email: authUser?.email || profile.email || 'No email',
@@ -147,7 +149,7 @@ function UserManagement() {
         description: "User has been deleted successfully.",
       });
 
-      fetchUsers();
+      await fetchUsers();
     } catch (error: any) {
       console.error('Error deleting user:', error);
       toast({
