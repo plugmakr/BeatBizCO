@@ -1,12 +1,6 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -16,173 +10,191 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { MoreHorizontal, UserCheck, UserX, Trash } from "lucide-react";
-import { Database } from "@/integrations/supabase/types";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-type UserRole = Database["public"]["Enums"]["user_role"];
+interface User {
+  id: string;
+  email: string;
+  role: string;
+  created_at: string;
+}
 
-export function UserManagement() {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+export default function UserManagement() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
-  // Fetch users with their profiles
-  const { data: users, isLoading } = useQuery({
-    queryKey: ['admin-users', selectedRole],
-    queryFn: async () => {
-      const query = supabase
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
         .from('profiles')
-        .select('*');
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      if (selectedRole) {
-        query.eq('role', selectedRole);
-      }
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error fetching users",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      const { data, error } = await query;
-      
-      if (error) {
-        toast({
-          title: "Error fetching users",
-          description: error.message,
-          variant: "destructive",
-        });
-        throw error;
-      }
-      
-      return data as Profile[];
-    },
-  });
-
-  // Update user role mutation
-  const updateUserRole = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: string, newRole: UserRole }) => {
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    try {
       const { error } = await supabase
         .from('profiles')
         .update({ role: newRole })
         .eq('id', userId);
 
       if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+
       toast({
-        title: "User role updated",
-        description: "The user's role has been successfully updated.",
+        title: "Role updated",
+        description: "User role has been updated successfully.",
       });
-    },
-    onError: (error) => {
+
+      fetchUsers();
+      setEditDialogOpen(false);
+    } catch (error: any) {
       toast({
-        title: "Error updating user role",
+        title: "Error updating role",
         description: error.message,
         variant: "destructive",
       });
-    },
-  });
+    }
+  };
 
-  if (isLoading) {
-    return <div>Loading users...</div>;
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "User deleted",
+        description: "User has been deleted successfully.",
+      });
+
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: "Error deleting user",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>User Management</CardTitle>
-        <div className="flex gap-4">
-          <div className="flex gap-2">
-            <Button
-              variant={selectedRole === null ? "default" : "outline"}
-              onClick={() => setSelectedRole(null)}
-            >
-              All
-            </Button>
-            <Button
-              variant={selectedRole === "producer" ? "default" : "outline"}
-              onClick={() => setSelectedRole("producer")}
-            >
-              Producers
-            </Button>
-            <Button
-              variant={selectedRole === "artist" ? "default" : "outline"}
-              onClick={() => setSelectedRole("artist")}
-            >
-              Artists
-            </Button>
-            <Button
-              variant={selectedRole === "guest" ? "default" : "outline"}
-              onClick={() => setSelectedRole("guest")}
-            >
-              Guests
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
+    <div className="container mx-auto py-10">
+      <h2 className="text-3xl font-bold mb-8">User Management</h2>
+
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>User</TableHead>
+              <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Joined</TableHead>
+              <TableHead>Created At</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users?.map((user) => (
+            {users.map((user) => (
               <TableRow key={user.id}>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{user.full_name || 'Unnamed'}</span>
-                  </div>
-                </TableCell>
+                <TableCell>{user.email}</TableCell>
                 <TableCell className="capitalize">{user.role}</TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <span className="h-2 w-2 rounded-full bg-green-500 mr-2" />
-                    Active
-                  </div>
-                </TableCell>
                 <TableCell>
                   {new Date(user.created_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => {
-                          const newRole = user.role === 'producer' ? 'artist' as UserRole : 'producer' as UserRole;
-                          updateUserRole.mutate({ userId: user.id, newRole });
-                        }}
+                  <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSelectedUser(user)}
                       >
-                        <UserCheck className="mr-2 h-4 w-4" />
-                        Change Role
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit User Role</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium">Select Role</p>
+                          <Select
+                            defaultValue={selectedUser?.role}
+                            onValueChange={(value) =>
+                              selectedUser && handleRoleChange(selectedUser.id, value)
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select role" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="producer">Producer</SelectItem>
+                              <SelectItem value="artist">Artist</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteUser(user.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
