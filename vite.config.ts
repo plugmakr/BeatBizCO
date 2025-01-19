@@ -16,8 +16,9 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist",
-    sourcemap: true,
+    sourcemap: mode === "development",
     minify: "esbuild",
+    target: "esnext",
     rollupOptions: {
       output: {
         manualChunks: {
@@ -26,9 +27,28 @@ export default defineConfig(({ mode }) => ({
             'react-dom',
             'react-router-dom',
             '@supabase/supabase-js',
+            '@tanstack/react-query',
+          ],
+          ui: [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-toast',
+            'lucide-react',
+            'class-variance-authority',
+            'clsx',
+            'tailwind-merge',
           ],
         },
       },
     },
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@supabase/supabase-js',
+      '@tanstack/react-query',
+    ],
   },
 }));
