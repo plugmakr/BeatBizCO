@@ -14,6 +14,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { Home, LogOut } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import TopNavigation from "@/components/navigation/TopNavigation"
 
 export function ProducerLayout({ children }: { children: React.ReactNode }) {
   const menuSections = getProducerMenuItems()
@@ -36,7 +37,8 @@ export function ProducerLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="flex min-h-screen">
+        <TopNavigation />
         <Sidebar>
           <SidebarContent>
             <SidebarGroup>

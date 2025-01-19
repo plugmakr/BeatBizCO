@@ -69,9 +69,10 @@ function UserManagement() {
         const authUser = data.users.find(u => u.id === profile.id);
         return {
           ...profile,
-          email: authUser?.email || profile.email || 'No email',
+          email: authUser?.email || 'No email',
           username: profile.username || authUser?.user_metadata?.username || 'Not set',
-          full_name: profile.full_name || authUser?.user_metadata?.full_name || 'Not set'
+          full_name: profile.full_name || authUser?.user_metadata?.full_name || 'Not set',
+          role: profile.role || authUser?.user_metadata?.role || 'artist'
         };
       }) || [];
 
