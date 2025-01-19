@@ -2,7 +2,7 @@ import {
   Briefcase, 
   DollarSign, 
   Users, 
-  ChartBar, 
+  BarChart, 
   Globe, 
   Music2 
 } from "lucide-react";
@@ -23,12 +23,12 @@ const Features = () => {
     {
       icon: <Users className="h-12 w-12 mb-4 text-primary" />,
       title: "Client Management",
-      description: "Keep track of clients and collaborations."
+      description: "Keep track of your clients and collaborators."
     },
     {
-      icon: <ChartBar className="h-12 w-12 mb-4 text-primary" />,
+      icon: <BarChart className="h-12 w-12 mb-4 text-primary" />,
       title: "Analytics",
-      description: "Gain insights into your music performance and audience."
+      description: "Track your performance and growth metrics."
     },
     {
       icon: <Globe className="h-12 w-12 mb-4 text-primary" />,
