@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,20 +14,41 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 function TopNavigation() {
-  const { user, userRole } = useAuth();
+  const { user, userRole, setUser, setRole } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      // Clear local storage first
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userProfile');
+
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Clear any other state
+      setUser(null);
+      setRole(null);
+
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('userSignedOut'));
+
+      // Navigate to home page
+      navigate('/', { replace: true });
+
+      toast({
+        title: "Signed out successfully",
+      });
+    } catch (error: any) {
+      console.error('Sign out error:', error);
       toast({
         title: "Error signing out",
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      localStorage.removeItem('userRole');
-      window.location.href = '/';
     }
   };
 

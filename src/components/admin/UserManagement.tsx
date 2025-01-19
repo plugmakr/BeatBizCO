@@ -50,13 +50,30 @@ function UserManagement() {
 
   const fetchUsers = async () => {
     try {
+      // First get all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
-      setUsers(profiles || []);
+
+      // Then get auth users to get email addresses
+      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
+      if (authError) throw authError;
+
+      // Merge profile and auth data
+      const mergedUsers = profiles?.map(profile => {
+        const authUser = authUsers.find(u => u.id === profile.id);
+        return {
+          ...profile,
+          email: authUser?.email || profile.email || 'No email',
+          username: profile.username || authUser?.user_metadata?.username || 'Not set',
+          full_name: profile.full_name || authUser?.user_metadata?.full_name || 'Not set'
+        };
+      }) || [];
+
+      setUsers(mergedUsers);
     } catch (error: any) {
       console.error('Error fetching users:', error);
       toast({
@@ -82,6 +99,14 @@ function UserManagement() {
 
       if (profileError) throw profileError;
 
+      // Update auth metadata
+      const { error: authError } = await supabase.auth.admin.updateUserById(
+        selectedUser.id,
+        { user_metadata: { role: selectedRole } }
+      );
+
+      if (authError) throw authError;
+
       toast({
         title: "Role updated",
         description: "User role has been updated successfully.",
@@ -105,13 +130,17 @@ function UserManagement() {
     if (!confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      // Delete from profiles
+      // Delete from profiles first
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
         .eq('id', userId);
 
       if (profileError) throw profileError;
+
+      // Then delete from auth
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      if (authError) throw authError;
 
       toast({
         title: "User deleted",
@@ -157,8 +186,8 @@ function UserManagement() {
             {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.username || 'Not set'}</TableCell>
-                <TableCell>{user.full_name || 'Not set'}</TableCell>
+                <TableCell>{user.username}</TableCell>
+                <TableCell>{user.full_name}</TableCell>
                 <TableCell className="capitalize">{user.role}</TableCell>
                 <TableCell>
                   {new Date(user.created_at).toLocaleDateString()}

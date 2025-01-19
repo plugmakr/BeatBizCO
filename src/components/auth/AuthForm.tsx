@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,12 +10,8 @@ import { Loader2 } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
 import { RoleSelector } from "./components/RoleSelector";
 import { AuthError as AuthErrorComponent } from "./components/AuthError";
-import { useAuthRedirect } from "./hooks/useAuthRedirect";
-import { useNavigate } from "react-router-dom";
 
 type UserRole = Database["public"]["Enums"]["user_role"];
-
-const REDIRECT_URL = 'https://beatbiz.co/auth';
 
 const AuthForm = () => {
   const { toast } = useToast();
@@ -27,75 +23,96 @@ const AuthForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { handleAuthRedirect } = useAuthRedirect();
+
+  const updateAuthState = async (userId: string, userRole: string) => {
+    try {
+      // Get user profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      // Store auth data
+      localStorage.setItem('userRole', userRole);
+      localStorage.setItem('userId', userId);
+      if (profile) {
+        localStorage.setItem('userProfile', JSON.stringify(profile));
+      }
+
+      // Dispatch auth event
+      const event = new CustomEvent('userAuthenticated', {
+        detail: { 
+          user: { id: userId },
+          role: userRole,
+          profile
+        }
+      });
+      window.dispatchEvent(event);
+    } catch (error) {
+      console.error('Error updating auth state:', error);
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log('Starting sign up with role:', role);
+    setError(null);
 
     try {
-      // Sign up the user
+      // 1. Sign up the user
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            role: role // Store role in auth metadata
+            role: role
           }
         }
       });
 
       if (signUpError) throw signUpError;
+      if (!authData.user) throw new Error('No user data returned');
 
-      if (authData.user) {
-        // Create a profile with the selected role
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: authData.user.id,
-              role: role,
-              email: email,
-              created_at: new Date().toISOString(),
-            }
-          ]);
+      // 2. Create profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([
+          {
+            id: authData.user.id,
+            role: role,
+            email: email,
+            created_at: new Date().toISOString(),
+          }
+        ]);
 
-        if (profileError) throw profileError;
+      if (profileError) throw profileError;
 
-        toast({
-          title: "Account created successfully",
-          description: "Signing you in...",
-        });
+      // 3. Auto sign in
+      const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-        // Auto-login after signup
-        const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      if (signInError) throw signInError;
+      if (!session) throw new Error('No session after sign in');
 
-        if (signInError) throw signInError;
+      // 4. Update auth state
+      await updateAuthState(authData.user.id, role);
 
-        if (session) {
-          // Store role in localStorage
-          localStorage.setItem('userRole', role);
-          
-          // Update auth state
-          const event = new CustomEvent('userAuthenticated', { 
-            detail: { user: session.user, role: role } 
-          });
-          window.dispatchEvent(event);
+      toast({
+        title: "Account created successfully",
+        description: "Redirecting to dashboard...",
+      });
 
-          // Redirect to dashboard
-          console.log('Redirecting to dashboard:', `/${role}/dashboard`);
-          navigate(`/${role}/dashboard`, { replace: true });
-        }
-      }
+      // 5. Redirect to dashboard
+      navigate(`/${role}/dashboard`, { replace: true });
     } catch (error: any) {
-      console.error('Error:', error);
+      console.error('Signup error:', error);
+      setError(error.message);
       toast({
         title: "Error",
-        description: error.message || "An error occurred during sign up.",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -106,62 +123,47 @@ const AuthForm = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log('Starting sign in...');
+    setError(null);
 
     try {
-      console.log('Attempting to sign in with:', { email });
+      // 1. Sign in
       const { data: { session }, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) {
-        console.error('Sign in error:', signInError);
-        throw signInError;
-      }
+      if (signInError) throw signInError;
+      if (!session?.user) throw new Error('No session after sign in');
 
-      if (!session?.user) {
-        console.error('No session or user after sign in');
-        throw new Error('No session after sign in');
-      }
-
-      console.log('Successfully signed in, fetching profile...');
+      // 2. Get user profile and role
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('role')
+        .select('*')
         .eq('id', session.user.id)
         .single();
 
-      if (profileError) {
-        console.error('Profile fetch error:', profileError);
-        throw profileError;
-      }
+      if (profileError) throw profileError;
+      if (!profile?.role) throw new Error('User role not found');
 
-      if (!profile?.role) {
-        console.error('No role found in profile');
-        throw new Error('User role not found');
-      }
+      // 3. Update auth state
+      await updateAuthState(session.user.id, profile.role);
 
-      console.log('Got profile, role:', profile.role);
-      
-      // Store role in localStorage for persistence
-      localStorage.setItem('userRole', profile.role);
-      
-      // Update auth state in TopNavigation
-      const event = new CustomEvent('userAuthenticated', { 
-        detail: { user: session.user, role: profile.role } 
+      toast({
+        title: "Signed in successfully",
+        description: "Redirecting to dashboard...",
       });
-      window.dispatchEvent(event);
 
-      console.log('Redirecting to dashboard...');
-      window.location.href = `/${profile.role}/dashboard`;
+      // 4. Redirect to dashboard
+      navigate(`/${profile.role}/dashboard`, { replace: true });
     } catch (error: any) {
-      console.error('Error:', error);
+      console.error('Sign in error:', error);
+      setError(error.message);
       toast({
         title: "Error",
-        description: error.message || "Invalid email or password.",
+        description: error.message,
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -207,14 +209,24 @@ const AuthForm = () => {
 
           {isSignUp && (
             <div className="space-y-2">
-              <Label>I am a...</Label>
-              <RoleSelector role={role} onRoleChange={setRole} />
+              <Label>Select your role</Label>
+              <RoleSelector value={role} onValueChange={setRole} />
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isSignUp ? "Sign up" : "Sign in"}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isSignUp ? "Creating account..." : "Signing in..."}
+              </>
+            ) : (
+              isSignUp ? "Create account" : "Sign in"
+            )}
           </Button>
         </form>
       </CardContent>
