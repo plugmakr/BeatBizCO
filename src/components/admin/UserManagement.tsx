@@ -33,7 +33,7 @@ interface User {
   created_at: string;
 }
 
-export default function UserManagement() {
+function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -198,3 +198,5 @@ export default function UserManagement() {
     </div>
   );
 }
+
+export { UserManagement };
