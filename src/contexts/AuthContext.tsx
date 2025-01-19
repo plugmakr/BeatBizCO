@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       localStorage.setItem('userRole', profile.role);
-      navigate(`/${profile.role}/dashboard`);
+      window.location.href = `${window.location.origin}/${profile.role}/dashboard`;
     } catch (error: any) {
       console.error('Sign in error:', error);
       toast({
@@ -132,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: 'Success',
         description: 'Account created successfully! Please check your email to verify your account.',
       });
-      navigate('/auth');
+      window.location.href = `${window.location.origin}/auth`;
     } catch (error: any) {
       console.error('Sign up error:', error);
       toast({
@@ -157,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       localStorage.clear();
-      navigate('/');
+      window.location.href = `${window.location.origin}/`;
     } catch (error: any) {
       console.error('Sign out error:', error);
       toast({
@@ -182,7 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isLoading: false,
         });
         localStorage.clear();
-        navigate('/');
+        window.location.href = `${window.location.origin}/`;
       } else if (session) {
         await refreshSession();
       }
