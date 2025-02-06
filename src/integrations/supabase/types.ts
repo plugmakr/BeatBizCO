@@ -182,49 +182,49 @@ export type Database = {
       }
       clients: {
         Row: {
-          budget_range: string | null
+          budget_range: string
           created_at: string
-          email: string | null
-          genre_focus: string | null
+          email: string
+          genre_focus: string
           id: string
           name: string
-          notes: string | null
-          phone: string | null
+          notes: string
+          phone: string
           producer_id: string | null
-          project_type: string | null
-          social_media: string | null
+          project_type: string
+          social_media: string
           updated_at: string
-          website: string | null
+          website: string
         }
         Insert: {
-          budget_range?: string | null
+          budget_range: string
           created_at?: string
-          email?: string | null
-          genre_focus?: string | null
+          email: string
+          genre_focus: string
           id?: string
           name: string
-          notes?: string | null
-          phone?: string | null
+          notes: string
+          phone: string
           producer_id?: string | null
-          project_type?: string | null
-          social_media?: string | null
+          project_type: string
+          social_media: string
           updated_at?: string
-          website?: string | null
+          website: string
         }
         Update: {
-          budget_range?: string | null
+          budget_range?: string
           created_at?: string
-          email?: string | null
-          genre_focus?: string | null
+          email?: string
+          genre_focus?: string
           id?: string
           name?: string
-          notes?: string | null
-          phone?: string | null
+          notes?: string
+          phone?: string
           producer_id?: string | null
-          project_type?: string | null
-          social_media?: string | null
+          project_type?: string
+          social_media?: string
           updated_at?: string
-          website?: string | null
+          website?: string
         }
         Relationships: [
           {
@@ -854,9 +854,9 @@ export type Database = {
           file_type: string
           file_url: string
           id: string
-          project_id: string | null
+          project_id: string
           updated_at: string
-          uploaded_by: string | null
+          uploaded_by: string
         }
         Insert: {
           created_at?: string
@@ -865,9 +865,9 @@ export type Database = {
           file_type: string
           file_url: string
           id?: string
-          project_id?: string | null
+          project_id: string
           updated_at?: string
-          uploaded_by?: string | null
+          uploaded_by: string
         }
         Update: {
           created_at?: string
@@ -876,9 +876,9 @@ export type Database = {
           file_type?: string
           file_url?: string
           id?: string
-          project_id?: string | null
+          project_id?: string
           updated_at?: string
-          uploaded_by?: string | null
+          uploaded_by?: string
         }
         Relationships: [
           {
@@ -986,60 +986,60 @@ export type Database = {
       }
       sound_library: {
         Row: {
-          bpm: number | null
+          bpm: number
           created_at: string
-          description: string | null
-          file_path: string | null
-          folder_path: string | null
-          genre: string | null
+          description: string
+          file_path: string
+          folder_path: string
+          genre: string
           id: string
-          is_public: boolean | null
-          key: string | null
-          name: string | null
-          original_filename: string | null
+          is_public: boolean
+          key: string
+          name: string
+          original_filename: string
           producer_id: string | null
-          size: number | null
+          size: number
           tags: string[] | null
           title: string | null
-          type: Database["public"]["Enums"]["sound_type"] | null
+          type: Database["public"]["Enums"]["sound_type"]
           updated_at: string
         }
         Insert: {
-          bpm?: number | null
+          bpm: number
           created_at?: string
-          description?: string | null
-          file_path?: string | null
-          folder_path?: string | null
-          genre?: string | null
+          description: string
+          file_path: string
+          folder_path: string
+          genre: string
           id?: string
-          is_public?: boolean | null
-          key?: string | null
-          name?: string | null
-          original_filename?: string | null
+          is_public?: boolean
+          key: string
+          name: string
+          original_filename: string
           producer_id?: string | null
-          size?: number | null
+          size: number
           tags?: string[] | null
           title?: string | null
-          type?: Database["public"]["Enums"]["sound_type"] | null
+          type: Database["public"]["Enums"]["sound_type"]
           updated_at?: string
         }
         Update: {
-          bpm?: number | null
+          bpm?: number
           created_at?: string
-          description?: string | null
-          file_path?: string | null
-          folder_path?: string | null
-          genre?: string | null
+          description?: string
+          file_path?: string
+          folder_path?: string
+          genre?: string
           id?: string
-          is_public?: boolean | null
-          key?: string | null
-          name?: string | null
-          original_filename?: string | null
+          is_public?: boolean
+          key?: string
+          name?: string
+          original_filename?: string
           producer_id?: string | null
-          size?: number | null
+          size?: number
           tags?: string[] | null
           title?: string | null
-          type?: Database["public"]["Enums"]["sound_type"] | null
+          type?: Database["public"]["Enums"]["sound_type"]
           updated_at?: string
         }
         Relationships: [

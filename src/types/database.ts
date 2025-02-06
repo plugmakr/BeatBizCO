@@ -66,7 +66,7 @@ export interface Sound {
   file_path: string;
   original_filename: string;
   size: number;
-  folder_path: string | null;
+  folder_path: string;
   is_public: boolean;
   created_at: string;
   updated_at: string;
@@ -88,7 +88,6 @@ export interface Project {
 export interface Funnel {
   id: string;
   name: string;
-  description: string;
   status: string;
   created_by: string;
   created_at: string;
