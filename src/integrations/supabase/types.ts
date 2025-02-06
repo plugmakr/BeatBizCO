@@ -485,6 +485,7 @@ export type Database = {
           category: string | null
           created_at: string
           description: string | null
+          download_url: string | null
           genre: string | null
           id: string
           is_active: boolean | null
@@ -493,7 +494,7 @@ export type Database = {
           license_type: Database["public"]["Enums"]["license_type"]
           preview_url: string | null
           price: number
-          producer_id: string | null
+          producer_id: string
           status: string | null
           tags: string[] | null
           thumbnail_url: string | null
@@ -510,6 +511,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          download_url?: string | null
           genre?: string | null
           id?: string
           is_active?: boolean | null
@@ -518,7 +520,7 @@ export type Database = {
           license_type: Database["public"]["Enums"]["license_type"]
           preview_url?: string | null
           price: number
-          producer_id?: string | null
+          producer_id: string
           status?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -535,6 +537,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          download_url?: string | null
           genre?: string | null
           id?: string
           is_active?: boolean | null
@@ -543,7 +546,7 @@ export type Database = {
           license_type?: Database["public"]["Enums"]["license_type"]
           preview_url?: string | null
           price?: number
-          producer_id?: string | null
+          producer_id?: string
           status?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -1000,7 +1003,7 @@ export type Database = {
           key: string
           name: string
           original_filename: string
-          producer_id: string | null
+          producer_id: string
           size: number
           tags: string[] | null
           title: string | null
@@ -1019,7 +1022,7 @@ export type Database = {
           key: string
           name: string
           original_filename: string
-          producer_id?: string | null
+          producer_id: string
           size: number
           tags?: string[] | null
           title?: string | null
@@ -1038,7 +1041,7 @@ export type Database = {
           key?: string
           name?: string
           original_filename?: string
-          producer_id?: string | null
+          producer_id?: string
           size?: number
           tags?: string[] | null
           title?: string | null

@@ -4,7 +4,7 @@ import type { Database } from '@/integrations/supabase/types';
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 
 export type UserRole = 'guest' | 'artist' | 'producer' | 'admin';
-export type ProjectStatus = 'draft' | 'in_progress' | 'completed' | 'archived';
+export type ProjectStatus = 'draft' | 'in_progress' | 'completed' | 'archived' | 'active';
 export type SoundType = 'beat' | 'sound_kit' | 'midi_kit' | 'loop_kit' | 'drum_kit' | 'one_shot' | 'sample';
 export type LicenseType = 'basic' | 'premium' | 'exclusive';
 
@@ -54,7 +54,7 @@ export interface Profile {
 
 export interface Sound {
   id: string;
-  producer_id?: string;
+  producer_id: string;
   title: string;
   name: string;
   description: string;
@@ -75,6 +75,7 @@ export interface Sound {
 export interface Project {
   id: string;
   title: string;
+  name?: string;
   description?: string;
   client_id?: string | null;
   deadline?: string | null;
@@ -88,6 +89,7 @@ export interface Project {
 export interface Funnel {
   id: string;
   name: string;
+  description?: string;
   status: string;
   created_by: string;
   created_at: string;
@@ -99,7 +101,7 @@ export interface MarketplaceItem {
   title: string;
   description?: string;
   price: number;
-  producer_id?: string;
+  producer_id: string;
   license_type: LicenseType;
   status?: string;
   tags?: string[];
@@ -111,6 +113,7 @@ export interface MarketplaceItem {
   is_featured?: boolean;
   preview_url?: string;
   thumbnail_url?: string;
+  download_url?: string;
   total_sales?: number;
   total_downloads?: number;
   total_plays?: number;
