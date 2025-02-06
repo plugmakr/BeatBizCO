@@ -3,26 +3,23 @@ import type { Database } from '@/integrations/supabase/types';
 
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 
-export interface Client extends Tables<'clients'> {}
-export interface ClientFile extends Tables<'client_files'> {
-  fromSoundLibrary?: boolean;
-  projectName?: string;
-}
-
-export type SoundType = 'beat' | 'sound_kit' | 'midi_kit' | 'loop_kit' | 'drum_kit' | 'one_shot' | 'sample';
 export type UserRole = 'guest' | 'artist' | 'producer' | 'admin';
 export type ProjectStatus = 'draft' | 'in_progress' | 'completed' | 'archived';
+export type SoundType = 'beat' | 'sound_kit' | 'midi_kit' | 'loop_kit' | 'drum_kit' | 'one_shot' | 'sample';
 
-export interface Profile extends Tables<'profiles'> {
+export interface Profile extends Partial<Tables<'profiles'>> {
+  id: string;
+  role?: UserRole;
   bio?: string;
   website?: string;
   subscription_plan?: string;
   full_name?: string;
   username?: string;
-  role?: UserRole;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface Sound extends Tables<'sound_library'> {
+export interface Sound extends Partial<Tables<'sound_library'>> {
   id: string;
   producer_id?: string;
   title?: string;
@@ -42,7 +39,7 @@ export interface Sound extends Tables<'sound_library'> {
   name?: string;
 }
 
-export interface Project extends Tables<'collaboration_projects'> {
+export interface Project extends Partial<Tables<'collaboration_projects'>> {
   id: string;
   title: string;
   description?: string;
@@ -55,7 +52,7 @@ export interface Project extends Tables<'collaboration_projects'> {
   updated_at: string;
 }
 
-export interface SoundLibraryTag extends Tables<'sound_library_tags'> {
+export interface SoundLibraryTag extends Partial<Tables<'sound_library_tags'>> {
   id: string;
   name: string;
   color?: string;
@@ -63,7 +60,7 @@ export interface SoundLibraryTag extends Tables<'sound_library_tags'> {
   updated_at?: string;
 }
 
-export interface Funnel extends Tables<'funnels'> {
+export interface Funnel extends Partial<Tables<'funnels'>> {
   id: string;
   name: string;
   status: string;
@@ -73,7 +70,7 @@ export interface Funnel extends Tables<'funnels'> {
   description?: string;
 }
 
-export interface FunnelStep extends Tables<'funnel_steps'> {
+export interface FunnelStep extends Partial<Tables<'funnel_steps'>> {
   id: string;
   funnel_id: string;
   name: string;
@@ -85,7 +82,7 @@ export interface FunnelStep extends Tables<'funnel_steps'> {
   updated_at?: string;
 }
 
-export interface FunnelAutomation extends Tables<'funnel_automations'> {
+export interface FunnelAutomation extends Partial<Tables<'funnel_automations'>> {
   id: string;
   funnel_id: string;
   name: string;
@@ -95,7 +92,7 @@ export interface FunnelAutomation extends Tables<'funnel_automations'> {
   updated_at?: string;
 }
 
-export interface Transaction extends Tables<'transactions'> {
+export interface Transaction extends Partial<Tables<'transactions'>> {
   id: string;
   type: 'income' | 'expense';
   amount: number;
@@ -107,7 +104,7 @@ export interface Transaction extends Tables<'transactions'> {
   updated_at: string;
 }
 
-export interface ProjectFile extends Tables<'project_files'> {
+export interface ProjectFile extends Partial<Tables<'project_files'>> {
   id: string;
   project_id?: string;
   uploaded_by?: string;
@@ -119,7 +116,7 @@ export interface ProjectFile extends Tables<'project_files'> {
   updated_at: string;
 }
 
-export interface MarketplaceCategory extends Tables<'marketplace_categories'> {
+export interface MarketplaceCategory extends Partial<Tables<'marketplace_categories'>> {
   id: string;
   name: string;
   description?: string;
