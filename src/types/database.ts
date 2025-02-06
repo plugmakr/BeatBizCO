@@ -6,8 +6,9 @@ export type Tables<T extends keyof Database['public']['Tables']> = Database['pub
 export type UserRole = 'guest' | 'artist' | 'producer' | 'admin';
 export type ProjectStatus = 'draft' | 'in_progress' | 'completed' | 'archived';
 export type SoundType = 'beat' | 'sound_kit' | 'midi_kit' | 'loop_kit' | 'drum_kit' | 'one_shot' | 'sample';
+export type LicenseType = 'basic' | 'premium' | 'exclusive';
 
-export interface Client extends Partial<Tables<'clients'>> {
+export interface Client {
   id: string;
   name: string;
   email?: string;
@@ -23,11 +24,11 @@ export interface Client extends Partial<Tables<'clients'>> {
   updated_at: string;
 }
 
-export interface ClientFile extends Partial<Tables<'client_files'>> {
+export interface ClientFile {
   id: string;
   client_id?: string;
   uploaded_by?: string;
-  filename: string;
+  file_name: string;
   file_type: string;
   file_path?: string;
   display_name?: string;
@@ -36,11 +37,9 @@ export interface ClientFile extends Partial<Tables<'client_files'>> {
   parent_id?: string;
   created_at: string;
   updated_at: string;
-  fromSoundLibrary?: boolean;
-  projectName?: string;
 }
 
-export interface Profile extends Partial<Tables<'profiles'>> {
+export interface Profile {
   id: string;
   role?: UserRole;
   bio?: string;
@@ -48,11 +47,12 @@ export interface Profile extends Partial<Tables<'profiles'>> {
   subscription_plan?: string;
   full_name?: string;
   username?: string;
+  support_tickets?: number;
   created_at: string;
   updated_at: string;
 }
 
-export interface Sound extends Partial<Tables<'sound_library'>> {
+export interface Sound {
   id: string;
   producer_id?: string;
   title?: string;
@@ -69,10 +69,9 @@ export interface Sound extends Partial<Tables<'sound_library'>> {
   is_public?: boolean;
   created_at: string;
   updated_at: string;
-  name?: string;
 }
 
-export interface Project extends Partial<Tables<'collaboration_projects'>> {
+export interface Project {
   id: string;
   title: string;
   description?: string;
@@ -85,78 +84,66 @@ export interface Project extends Partial<Tables<'collaboration_projects'>> {
   updated_at: string;
 }
 
-export interface SoundLibraryTag extends Partial<Tables<'sound_library_tags'>> {
+export interface MarketplaceItem {
   id: string;
-  name: string;
-  color?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface Funnel extends Partial<Tables<'funnels'>> {
-  id: string;
-  name: string;
-  status: string;
-  created_by: string;
-  created_at?: string;
-  updated_at?: string;
+  title: string;
   description?: string;
+  price: number;
+  producer_id?: string;
+  license_type: LicenseType;
+  status?: string;
+  tags?: string[];
+  bpm?: number;
+  key?: string;
+  genre?: string;
+  category?: string;
+  is_active?: boolean;
+  is_featured?: boolean;
+  preview_url?: string;
+  thumbnail_url?: string;
+  total_sales?: number;
+  total_downloads?: number;
+  total_plays?: number;
+  created_at: string;
+  updated_at: string;
 }
 
-export interface FunnelStep extends Partial<Tables<'funnel_steps'>> {
-  id: string;
-  funnel_id: string;
-  name: string;
-  type: string;
-  content?: any;
-  position?: number;
-  website_blocks?: any;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface FunnelAutomation extends Partial<Tables<'funnel_automations'>> {
+export interface FunnelAutomation {
   id: string;
   funnel_id: string;
   name: string;
   trigger_type: string;
   actions?: any;
+  config?: any;
   created_at?: string;
   updated_at?: string;
 }
 
-export interface Transaction extends Partial<Tables<'transactions'>> {
+export interface Track {
   id: string;
-  type: 'income' | 'expense';
-  amount: number;
+  title: string;
+  genre?: string;
+  price?: number;
+  audio_url?: string;
+  artwork_url?: string;
   description?: string;
-  category?: string;
-  date: string;
-  producer_id: string;
+  status?: string;
+  artist_id?: string;
   created_at: string;
   updated_at: string;
 }
 
-export interface ProjectFile extends Partial<Tables<'project_files'>> {
-  id: string;
-  project_id?: string;
-  uploaded_by?: string;
-  file_name: string;
-  file_type: string;
-  file_url: string;
-  file_path?: string;
-  created_at: string;
-  updated_at: string;
+export interface ArtistStats {
+  released_tracks: number;
+  active_projects: number;
+  collaborations: number;
+  purchased_beats: number;
 }
 
-export interface MarketplaceCategory extends Partial<Tables<'marketplace_categories'>> {
-  id: string;
-  name: string;
-  description?: string;
-  created_at: string;
-  updated_at: string;
-  item_count?: number;
-  is_active?: boolean;
+export interface ProducerStats {
+  totalBeats: number;
+  totalRevenue: number;
+  activeProjects: number;
 }
 
 export { Database };

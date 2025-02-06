@@ -296,6 +296,7 @@ export type Database = {
       funnel_automations: {
         Row: {
           actions: Json | null
+          config: Json | null
           created_at: string | null
           funnel_id: string | null
           id: string
@@ -305,6 +306,7 @@ export type Database = {
         }
         Insert: {
           actions?: Json | null
+          config?: Json | null
           created_at?: string | null
           funnel_id?: string | null
           id?: string
@@ -314,6 +316,7 @@ export type Database = {
         }
         Update: {
           actions?: Json | null
+          config?: Json | null
           created_at?: string | null
           funnel_id?: string | null
           id?: string
@@ -489,6 +492,7 @@ export type Database = {
           price: number
           producer_id: string | null
           status: string | null
+          tags: string[] | null
           thumbnail_url: string | null
           title: string
           total_downloads: number | null
@@ -513,6 +517,7 @@ export type Database = {
           price: number
           producer_id?: string | null
           status?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           title: string
           total_downloads?: number | null
@@ -537,6 +542,7 @@ export type Database = {
           price?: number
           producer_id?: string | null
           status?: string | null
+          tags?: string[] | null
           thumbnail_url?: string | null
           title?: string
           total_downloads?: number | null
@@ -652,6 +658,48 @@ export type Database = {
           },
         ]
       }
+      music: {
+        Row: {
+          artist_id: string | null
+          artwork_url: string | null
+          audio_url: string | null
+          created_at: string
+          description: string | null
+          genre: string | null
+          id: string
+          price: number | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          artist_id?: string | null
+          artwork_url?: string | null
+          audio_url?: string | null
+          created_at?: string
+          description?: string | null
+          genre?: string | null
+          id?: string
+          price?: number | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          artist_id?: string | null
+          artwork_url?: string | null
+          audio_url?: string | null
+          created_at?: string
+          description?: string | null
+          genre?: string | null
+          id?: string
+          price?: number | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           content: string
@@ -725,6 +773,7 @@ export type Database = {
           id: string
           role: Database["public"]["Enums"]["user_role"] | null
           subscription_plan: string | null
+          support_tickets: number | null
           updated_at: string
           username: string | null
           website: string | null
@@ -736,6 +785,7 @@ export type Database = {
           id: string
           role?: Database["public"]["Enums"]["user_role"] | null
           subscription_plan?: string | null
+          support_tickets?: number | null
           updated_at?: string
           username?: string | null
           website?: string | null
@@ -747,6 +797,7 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["user_role"] | null
           subscription_plan?: string | null
+          support_tickets?: number | null
           updated_at?: string
           username?: string | null
           website?: string | null
@@ -1210,7 +1261,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      artist_stats: {
+        Row: {
+          active_projects: number | null
+          artist_id: string | null
+          collaborations: number | null
+          purchased_beats: number | null
+          released_tracks: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       is_admin: {
