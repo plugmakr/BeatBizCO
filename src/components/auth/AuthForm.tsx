@@ -37,7 +37,14 @@ const AuthForm = () => {
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      setError(error.message);
+      // Handle specific error cases
+      if (error.message.includes("User already registered")) {
+        setError("This email is already registered. Please sign in instead.");
+        // Optionally redirect to sign in
+        navigate("/auth");
+      } else {
+        setError(error.message);
+      }
     } finally {
       setIsLoading(false);
     }
