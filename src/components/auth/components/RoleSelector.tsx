@@ -1,30 +1,22 @@
+
 import { ShoppingCart, Music2, Mic2 } from "lucide-react";
-import { Database } from "@/integrations/supabase/types";
-
-type UserRole = Database["public"]["Enums"]["user_role"];
-
-interface RoleOption {
-  value: UserRole;
-  label: string;
-  description: string;
-  icon: JSX.Element;
-}
+import { UserRole } from "@/types/database";
 
 interface RoleSelectorProps {
-  role: UserRole;
-  onRoleChange: (role: UserRole) => void;
+  value: UserRole;
+  onChange: (value: UserRole) => void;
 }
 
-export const RoleSelector = ({ role, onRoleChange }: RoleSelectorProps) => {
-  const roleOptions: RoleOption[] = [
+export const RoleSelector = ({ value, onChange }: RoleSelectorProps) => {
+  const roleOptions = [
     {
-      value: "producer",
+      value: "producer" as UserRole,
       label: "Producer",
       description: "Sell beats and manage your business",
       icon: <Music2 className="h-5 w-5" />
     },
     {
-      value: "artist",
+      value: "artist" as UserRole,
       label: "Artist",
       description: "Share and sell your music",
       icon: <Mic2 className="h-5 w-5" />
@@ -37,9 +29,9 @@ export const RoleSelector = ({ role, onRoleChange }: RoleSelectorProps) => {
         <button
           type="button"
           key={option.value}
-          onClick={() => onRoleChange(option.value)}
+          onClick={() => onChange(option.value)}
           className={`flex flex-col items-center justify-center p-3 rounded-lg transition-colors
-            ${role === option.value 
+            ${value === option.value 
               ? "bg-primary text-primary-foreground"
               : "bg-secondary hover:bg-secondary/80"
             }`}
