@@ -118,9 +118,9 @@ export type Database = {
           client_id: string | null
           created_at: string
           display_name: string | null
+          file_name: string
           file_path: string | null
           file_type: string
-          filename: string
           id: string
           parent_id: string | null
           size: number
@@ -132,9 +132,9 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           display_name?: string | null
+          file_name: string
           file_path?: string | null
           file_type: string
-          filename: string
           id?: string
           parent_id?: string | null
           size: number
@@ -146,9 +146,9 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           display_name?: string | null
+          file_name?: string
           file_path?: string | null
           file_type?: string
-          filename?: string
           id?: string
           parent_id?: string | null
           size?: number
@@ -246,7 +246,7 @@ export type Database = {
           id: string
           name: string | null
           settings: Json | null
-          status: Database["public"]["Enums"]["project_status"]
+          status: Database["public"]["Enums"]["project_status"] | null
           title: string
           updated_at: string
         }
@@ -259,7 +259,7 @@ export type Database = {
           id?: string
           name?: string | null
           settings?: Json | null
-          status?: Database["public"]["Enums"]["project_status"]
+          status?: Database["public"]["Enums"]["project_status"] | null
           title: string
           updated_at?: string
         }
@@ -272,7 +272,7 @@ export type Database = {
           id?: string
           name?: string | null
           settings?: Json | null
-          status?: Database["public"]["Enums"]["project_status"]
+          status?: Database["public"]["Enums"]["project_status"] | null
           title?: string
           updated_at?: string
         }
@@ -771,7 +771,6 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
-          role: Database["public"]["Enums"]["user_role"] | null
           subscription_plan: string | null
           support_tickets: number | null
           updated_at: string
@@ -783,7 +782,6 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
-          role?: Database["public"]["Enums"]["user_role"] | null
           subscription_plan?: string | null
           support_tickets?: number | null
           updated_at?: string
@@ -795,7 +793,6 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["user_role"] | null
           subscription_plan?: string | null
           support_tickets?: number | null
           updated_at?: string
