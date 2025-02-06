@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,32 +34,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading: true,
   });
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session);
-      if (event === 'SIGNED_OUT') {
-        setState({
-          session: null,
-          user: null,
-          userRole: null,
-          isLoading: false,
-        });
-        localStorage.clear();
-        navigate('/', { replace: true });
-      } else if (session) {
-        await refreshSession();
-      }
-    });
+  // Add a flag to track if we're currently refreshing
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-    refreshSession();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
-
-  const refreshSession = async () => {
+  const refreshSession = useCallback(async () => {
+    // Prevent multiple simultaneous refresh calls
+    if (isRefreshing) return;
+    
     try {
+      setIsRefreshing(true);
       console.log('Refreshing session...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
@@ -84,8 +67,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('userRole', profile?.role || '');
         localStorage.setItem('userId', session.user.id);
 
-        // Redirect based on role
-        if (profile?.role) {
+        // Only redirect if we're not already on the dashboard
+        if (profile?.role && !window.location.pathname.includes('dashboard')) {
           navigate(`/${profile.role}/dashboard`, { replace: true });
         }
       } else {
@@ -105,8 +88,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "Please try signing in again",
         variant: "destructive",
       });
+    } finally {
+      setIsRefreshing(false);
     }
-  };
+  }, [navigate, toast, isRefreshing]);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session);
+      
+      // Clear any pending timeout
+      if (timeoutId) clearTimeout(timeoutId);
+      
+      if (event === 'SIGNED_OUT') {
+        setState({
+          session: null,
+          user: null,
+          userRole: null,
+          isLoading: false,
+        });
+        localStorage.clear();
+        navigate('/', { replace: true });
+      } else if (session) {
+        // Add a small delay before refreshing to prevent rapid successive calls
+        timeoutId = setTimeout(() => {
+          refreshSession();
+        }, 100);
+      }
+    });
+
+    // Initial session check
+    refreshSession();
+
+    return () => {
+      subscription.unsubscribe();
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [navigate, refreshSession]);
 
   const signIn = async (email: string, password: string) => {
     try {
