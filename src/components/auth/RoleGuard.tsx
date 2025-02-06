@@ -1,4 +1,5 @@
-import { Navigate } from "react-router-dom";
+
+import { Navigate, useNavigate, useEffect } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
@@ -9,6 +10,13 @@ interface RoleGuardProps {
 
 const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   const { userRole, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isLoading && userRole && !allowedRoles.includes(userRole)) {
+      navigate(`/${userRole}/dashboard`);
+    }
+  }, [userRole, isLoading, allowedRoles, navigate]);
 
   if (isLoading) {
     return (
@@ -19,10 +27,6 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   }
 
   if (!userRole || !allowedRoles.includes(userRole)) {
-    if (userRole) {
-      window.location.href = `${window.location.origin}/${userRole}/dashboard`;
-      return null;
-    }
     return <Navigate to="/auth" replace />;
   }
 
