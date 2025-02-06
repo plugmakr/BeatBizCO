@@ -1,9 +1,9 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { CombinedProjectFile } from "../types/ProjectFileTypes";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +17,7 @@ interface FileEditDialogProps {
 }
 
 export function FileEditDialog({ file, open, onOpenChange, onUpdate }: FileEditDialogProps) {
-  const [title, setTitle] = useState(file?.type === 'regular' ? file.file.filename : file?.file.title || '');
+  const [title, setTitle] = useState(file?.type === 'regular' ? file.file.file_name : file?.file.title || '');
   const [description, setDescription] = useState(file?.type === 'sound_library' ? file.file.description || '' : '');
   const [bpm, setBpm] = useState(file?.type === 'sound_library' ? file.file.bpm?.toString() || '' : '');
   const [key, setKey] = useState(file?.type === 'sound_library' ? file.file.key || '' : '');
@@ -34,7 +34,7 @@ export function FileEditDialog({ file, open, onOpenChange, onUpdate }: FileEditD
       if (file.type === 'regular') {
         const { error } = await supabase
           .from('project_files')
-          .update({ filename: title })
+          .update({ file_name: title })
           .eq('id', file.file.id);
 
         if (error) throw error;

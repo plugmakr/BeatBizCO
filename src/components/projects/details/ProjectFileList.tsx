@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
@@ -23,7 +24,7 @@ export function ProjectFileList({ files, onPreview, onEdit, onDelete }: ProjectF
 
   const getFileName = (file: CombinedProjectFile) => {
     if (file.type === 'regular') {
-      return file.file.filename;
+      return file.file.file_name;
     }
     return file.file.title;
   };
