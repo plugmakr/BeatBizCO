@@ -55,7 +55,7 @@ export interface Profile {
 export interface Sound {
   id: string;
   producer_id?: string;
-  title?: string;
+  title: string;
   description?: string;
   type?: SoundType;
   bpm?: number;
@@ -80,6 +80,16 @@ export interface Project {
   status: ProjectStatus;
   created_by: string;
   settings?: any;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Funnel {
+  id: string;
+  name: string;
+  description?: string;
+  status?: string;
+  created_by?: string;
   created_at: string;
   updated_at: string;
 }
@@ -134,10 +144,9 @@ export interface Track {
 }
 
 export interface ArtistStats {
-  released_tracks: number;
-  active_projects: number;
+  purchasedBeats: number;
+  activeProjects: number;
   collaborations: number;
-  purchased_beats: number;
 }
 
 export interface ProducerStats {

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,7 +31,7 @@ export function useClientFileUpload(client: Client, onSuccess: () => void) {
       // Then, create a record in the client_files table
       const { error: dbError } = await supabase.from('client_files').insert({
         client_id: client.id,
-        filename: file.name,
+        file_name: file.name,
         display_name: file.name,
         file_path: filePath,
         file_type: file.type,
