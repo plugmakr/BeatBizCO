@@ -7,6 +7,39 @@ export type UserRole = 'guest' | 'artist' | 'producer' | 'admin';
 export type ProjectStatus = 'draft' | 'in_progress' | 'completed' | 'archived';
 export type SoundType = 'beat' | 'sound_kit' | 'midi_kit' | 'loop_kit' | 'drum_kit' | 'one_shot' | 'sample';
 
+export interface Client extends Partial<Tables<'clients'>> {
+  id: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  budget_range?: string;
+  genre_focus?: string;
+  project_type?: string;
+  social_media?: string;
+  notes?: string;
+  producer_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ClientFile extends Partial<Tables<'client_files'>> {
+  id: string;
+  client_id?: string;
+  uploaded_by?: string;
+  filename: string;
+  file_type: string;
+  file_path?: string;
+  display_name?: string;
+  type: string;
+  size: number;
+  parent_id?: string;
+  created_at: string;
+  updated_at: string;
+  fromSoundLibrary?: boolean;
+  projectName?: string;
+}
+
 export interface Profile extends Partial<Tables<'profiles'>> {
   id: string;
   role?: UserRole;

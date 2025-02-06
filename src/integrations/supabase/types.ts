@@ -447,6 +447,8 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          is_active: boolean | null
+          item_count: number | null
           name: string
           updated_at: string
         }
@@ -454,6 +456,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_active?: boolean | null
+          item_count?: number | null
           name: string
           updated_at?: string
         }
@@ -461,6 +465,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          is_active?: boolean | null
+          item_count?: number | null
           name?: string
           updated_at?: string
         }
@@ -938,7 +944,7 @@ export type Database = {
           id: string
           is_public: boolean | null
           key: string | null
-          name: string
+          name: string | null
           original_filename: string | null
           producer_id: string | null
           size: number | null
@@ -957,7 +963,7 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           key?: string | null
-          name: string
+          name?: string | null
           original_filename?: string | null
           producer_id?: string | null
           size?: number | null
@@ -976,7 +982,7 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           key?: string | null
-          name?: string
+          name?: string | null
           original_filename?: string | null
           producer_id?: string | null
           size?: number | null
