@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -25,7 +27,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Pencil, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 interface User {
   id: string;
@@ -36,13 +39,29 @@ interface User {
   username?: string;
 }
 
+interface CreateUserForm {
+  email: string;
+  password: string;
+  full_name: string;
+  username: string;
+  role: string;
+}
+
 function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [updating, setUpdating] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateUserForm>({
+    email: "",
+    password: "",
+    full_name: "",
+    username: "",
+    role: "artist",
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -86,6 +105,71 @@ function UserManagement() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreateUser = async () => {
+    if (!createForm.email || !createForm.password) {
+      toast({
+        title: "Validation Error",
+        description: "Email and password are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      // Create auth user
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: createForm.email,
+        password: createForm.password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: createForm.full_name,
+          username: createForm.username,
+          role: createForm.role,
+        },
+      });
+
+      if (authError) throw authError;
+
+      // Create profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          role: createForm.role,
+          full_name: createForm.full_name,
+          username: createForm.username,
+        });
+
+      if (profileError) throw profileError;
+
+      toast({
+        title: "User created",
+        description: "New user has been created successfully.",
+      });
+
+      // Reset form and refresh users list
+      setCreateForm({
+        email: "",
+        password: "",
+        full_name: "",
+        username: "",
+        role: "artist",
+      });
+      setCreateDialogOpen(false);
+      await fetchUsers();
+    } catch (error: any) {
+      console.error('Error creating user:', error);
+      toast({
+        title: "Error creating user",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -171,7 +255,92 @@ function UserManagement() {
 
   return (
     <div className="container mx-auto py-10">
-      <h2 className="text-3xl font-bold mb-8">User Management</h2>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold">User Management</h2>
+        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add User
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New User</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={createForm.email}
+                  onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={createForm.password}
+                  onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  value={createForm.full_name}
+                  onChange={(e) => setCreateForm({ ...createForm, full_name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={createForm.username}
+                  onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <Select
+                  value={createForm.role}
+                  onValueChange={(value) => setCreateForm({ ...createForm, role: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="producer">Producer</SelectItem>
+                    <SelectItem value="artist">Artist</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleCreateUser}
+                disabled={updating || !createForm.email || !createForm.password}
+              >
+                {updating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create User'
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
 
       <div className="rounded-md border">
         <Table>
