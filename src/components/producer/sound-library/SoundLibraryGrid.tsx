@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { AudioPlayer } from "@/components/shared/media/AudioPlayer";
 import { Badge } from "@/components/ui/badge";
@@ -17,9 +18,7 @@ import { FolderSelectDialog } from "./FolderSelectDialog";
 import { SoundEditDialog } from "./SoundEditDialog";
 import { AssignToProjectDialog } from "./AssignToProjectDialog";
 import { useState } from "react";
-import type { Database } from "@/integrations/supabase/types";
-
-type Sound = Database['public']['Tables']['sound_library']['Row'];
+import type { Sound } from "@/types/database";
 
 interface SoundLibraryGridProps {
   sounds: Sound[];
