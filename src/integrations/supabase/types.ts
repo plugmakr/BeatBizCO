@@ -182,49 +182,49 @@ export type Database = {
       }
       clients: {
         Row: {
-          budget_range: string
+          budget_range: string | null
           created_at: string
           email: string
-          genre_focus: string
+          genre_focus: string | null
           id: string
           name: string
-          notes: string
-          phone: string
+          notes: string | null
+          phone: string | null
           producer_id: string | null
-          project_type: string
-          social_media: string
+          project_type: string | null
+          social_media: string | null
           updated_at: string
-          website: string
+          website: string | null
         }
         Insert: {
-          budget_range: string
+          budget_range?: string | null
           created_at?: string
           email: string
-          genre_focus: string
+          genre_focus?: string | null
           id?: string
           name: string
-          notes: string
-          phone: string
+          notes?: string | null
+          phone?: string | null
           producer_id?: string | null
-          project_type: string
-          social_media: string
+          project_type?: string | null
+          social_media?: string | null
           updated_at?: string
-          website: string
+          website?: string | null
         }
         Update: {
-          budget_range?: string
+          budget_range?: string | null
           created_at?: string
           email?: string
-          genre_focus?: string
+          genre_focus?: string | null
           id?: string
           name?: string
-          notes?: string
-          phone?: string
+          notes?: string | null
+          phone?: string | null
           producer_id?: string | null
-          project_type?: string
-          social_media?: string
+          project_type?: string | null
+          social_media?: string | null
           updated_at?: string
-          website?: string
+          website?: string | null
         }
         Relationships: [
           {
@@ -623,28 +623,34 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          data: Json | null
           id: string
           is_read: boolean | null
           receiver_id: string | null
           sender_id: string | null
+          type: string | null
           updated_at: string
         }
         Insert: {
           content: string
           created_at?: string
+          data?: Json | null
           id?: string
           is_read?: boolean | null
           receiver_id?: string | null
           sender_id?: string | null
+          type?: string | null
           updated_at?: string
         }
         Update: {
           content?: string
           created_at?: string
+          data?: Json | null
           id?: string
           is_read?: boolean | null
           receiver_id?: string | null
           sender_id?: string | null
+          type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1288,7 +1294,12 @@ export type Database = {
     }
     Enums: {
       license_type: "basic" | "premium" | "exclusive"
-      project_status: "draft" | "in_progress" | "completed" | "archived"
+      project_status:
+        | "draft"
+        | "in_progress"
+        | "completed"
+        | "archived"
+        | "active"
       sound_type:
         | "beat"
         | "sound_kit"

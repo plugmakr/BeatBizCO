@@ -1,3 +1,4 @@
+
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MessagesInbox } from "@/components/producer/messages/MessagesInbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,7 +19,7 @@ export default function Messages() {
           id,
           type,
           content,
-          read,
+          is_read,
           created_at
         `)
         .order("created_at", { ascending: false });
@@ -34,7 +35,7 @@ export default function Messages() {
   const markAsRead = async (notificationId: string) => {
     const { error } = await supabase
       .from("notifications")
-      .update({ read: true })
+      .update({ is_read: true })
       .eq("id", notificationId);
 
     if (error) {
@@ -110,7 +111,7 @@ export default function Messages() {
                       <div key={notification.id}>
                         <div
                           className={`p-4 rounded-lg ${
-                            notification.read
+                            notification.is_read
                               ? "bg-background"
                               : "bg-accent"
                           }`}
@@ -125,7 +126,7 @@ export default function Messages() {
                                 {new Date(notification.created_at).toLocaleString()}
                               </p>
                             </div>
-                            {!notification.read && (
+                            {!notification.is_read && (
                               <Button
                                 variant="ghost"
                                 size="sm"

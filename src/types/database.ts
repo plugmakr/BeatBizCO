@@ -12,13 +12,13 @@ export interface Client {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  website: string;
-  budget_range: string;
-  genre_focus: string;
-  project_type: string;
-  social_media: string;
-  notes: string;
+  phone?: string;
+  website?: string;
+  budget_range?: string;
+  genre_focus?: string;
+  project_type?: string;
+  social_media?: string;
+  notes?: string;
   producer_id?: string;
   created_at: string;
   updated_at: string;
@@ -62,7 +62,7 @@ export interface Sound {
   bpm: number;
   key: string;
   genre: string;
-  tags?: string[];
+  tags: string[];
   file_path: string;
   original_filename: string;
   size: number;
@@ -90,7 +90,7 @@ export interface Funnel {
   id: string;
   name: string;
   description?: string;
-  status: string;
+  status: 'draft' | 'archived' | 'active';
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -157,6 +157,7 @@ export interface ProducerStats {
   totalBeats: number;
   totalRevenue: number;
   activeProjects: number;
+  supportTickets?: number;
 }
 
 export interface AdminStats {
@@ -191,6 +192,7 @@ export interface ProjectFile {
   file_name: string;
   file_type: string;
   file_url: string;
+  file_path?: string;
   created_at: string;
   updated_at: string;
 }
