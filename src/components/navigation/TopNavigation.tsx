@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -86,7 +87,7 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
+                    className="relative h-8 w-8 rounded-full select-none"
                   >
                     <span className="sr-only">Open user menu</span>
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
@@ -94,8 +95,13 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
+                <DropdownMenuContent 
+                  align="end"
+                  className="w-56"
+                  sideOffset={5}
+                  alignOffset={0}
+                >
+                  <DropdownMenuItem asChild>
                     <Link
                       to={getDashboardRoute ? getDashboardRoute() : `/${userRole}/dashboard`}
                       className="w-full"
@@ -103,7 +109,7 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                       Dashboard
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link
                       to={`/${userRole}/profile`}
                       className="w-full"
@@ -112,7 +118,7 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                     </Link>
                   </DropdownMenuItem>
                   {userRole === 'admin' && (
-                    <DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link
                         to="/admin/users"
                         className="w-full"
@@ -121,7 +127,7 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuItem onSelect={handleSignOut}>
                     Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
