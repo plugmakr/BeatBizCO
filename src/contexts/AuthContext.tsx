@@ -1,5 +1,4 @@
-
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,14 +35,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Add a flag to track if we're currently refreshing
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // Add debounce timeout reference
+  const refreshTimeoutRef = useRef<NodeJS.Timeout>();
 
   const refreshSession = useCallback(async () => {
+    // Clear any existing timeout
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+
     // Prevent multiple simultaneous refresh calls
-    if (isRefreshing) return;
+    if (isRefreshing) {
+      return;
+    }
     
     try {
       setIsRefreshing(true);
-      console.log('Refreshing session...');
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) throw sessionError;
@@ -64,12 +71,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isLoading: false,
         });
 
-        localStorage.setItem('userRole', profile?.role || '');
-        localStorage.setItem('userId', session.user.id);
+        // Store important data in localStorage
+        if (profile?.role) {
+          localStorage.setItem('userRole', profile.role);
+          localStorage.setItem('userId', session.user.id);
+        }
 
-        // Only redirect if we're not already on the dashboard
-        if (profile?.role && !window.location.pathname.includes('dashboard')) {
-          navigate(`/${profile.role}/dashboard`, { replace: true });
+        // Only redirect if we're on the index page and have a role
+        if (profile?.role && window.location.pathname === '/') {
+          navigate(`/${profile.role}/dashboard`);
         }
       } else {
         setState({
@@ -94,13 +104,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [navigate, toast, isRefreshing]);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event);
       
-      // Clear any pending timeout
-      if (timeoutId) clearTimeout(timeoutId);
+      // Clear any existing timeout
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
       
       if (event === 'SIGNED_OUT') {
         setState({
@@ -112,10 +122,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.clear();
         navigate('/', { replace: true });
       } else if (session) {
-        // Add a small delay before refreshing to prevent rapid successive calls
-        timeoutId = setTimeout(() => {
+        // Debounce the refresh call
+        refreshTimeoutRef.current = setTimeout(() => {
           refreshSession();
-        }, 100);
+        }, 1000); // Wait 1 second before refreshing
       }
     });
 
@@ -124,7 +134,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       subscription.unsubscribe();
-      if (timeoutId) clearTimeout(timeoutId);
+      if (refreshTimeoutRef.current) {
+        clearTimeout(refreshTimeoutRef.current);
+      }
     };
   }, [navigate, refreshSession]);
 
