@@ -336,38 +336,68 @@ export type Database = {
       marketplace_items: {
         Row: {
           beat_id: string | null
+          category: string | null
           created_at: string
           description: string | null
+          genre: string | null
           id: string
           is_active: boolean | null
+          is_featured: boolean | null
           license_type: Database["public"]["Enums"]["license_type"]
+          preview_url: string | null
           price: number
           producer_id: string | null
+          status: string | null
+          thumbnail_url: string | null
           title: string
+          total_downloads: number | null
+          total_plays: number | null
+          total_sales: number | null
+          type: string | null
           updated_at: string
         }
         Insert: {
           beat_id?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
+          genre?: string | null
           id?: string
           is_active?: boolean | null
+          is_featured?: boolean | null
           license_type: Database["public"]["Enums"]["license_type"]
+          preview_url?: string | null
           price: number
           producer_id?: string | null
+          status?: string | null
+          thumbnail_url?: string | null
           title: string
+          total_downloads?: number | null
+          total_plays?: number | null
+          total_sales?: number | null
+          type?: string | null
           updated_at?: string
         }
         Update: {
           beat_id?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
+          genre?: string | null
           id?: string
           is_active?: boolean | null
+          is_featured?: boolean | null
           license_type?: Database["public"]["Enums"]["license_type"]
+          preview_url?: string | null
           price?: number
           producer_id?: string | null
+          status?: string | null
+          thumbnail_url?: string | null
           title?: string
+          total_downloads?: number | null
+          total_plays?: number | null
+          total_sales?: number | null
+          type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -748,30 +778,60 @@ export type Database = {
       }
       sound_library: {
         Row: {
+          bpm: number | null
           created_at: string
           description: string | null
+          file_path: string | null
+          folder_path: string | null
+          genre: string | null
           id: string
           is_public: boolean | null
+          key: string | null
           name: string
+          original_filename: string | null
           producer_id: string | null
+          size: number | null
+          tags: string[] | null
+          title: string | null
+          type: string | null
           updated_at: string
         }
         Insert: {
+          bpm?: number | null
           created_at?: string
           description?: string | null
+          file_path?: string | null
+          folder_path?: string | null
+          genre?: string | null
           id?: string
           is_public?: boolean | null
+          key?: string | null
           name: string
+          original_filename?: string | null
           producer_id?: string | null
+          size?: number | null
+          tags?: string[] | null
+          title?: string | null
+          type?: string | null
           updated_at?: string
         }
         Update: {
+          bpm?: number | null
           created_at?: string
           description?: string | null
+          file_path?: string | null
+          folder_path?: string | null
+          genre?: string | null
           id?: string
           is_public?: boolean | null
+          key?: string | null
           name?: string
+          original_filename?: string | null
           producer_id?: string | null
+          size?: number | null
+          tags?: string[] | null
+          title?: string | null
+          type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -877,6 +937,89 @@ export type Database = {
           },
           {
             foreignKeyName: "sound_library_folders_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sound_library_project_files: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string | null
+          sound_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id?: string | null
+          sound_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string | null
+          sound_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sound_library_project_files_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sound_library_project_files_sound_id_fkey"
+            columns: ["sound_id"]
+            isOneToOne: false
+            referencedRelation: "sound_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          producer_id: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          producer_id?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          producer_id?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_producer_id_fkey"
             columns: ["producer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
