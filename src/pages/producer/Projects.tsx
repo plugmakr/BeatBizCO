@@ -19,15 +19,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Edit2, Eye, Trash2, UserPlus } from "lucide-react";
 import { format } from "date-fns";
+import type { Project } from "@/types/database";
 
-type Project = {
-  id: string;
-  name: string;
-  description: string | null;
-  deadline: string | null;
-  status: string;
-  created_by: string;
-  client_id: string | null;
+type ProjectWithProfile = Project & {
   profiles: {
     full_name: string | null;
   } | null;
@@ -35,9 +29,9 @@ type Project = {
 
 const ProducerProjects = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [activeProjects, setActiveProjects] = useState<Project[]>([]);
-  const [completedProjects, setCompletedProjects] = useState<Project[]>([]);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [activeProjects, setActiveProjects] = useState<ProjectWithProfile[]>([]);
+  const [completedProjects, setCompletedProjects] = useState<ProjectWithProfile[]>([]);
+  const [selectedProject, setSelectedProject] = useState<ProjectWithProfile | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingClient, setIsAddingClient] = useState(false);
@@ -57,7 +51,7 @@ const ProducerProjects = () => {
           )
         `)
         .eq("created_by", session.session.user.id)
-        .eq("status", "active");
+        .eq("status", "in_progress");
 
       const { data: completed, error: completedError } = await supabase
         .from("collaboration_projects")
@@ -128,7 +122,6 @@ const ProducerProjects = () => {
         description: "Project marked as completed",
       });
 
-      // Move the project from active to completed list
       const completedProject = activeProjects.find(p => p.id === projectId);
       if (completedProject) {
         setActiveProjects(prev => prev.filter(p => p.id !== projectId));
@@ -150,7 +143,7 @@ const ProducerProjects = () => {
     fetchProjects();
   }, []);
 
-  const ProjectTable = ({ projects }: { projects: Project[] }) => (
+  const ProjectTable = ({ projects }: { projects: ProjectWithProfile[] }) => (
     <Table>
       <TableHeader>
         <TableRow>
@@ -170,7 +163,7 @@ const ProducerProjects = () => {
         ) : (
           projects.map((project) => (
             <TableRow key={project.id}>
-              <TableCell className="font-medium">{project.name}</TableCell>
+              <TableCell className="font-medium">{project.title}</TableCell>
               <TableCell>{project.description}</TableCell>
               <TableCell>
                 {project.deadline
@@ -189,7 +182,7 @@ const ProducerProjects = () => {
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
-                  {project.status === "active" && (
+                  {project.status === "in_progress" && (
                     <>
                       <Button
                         variant="secondary"

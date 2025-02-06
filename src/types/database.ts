@@ -41,7 +41,7 @@ export interface ClientFile {
 
 export interface Profile {
   id: string;
-  role?: UserRole;
+  role: UserRole;
   bio?: string;
   website?: string;
   subscription_plan?: string;
