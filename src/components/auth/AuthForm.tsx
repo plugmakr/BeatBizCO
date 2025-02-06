@@ -32,15 +32,23 @@ const AuthForm = () => {
     try {
       if (isSignUp) {
         await signUp(email, password, role);
+        toast({
+          title: "Account created successfully",
+          description: "Please check your email to verify your account.",
+        });
       } else {
-        await signIn(email, password);
+        const { data: { user } } = await signIn(email, password);
+        if (user) {
+          toast({
+            title: "Welcome back!",
+            description: "You've successfully signed in.",
+          });
+        }
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      // Handle specific error cases
       if (error.message.includes("User already registered")) {
         setError("This email is already registered. Please sign in instead.");
-        // Optionally redirect to sign in
         navigate("/auth");
       } else {
         setError(error.message);
