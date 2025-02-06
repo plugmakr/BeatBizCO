@@ -1,8 +1,10 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Database } from '@/integrations/supabase/types';
 
 interface AuthState {
   session: Session | null;
@@ -34,7 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
+      console.log('Auth state changed:', event, session);
       if (event === 'SIGNED_OUT') {
         setState({
           session: null,
@@ -42,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userRole: null,
           isLoading: false,
         });
-        localStorage.clear(); // Clear all localStorage
+        localStorage.clear();
         navigate('/', { replace: true });
       } else if (session) {
         await refreshSession();
@@ -81,6 +83,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         localStorage.setItem('userRole', profile?.role || '');
         localStorage.setItem('userId', session.user.id);
+
+        // Redirect based on role
+        if (profile?.role) {
+          navigate(`/${profile.role}/dashboard`, { replace: true });
+        }
       } else {
         setState({
           session: null,
@@ -93,6 +100,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Session refresh error:', error);
       setState(prev => ({ ...prev, isLoading: false }));
+      toast({
+        title: "Error refreshing session",
+        description: "Please try signing in again",
+        variant: "destructive",
+      });
     }
   };
 
@@ -125,6 +137,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       localStorage.setItem('userRole', profile.role);
       localStorage.setItem('userId', session.user.id);
+
+      toast({
+        title: "Welcome back!",
+        description: "You've successfully signed in.",
+      });
       
       navigate(`/${profile.role}/dashboard`, { replace: true });
     } catch (error: any) {
@@ -157,15 +174,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           {
             id: data.user.id,
             role,
-            email,
-            created_at: new Date().toISOString(),
+            full_name: '',
+            username: '',
           }
         ]);
 
       if (profileError) throw profileError;
 
-      // Auto sign in after signup
-      await signIn(email, password);
+      toast({
+        title: "Account created",
+        description: "Please check your email to verify your account.",
+      });
+
     } catch (error: any) {
       console.error('Sign up error:', error);
       toast({
@@ -182,7 +202,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
-      // Clear all state and storage
       setState({
         session: null,
         user: null,
@@ -191,8 +210,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       localStorage.clear();
-      
-      // Force navigation to home
       navigate('/', { replace: true });
       
       toast({
