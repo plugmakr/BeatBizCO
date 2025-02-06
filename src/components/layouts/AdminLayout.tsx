@@ -1,3 +1,4 @@
+
 import {
   Sidebar,
   SidebarContent,
@@ -10,27 +11,28 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { getAdminMenuItems } from "@/config/menuItems"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Home, LogOut } from "lucide-react"
-import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/contexts/AuthContext"
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const menuSections = getAdminMenuItems()
   const { toast } = useToast()
-  const navigate = useNavigate()
+  const { signOut } = useAuth()
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
+    try {
+      await signOut()
+      toast({
+        title: "Signed out successfully",
+      })
+    } catch (error: any) {
       toast({
         title: "Error signing out",
         description: error.message,
         variant: "destructive",
       })
-    } else {
-      localStorage.removeItem('userRole')
-      navigate('/')
     }
   }
 

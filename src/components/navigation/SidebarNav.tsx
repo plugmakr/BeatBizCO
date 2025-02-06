@@ -1,9 +1,9 @@
+
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { LogOut, Home } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface SideNavProps extends React.HTMLAttributes<HTMLElement> {
@@ -16,18 +16,20 @@ interface SideNavProps extends React.HTMLAttributes<HTMLElement> {
 
 export function SidebarNav({ className, items, ...props }: SideNavProps) {
   const { toast } = useToast();
+  const { signOut } = useAuth();
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      await signOut();
+      toast({
+        title: "Signed out successfully",
+      });
+    } catch (error: any) {
       toast({
         title: "Error signing out",
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      localStorage.removeItem('userRole');
-      window.location.href = '/';
     }
   };
 
