@@ -113,6 +113,129 @@ export type Database = {
         }
         Relationships: []
       }
+      client_files: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          display_name: string | null
+          file_path: string | null
+          file_type: string
+          filename: string
+          id: string
+          parent_id: string | null
+          size: number
+          type: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          display_name?: string | null
+          file_path?: string | null
+          file_type: string
+          filename: string
+          id?: string
+          parent_id?: string | null
+          size: number
+          type: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          display_name?: string | null
+          file_path?: string | null
+          file_type?: string
+          filename?: string
+          id?: string
+          parent_id?: string | null
+          size?: number
+          type?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_files_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_files_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "client_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          budget_range: string | null
+          created_at: string
+          email: string | null
+          genre_focus: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          producer_id: string | null
+          project_type: string | null
+          social_media: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          budget_range?: string | null
+          created_at?: string
+          email?: string | null
+          genre_focus?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          producer_id?: string | null
+          project_type?: string | null
+          social_media?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          budget_range?: string | null
+          created_at?: string
+          email?: string | null
+          genre_focus?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          producer_id?: string | null
+          project_type?: string | null
+          social_media?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaboration_projects: {
         Row: {
           created_at: string
