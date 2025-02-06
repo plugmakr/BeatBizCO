@@ -11,8 +11,16 @@ export interface ClientFile extends Tables<'client_files'> {
 }
 
 export type SoundType = 'beat' | 'sound_kit' | 'midi_kit' | 'loop_kit' | 'drum_kit' | 'one_shot' | 'sample';
+export type UserRole = 'guest' | 'artist' | 'producer' | 'admin';
+export type ProjectStatus = 'draft' | 'in_progress' | 'completed' | 'archived' | 'active';
 
-export interface Sound {
+export interface Profile extends Tables<'profiles'> {
+  bio?: string;
+  website?: string;
+  subscription_plan?: string;
+}
+
+export interface Sound extends Tables<'sound_library'> {
   id: string;
   producer_id: string;
   title: string;
@@ -32,46 +40,67 @@ export interface Sound {
 }
 
 export interface Project extends Tables<'collaboration_projects'> {
-  name: string;
+  id: string;
+  title: string;
+  description?: string;
   client_id?: string | null;
   deadline?: string | null;
-  status: 'draft' | 'in_progress' | 'completed' | 'archived';
+  status: ProjectStatus;
+  created_by: string;
+  settings?: any;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface SoundLibraryTag extends Tables<'sound_library_tags'> {
+  id: string;
   name: string;
   color?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Funnel extends Tables<'funnels'> {
+  id: string;
   name: string;
   status: string;
   created_by: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface FunnelStep extends Tables<'funnel_steps'> {
+  id: string;
   funnel_id: string;
   name: string;
   type: string;
   content?: any;
   position?: number;
   website_blocks?: any;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface FunnelAutomation extends Tables<'funnel_automations'> {
+  id: string;
   funnel_id: string;
   name: string;
   trigger_type: string;
   actions?: any;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Transaction extends Tables<'transactions'> {
+  id: string;
   type: 'income' | 'expense';
   amount: number;
   description?: string;
   category?: string;
   date: string;
   producer_id: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export { Database };

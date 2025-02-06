@@ -469,6 +469,7 @@ export type Database = {
       marketplace_items: {
         Row: {
           beat_id: string | null
+          bpm: number | null
           category: string | null
           created_at: string
           description: string | null
@@ -476,6 +477,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_featured: boolean | null
+          key: string | null
           license_type: Database["public"]["Enums"]["license_type"]
           preview_url: string | null
           price: number
@@ -491,6 +493,7 @@ export type Database = {
         }
         Insert: {
           beat_id?: string | null
+          bpm?: number | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -498,6 +501,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_featured?: boolean | null
+          key?: string | null
           license_type: Database["public"]["Enums"]["license_type"]
           preview_url?: string | null
           price: number
@@ -513,6 +517,7 @@ export type Database = {
         }
         Update: {
           beat_id?: string | null
+          bpm?: number | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -520,6 +525,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_featured?: boolean | null
+          key?: string | null
           license_type?: Database["public"]["Enums"]["license_type"]
           preview_url?: string | null
           price?: number
@@ -707,28 +713,37 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bio: string | null
           created_at: string
           full_name: string | null
           id: string
-          role: Database["public"]["Enums"]["user_role"]
+          role: Database["public"]["Enums"]["user_role"] | null
+          subscription_plan: string | null
           updated_at: string
           username: string | null
+          website: string | null
         }
         Insert: {
+          bio?: string | null
           created_at?: string
           full_name?: string | null
           id: string
-          role?: Database["public"]["Enums"]["user_role"]
+          role?: Database["public"]["Enums"]["user_role"] | null
+          subscription_plan?: string | null
           updated_at?: string
           username?: string | null
+          website?: string | null
         }
         Update: {
+          bio?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
-          role?: Database["public"]["Enums"]["user_role"]
+          role?: Database["public"]["Enums"]["user_role"] | null
+          subscription_plan?: string | null
           updated_at?: string
           username?: string | null
+          website?: string | null
         }
         Relationships: []
       }
@@ -778,6 +793,7 @@ export type Database = {
         Row: {
           created_at: string
           file_name: string
+          file_path: string | null
           file_type: string
           file_url: string
           id: string
@@ -788,6 +804,7 @@ export type Database = {
         Insert: {
           created_at?: string
           file_name: string
+          file_path?: string | null
           file_type: string
           file_url: string
           id?: string
@@ -798,6 +815,7 @@ export type Database = {
         Update: {
           created_at?: string
           file_name?: string
+          file_path?: string | null
           file_type?: string
           file_url?: string
           id?: string
@@ -926,7 +944,7 @@ export type Database = {
           size: number | null
           tags: string[] | null
           title: string | null
-          type: string | null
+          type: Database["public"]["Enums"]["sound_type"] | null
           updated_at: string
         }
         Insert: {
@@ -945,7 +963,7 @@ export type Database = {
           size?: number | null
           tags?: string[] | null
           title?: string | null
-          type?: string | null
+          type?: Database["public"]["Enums"]["sound_type"] | null
           updated_at?: string
         }
         Update: {
@@ -964,7 +982,7 @@ export type Database = {
           size?: number | null
           tags?: string[] | null
           title?: string | null
-          type?: string | null
+          type?: Database["public"]["Enums"]["sound_type"] | null
           updated_at?: string
         }
         Relationships: [
@@ -1194,6 +1212,14 @@ export type Database = {
     Enums: {
       license_type: "basic" | "premium" | "exclusive"
       project_status: "draft" | "in_progress" | "completed" | "archived"
+      sound_type:
+        | "beat"
+        | "sound_kit"
+        | "midi_kit"
+        | "loop_kit"
+        | "drum_kit"
+        | "one_shot"
+        | "sample"
       user_role: "guest" | "artist" | "producer" | "admin"
     }
     CompositeTypes: {
