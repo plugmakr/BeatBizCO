@@ -11,14 +11,14 @@ export type LicenseType = 'basic' | 'premium' | 'exclusive';
 export interface Client {
   id: string;
   name: string;
-  email?: string;
-  phone?: string;
-  website?: string;
-  budget_range?: string;
-  genre_focus?: string;
-  project_type?: string;
-  social_media?: string;
-  notes?: string;
+  email: string;
+  phone: string;
+  website: string;
+  budget_range: string;
+  genre_focus: string;
+  project_type: string;
+  social_media: string;
+  notes: string;
   producer_id?: string;
   created_at: string;
   updated_at: string;
@@ -56,18 +56,18 @@ export interface Sound {
   id: string;
   producer_id?: string;
   title: string;
-  name?: string;
-  description?: string;
-  type?: SoundType;
-  bpm?: number;
-  key?: string;
-  genre?: string;
+  name: string;
+  description: string;
+  type: SoundType;
+  bpm: number;
+  key: string;
+  genre: string;
   tags?: string[];
-  file_path?: string;
-  original_filename?: string;
-  size?: number;
-  folder_path?: string | null;
-  is_public?: boolean;
+  file_path: string;
+  original_filename: string;
+  size: number;
+  folder_path: string | null;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -81,7 +81,6 @@ export interface Project {
   status: ProjectStatus;
   created_by: string;
   settings?: any;
-  name?: string;
   created_at: string;
   updated_at: string;
 }
@@ -90,8 +89,8 @@ export interface Funnel {
   id: string;
   name: string;
   description: string;
-  status?: string;
-  created_by?: string;
+  status: string;
+  created_by: string;
   created_at: string;
   updated_at: string;
 }
@@ -149,7 +148,7 @@ export interface ArtistStats {
   purchasedBeats: number;
   activeProjects: number;
   collaborations: number;
-  releasedTracks?: number;
+  releasedTracks: number;
 }
 
 export interface ProducerStats {
@@ -177,11 +176,21 @@ export type Message = {
   type?: string;
 };
 
-export interface ProjectWithProfile extends Omit<Project, 'status'> {
-  status?: string;
+export interface ProjectWithProfile extends Project {
   profiles?: {
     full_name: string | null;
   } | null;
+}
+
+export interface ProjectFile {
+  id: string;
+  project_id: string;
+  uploaded_by: string;
+  file_name: string;
+  file_type: string;
+  file_url: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export { Database };
