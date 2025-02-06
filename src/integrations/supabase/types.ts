@@ -238,30 +238,39 @@ export type Database = {
       }
       collaboration_projects: {
         Row: {
+          client_id: string | null
           created_at: string
           created_by: string | null
+          deadline: string | null
           description: string | null
           id: string
+          name: string | null
           settings: Json | null
           status: Database["public"]["Enums"]["project_status"]
           title: string
           updated_at: string
         }
         Insert: {
+          client_id?: string | null
           created_at?: string
           created_by?: string | null
+          deadline?: string | null
           description?: string | null
           id?: string
+          name?: string | null
           settings?: Json | null
           status?: Database["public"]["Enums"]["project_status"]
           title: string
           updated_at?: string
         }
         Update: {
+          client_id?: string | null
           created_at?: string
           created_by?: string | null
+          deadline?: string | null
           description?: string | null
           id?: string
+          name?: string | null
           settings?: Json | null
           status?: Database["public"]["Enums"]["project_status"]
           title?: string
@@ -269,7 +278,131 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "collaboration_projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "collaboration_projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funnel_automations: {
+        Row: {
+          actions: Json | null
+          created_at: string | null
+          funnel_id: string | null
+          id: string
+          name: string
+          trigger_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          actions?: Json | null
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          name: string
+          trigger_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          actions?: Json | null
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          name?: string
+          trigger_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_automations_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funnel_steps: {
+        Row: {
+          content: Json | null
+          created_at: string | null
+          funnel_id: string | null
+          id: string
+          name: string
+          position: number | null
+          type: string
+          updated_at: string | null
+          website_blocks: Json | null
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          name: string
+          position?: number | null
+          type: string
+          updated_at?: string | null
+          website_blocks?: Json | null
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string | null
+          funnel_id?: string | null
+          id?: string
+          name?: string
+          position?: number | null
+          type?: string
+          updated_at?: string | null
+          website_blocks?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_steps_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funnels: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          name: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          name: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          name?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnels_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -982,6 +1115,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sound_library_tags: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       transactions: {
         Row: {
