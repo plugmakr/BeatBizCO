@@ -56,6 +56,7 @@ export interface Sound {
   id: string;
   producer_id?: string;
   title: string;
+  name?: string;
   description?: string;
   type?: SoundType;
   bpm?: number;
@@ -80,6 +81,7 @@ export interface Project {
   status: ProjectStatus;
   created_by: string;
   settings?: any;
+  name?: string;
   created_at: string;
   updated_at: string;
 }
@@ -87,7 +89,7 @@ export interface Project {
 export interface Funnel {
   id: string;
   name: string;
-  description?: string;
+  description: string;
   status?: string;
   created_by?: string;
   created_at: string;
@@ -147,12 +149,39 @@ export interface ArtistStats {
   purchasedBeats: number;
   activeProjects: number;
   collaborations: number;
+  releasedTracks?: number;
 }
 
 export interface ProducerStats {
   totalBeats: number;
   totalRevenue: number;
   activeProjects: number;
+}
+
+export interface AdminStats {
+  totalUsers: number;
+  totalRevenue: number;
+  activeProjects: number;
+  supportTickets: number;
+}
+
+export type Message = {
+  id: string;
+  content: string;
+  sender_id?: string;
+  receiver_id?: string;
+  is_read?: boolean;
+  created_at: string;
+  updated_at: string;
+  data?: any;
+  type?: string;
+};
+
+export interface ProjectWithProfile extends Omit<Project, 'status'> {
+  status?: string;
+  profiles?: {
+    full_name: string | null;
+  } | null;
 }
 
 export { Database };
