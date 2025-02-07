@@ -1,3 +1,4 @@
+
 import { 
   Globe, 
   Users, 
@@ -48,11 +49,16 @@ const MoreFeatures = () => {
         <h2 className="section-title">More Powerful Features</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="feature-card">
+            <Card 
+              key={index} 
+              className="feature-card group transition-transform duration-200 hover:translate-y-[-4px] cursor-pointer"
+            >
               <CardContent className="p-6 text-center">
-                {feature.icon}
-                <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
-                <p className="text-white/80">{feature.description}</p>
+                <div className="transition-transform duration-200 group-hover:scale-105">
+                  {feature.icon}
+                  <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
+                  <p className="text-white/80">{feature.description}</p>
+                </div>
               </CardContent>
             </Card>
           ))}

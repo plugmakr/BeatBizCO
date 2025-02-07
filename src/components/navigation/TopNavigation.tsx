@@ -83,16 +83,13 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
         <div className="flex items-center space-x-2">
           <nav className="flex items-center">
             {user ? (
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-8 w-8 rounded-full select-none"
+                    className="font-medium transition-colors hover:text-foreground/80"
                   >
-                    <span className="sr-only">Open user menu</span>
-                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                      {user.email?.[0].toUpperCase()}
-                    </div>
+                    Profile
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent 
