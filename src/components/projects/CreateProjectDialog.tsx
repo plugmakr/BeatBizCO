@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,7 +37,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 
 const projectFormSchema = z.object({
-  name: z.string().min(2, "Project name must be at least 2 characters"),
+  title: z.string().min(2, "Project title must be at least 2 characters"),
   description: z.string().optional(),
   deadline: z.date().optional(),
   genre: z.string().optional(),
@@ -55,7 +56,7 @@ export function CreateProjectDialog() {
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
-      name: "",
+      title: "",
       description: "",
       genre: "",
       budget: "",
@@ -73,7 +74,7 @@ export function CreateProjectDialog() {
       }
 
       const { error } = await supabase.from("collaboration_projects").insert({
-        name: data.name,
+        title: data.title,
         description: data.description,
         deadline: data.deadline?.toISOString(),
         created_by: session.session.user.id,
@@ -116,13 +117,13 @@ export function CreateProjectDialog() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="name"
+              name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white">Project Name</FormLabel>
+                  <FormLabel className="text-white">Project Title</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="Enter project name" 
+                      placeholder="Enter project title" 
                       {...field}
                       className="bg-[#2A2F3C] border-[#9b87f5]/20 text-white placeholder:text-gray-400" 
                     />
