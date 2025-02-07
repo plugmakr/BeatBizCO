@@ -41,7 +41,7 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
   };
 
   return (
-    <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between">
         <Link className="flex items-center space-x-2" to="/">
           <span className="font-bold">BeatBiz</span>
@@ -87,7 +87,8 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-8 w-8 rounded-full select-none"
+                    className="relative h-8 w-8 rounded-full select-none cursor-pointer"
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     <span className="sr-only">Open user menu</span>
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
@@ -100,11 +101,12 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                   className="w-56"
                   sideOffset={5}
                   alignOffset={0}
+                  forceMount
                 >
                   <DropdownMenuItem asChild>
                     <Link
                       to={getDashboardRoute ? getDashboardRoute() : `/${userRole}/dashboard`}
-                      className="w-full"
+                      className="w-full cursor-pointer"
                     >
                       Dashboard
                     </Link>
@@ -112,7 +114,7 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                   <DropdownMenuItem asChild>
                     <Link
                       to={`/${userRole}/profile`}
-                      className="w-full"
+                      className="w-full cursor-pointer"
                     >
                       Profile
                     </Link>
@@ -121,13 +123,13 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                     <DropdownMenuItem asChild>
                       <Link
                         to="/admin/users"
-                        className="w-full"
+                        className="w-full cursor-pointer"
                       >
                         User Management
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onSelect={handleSignOut}>
+                  <DropdownMenuItem onSelect={handleSignOut} className="cursor-pointer">
                     Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
