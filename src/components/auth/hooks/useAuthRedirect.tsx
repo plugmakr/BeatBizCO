@@ -1,29 +1,32 @@
+
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Database } from "@/integrations/supabase/types";
+import { useRef } from "react";
 
 type UserRole = Database["public"]["Enums"]["user_role"];
 
 export const useAuthRedirect = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isProcessingRef = useRef(false);
 
   const handleRoleBasedRedirect = (userRole: string) => {
     console.log("Redirecting based on role:", userRole);
     switch (userRole) {
       case "admin":
-        navigate("/admin/dashboard");
+        navigate("/admin/dashboard", { replace: true });
         break;
       case "producer":
-        navigate("/producer/dashboard");
+        navigate("/producer/dashboard", { replace: true });
         break;
       case "artist":
-        navigate("/artist/dashboard");
+        navigate("/artist/dashboard", { replace: true });
         break;
       default:
-        navigate("/");
+        navigate("/", { replace: true });
         break;
     }
   };
@@ -32,8 +35,16 @@ export const useAuthRedirect = () => {
     const handleAuthStateChange = async (event: string, session: any) => {
       console.log("Auth state changed:", event, session);
 
-      if (event === 'SIGNED_IN' && session) {
-        try {
+      // Prevent multiple simultaneous auth state processing
+      if (isProcessingRef.current) {
+        console.log("Already processing auth state change, skipping");
+        return;
+      }
+
+      try {
+        isProcessingRef.current = true;
+
+        if (event === 'SIGNED_IN' && session) {
           const { data: profile, error: profileError } = await supabase
             .from("profiles")
             .select("role")
@@ -52,16 +63,18 @@ export const useAuthRedirect = () => {
           });
           
           handleRoleBasedRedirect(profile.role);
-        } catch (error) {
-          console.error("Error in auth state change:", error);
-          toast({
-            title: "Error",
-            description: "Failed to get user role. Please try again.",
-            variant: "destructive"
-          });
+        } else if (event === 'SIGNED_OUT') {
+          navigate('/', { replace: true });
         }
-      } else if (event === 'SIGNED_OUT') {
-        navigate('/');
+      } catch (error) {
+        console.error("Error in auth state change:", error);
+        toast({
+          title: "Error",
+          description: "Failed to get user role. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        isProcessingRef.current = false;
       }
     };
 

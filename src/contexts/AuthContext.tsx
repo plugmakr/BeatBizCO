@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Session, User } from '@supabase/supabase-js';
@@ -33,26 +34,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading: true,
   });
 
-  // Add a flag to track if we're currently refreshing
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  // Add debounce timeout reference
   const refreshTimeoutRef = useRef<NodeJS.Timeout>();
+  const isRefreshingRef = useRef(false);
+  const isInitialLoadRef = useRef(true);
 
   const refreshSession = useCallback(async () => {
-    // Clear any existing timeout
     if (refreshTimeoutRef.current) {
       clearTimeout(refreshTimeoutRef.current);
     }
 
-    // Prevent multiple simultaneous refresh calls
-    if (isRefreshing) {
+    if (isRefreshingRef.current) {
+      console.log('Already refreshing session, skipping');
       return;
     }
-    
+
     try {
-      setIsRefreshing(true);
+      isRefreshingRef.current = true;
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+
       if (sessionError) throw sessionError;
 
       if (session?.user) {
@@ -71,15 +70,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           isLoading: false,
         });
 
-        // Store important data in localStorage
         if (profile?.role) {
           localStorage.setItem('userRole', profile.role);
           localStorage.setItem('userId', session.user.id);
         }
 
-        // Only redirect if we're on the index page and have a role
-        if (profile?.role && window.location.pathname === '/') {
-          navigate(`/${profile.role}/dashboard`);
+        // Only redirect on initial load and if we have a role
+        if (isInitialLoadRef.current && profile?.role && window.location.pathname === '/') {
+          navigate(`/${profile.role}/dashboard`, { replace: true });
         }
       } else {
         setState({
@@ -93,25 +91,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Session refresh error:', error);
       setState(prev => ({ ...prev, isLoading: false }));
-      toast({
-        title: "Error refreshing session",
-        description: "Please try signing in again",
-        variant: "destructive",
-      });
+      
+      // Only show toast if it's not the initial load
+      if (!isInitialLoadRef.current) {
+        toast({
+          title: "Error refreshing session",
+          description: "Please try signing in again",
+          variant: "destructive",
+        });
+      }
     } finally {
-      setIsRefreshing(false);
+      isRefreshingRef.current = false;
+      isInitialLoadRef.current = false;
     }
-  }, [navigate, toast, isRefreshing]);
+  }, [navigate, toast]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event);
       
-      // Clear any existing timeout
       if (refreshTimeoutRef.current) {
         clearTimeout(refreshTimeoutRef.current);
       }
-      
+
       if (event === 'SIGNED_OUT') {
         setState({
           session: null,
@@ -125,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Debounce the refresh call
         refreshTimeoutRef.current = setTimeout(() => {
           refreshSession();
-        }, 1000); // Wait 1 second before refreshing
+        }, 500); // Reduced from 1000ms to 500ms for better responsiveness
       }
     });
 
