@@ -37,8 +37,8 @@ const AuthForm = () => {
           description: "Please check your email to verify your account.",
         });
       } else {
-        const { data: { user } } = await signIn(email, password);
-        if (user) {
+        const response = await signIn(email, password);
+        if (response?.data?.user) {
           toast({
             title: "Welcome back!",
             description: "You've successfully signed in.",

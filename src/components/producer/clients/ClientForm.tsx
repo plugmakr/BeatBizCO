@@ -16,14 +16,14 @@ interface ClientFormProps {
   isLoading: boolean;
   defaultValues?: {
     name: string;
-    email: string | null;
-    phone: string | null;
-    website: string | null;
-    budget_range: string | null;
-    genre_focus: string | null;
-    project_type: string | null;
-    social_media: string | null;
-    notes: string | null;
+    email: string;
+    phone?: string;
+    website?: string;
+    budget_range?: string;
+    genre_focus?: string;
+    project_type?: string;
+    social_media?: string;
+    notes?: string;
   };
 }
 

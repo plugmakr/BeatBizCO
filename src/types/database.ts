@@ -37,6 +37,8 @@ export interface ClientFile {
   parent_id?: string;
   created_at: string;
   updated_at: string;
+  fromSoundLibrary?: boolean;
+  projectName?: string;
 }
 
 export interface Profile {
@@ -183,6 +185,7 @@ export interface ProjectWithProfile extends Project {
   profiles?: {
     full_name: string | null;
   } | null;
+  name?: string;
 }
 
 export interface ProjectFile {
@@ -198,3 +201,4 @@ export interface ProjectFile {
 }
 
 export { Database };
+
