@@ -1,4 +1,3 @@
-
 import type { Database } from '@/integrations/supabase/types';
 
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
@@ -41,6 +40,51 @@ export interface ClientFile {
   projectName?: string;
 }
 
+export interface AdminStats {
+  totalUsers: number;
+  totalRevenue: number;
+  activeProjects: number;
+  supportTickets: number;
+}
+
+export interface ArtistStats {
+  purchasedBeats: number;
+  activeProjects: number;
+  collaborations: number;
+  releasedTracks: number;
+}
+
+export interface ProducerStats {
+  totalBeats: number;
+  totalRevenue: number;
+  activeProjects: number;
+  supportTickets?: number;
+}
+
+export interface Project {
+  id: string;
+  title: string;
+  description?: string;
+  client_id?: string | null;
+  deadline?: string | null;
+  status: ProjectStatus;
+  created_by: string;
+  settings?: any;
+  name?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Funnel {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'draft' | 'archived' | 'active';
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Profile {
   id: string;
   role: UserRole;
@@ -52,6 +96,13 @@ export interface Profile {
   support_tickets?: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface ProjectWithProfile extends Project {
+  profiles?: {
+    full_name: string | null;
+  } | null;
+  name?: string;
 }
 
 export interface Sound {
@@ -66,34 +117,10 @@ export interface Sound {
   genre: string;
   tags: string[];
   file_path: string;
+  folder_path: string;
   original_filename: string;
   size: number;
-  folder_path: string;
   is_public: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Project {
-  id: string;
-  title: string;
-  name?: string;
-  description?: string;
-  client_id?: string | null;
-  deadline?: string | null;
-  status: ProjectStatus;
-  created_by: string;
-  settings?: any;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Funnel {
-  id: string;
-  name: string;
-  description?: string;
-  status: 'draft' | 'archived' | 'active';
-  created_by: string;
   created_at: string;
   updated_at: string;
 }
@@ -148,27 +175,6 @@ export interface Track {
   updated_at: string;
 }
 
-export interface ArtistStats {
-  purchasedBeats: number;
-  activeProjects: number;
-  collaborations: number;
-  releasedTracks: number;
-}
-
-export interface ProducerStats {
-  totalBeats: number;
-  totalRevenue: number;
-  activeProjects: number;
-  supportTickets?: number;
-}
-
-export interface AdminStats {
-  totalUsers: number;
-  totalRevenue: number;
-  activeProjects: number;
-  supportTickets: number;
-}
-
 export type Message = {
   id: string;
   content: string;
@@ -180,13 +186,6 @@ export type Message = {
   data?: any;
   type?: string;
 };
-
-export interface ProjectWithProfile extends Project {
-  profiles?: {
-    full_name: string | null;
-  } | null;
-  name?: string;
-}
 
 export interface ProjectFile {
   id: string;
@@ -201,4 +200,3 @@ export interface ProjectFile {
 }
 
 export { Database };
-
