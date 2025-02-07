@@ -87,6 +87,20 @@ export type Database = {
             foreignKeyName: "beats_producer_id_fkey"
             columns: ["producer_id"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "beats_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "beats_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -175,6 +189,20 @@ export type Database = {
             foreignKeyName: "client_files_uploaded_by_fkey"
             columns: ["uploaded_by"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "client_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "client_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -231,6 +259,20 @@ export type Database = {
             foreignKeyName: "clients_producer_id_fkey"
             columns: ["producer_id"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "clients_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "clients_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -283,6 +325,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaboration_projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "collaboration_projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
           },
           {
             foreignKeyName: "collaboration_projects_created_by_fkey"
@@ -411,6 +467,20 @@ export type Database = {
             foreignKeyName: "funnels_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "funnels_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "funnels_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -439,6 +509,20 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "marketplace_analytics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "marketplace_analytics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
           {
             foreignKeyName: "marketplace_analytics_user_id_fkey"
             columns: ["user_id"]
@@ -569,6 +653,20 @@ export type Database = {
             foreignKeyName: "marketplace_items_producer_id_fkey"
             columns: ["producer_id"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "marketplace_items_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "marketplace_items_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -603,6 +701,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "marketplace_sales_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "marketplace_sales_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
           {
             foreignKeyName: "marketplace_sales_buyer_id_fkey"
             columns: ["buyer_id"]
@@ -658,8 +770,36 @@ export type Database = {
             foreignKeyName: "messages_receiver_id_fkey"
             columns: ["receiver_id"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
           },
           {
             foreignKeyName: "messages_sender_id_fkey"
@@ -744,6 +884,20 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
@@ -853,6 +1007,20 @@ export type Database = {
             foreignKeyName: "project_collaborators_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "project_collaborators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "project_collaborators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -904,6 +1072,20 @@ export type Database = {
             foreignKeyName: "project_files_uploaded_by_fkey"
             columns: ["uploaded_by"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "project_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "project_files_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -939,6 +1121,20 @@ export type Database = {
             foreignKeyName: "project_notes_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "project_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "project_notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -947,6 +1143,77 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "collaboration_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          created_by: string | null
+          deadline: string | null
+          description: string | null
+          id: string
+          name: string | null
+          settings: Json | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          name?: string | null
+          settings?: Json | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          name?: string | null
+          settings?: Json | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -986,6 +1253,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "marketplace_items"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
           },
           {
             foreignKeyName: "reviews_reviewer_id_fkey"
@@ -1059,6 +1340,20 @@ export type Database = {
             foreignKeyName: "sound_library_producer_id_fkey"
             columns: ["producer_id"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "sound_library_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "sound_library_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1096,6 +1391,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "sound_library_files_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "sound_library_files_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
           {
             foreignKeyName: "sound_library_files_created_by_fkey"
             columns: ["created_by"]
@@ -1154,6 +1463,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sound_library_folders"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sound_library_folders_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "sound_library_folders_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
           },
           {
             foreignKeyName: "sound_library_folders_producer_id_fkey"
@@ -1266,6 +1589,20 @@ export type Database = {
             foreignKeyName: "transactions_producer_id_fkey"
             columns: ["producer_id"]
             isOneToOne: false
+            referencedRelation: "artist_stats"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "transactions_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "producer_stats"
+            referencedColumns: ["producer_id"]
+          },
+          {
+            foreignKeyName: "transactions_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1273,6 +1610,15 @@ export type Database = {
       }
     }
     Views: {
+      admin_stats: {
+        Row: {
+          active_projects: number | null
+          support_tickets: number | null
+          total_revenue: number | null
+          total_users: number | null
+        }
+        Relationships: []
+      }
       artist_stats: {
         Row: {
           active_projects: number | null
@@ -1280,6 +1626,16 @@ export type Database = {
           collaborations: number | null
           purchased_beats: number | null
           released_tracks: number | null
+        }
+        Relationships: []
+      }
+      producer_stats: {
+        Row: {
+          active_projects: number | null
+          producer_id: string | null
+          support_tickets: number | null
+          total_beats: number | null
+          total_revenue: number | null
         }
         Relationships: []
       }
