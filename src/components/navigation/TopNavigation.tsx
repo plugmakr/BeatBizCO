@@ -83,12 +83,11 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
         <div className="flex items-center space-x-2">
           <nav className="flex items-center">
             {user ? (
-              <DropdownMenu>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative select-none"
-                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                    className="relative"
                   >
                     Profile
                   </Button>
@@ -98,7 +97,6 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                   className="w-56"
                   sideOffset={5}
                   alignOffset={0}
-                  forceMount
                 >
                   <DropdownMenuItem asChild>
                     <Link
