@@ -45,7 +45,12 @@ export function useMarketplaceUpload() {
     }
   };
 
-  const handleUpload = async (values: any, thumbnailFile: File, audioFile: File, downloadFile: File | null) => {
+  const handleUpload = async (
+    values: any,
+    thumbnailFile: File,
+    audioFile: File,
+    downloadFile: File | null,
+  ) => {
     setIsUploading(true);
     setUploadProgress({
       thumbnail: 0,
@@ -98,6 +103,7 @@ export function useMarketplaceUpload() {
         producer_id: session.user.id,
         title: values.title,
         description: values.description,
+        type: values.type,
         price: parseFloat(values.price),
         bpm: values.bpm ? parseInt(values.bpm) : null,
         key: values.key,
@@ -106,7 +112,6 @@ export function useMarketplaceUpload() {
         preview_url: previewResponse.data.previewPath,
         thumbnail_url: thumbnailPath,
         download_url: downloadPath,
-        license_type: values.license_type || 'basic',
         status: "published",
       });
 

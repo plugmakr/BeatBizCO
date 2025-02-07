@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -36,11 +37,13 @@ const AuthForm = () => {
           description: "Please check your email to verify your account.",
         });
       } else {
-        await signIn(email, password);
-        toast({
-          title: "Welcome back!",
-          description: "You've successfully signed in.",
-        });
+        const { data: { user } } = await signIn(email, password);
+        if (user) {
+          toast({
+            title: "Welcome back!",
+            description: "You've successfully signed in.",
+          });
+        }
       }
     } catch (error: any) {
       console.error('Auth error:', error);

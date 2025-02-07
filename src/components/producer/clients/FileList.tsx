@@ -90,7 +90,7 @@ export function FileList({
     try {
       const { error } = await supabase.from("client_files").insert({
         client_id: clientId,
-        file_name: file.file_name,
+        filename: file.filename,
         file_path: file.file_path,
         file_type: file.file_type,
         size: file.size,
@@ -153,7 +153,7 @@ export function FileList({
                       onClick={() =>
                         onPreview(
                           file.fromSoundLibrary ? file.file_path : file.file_path,
-                          file.display_name || file.file_name,
+                          file.display_name || file.filename,
                           file.file_type
                         )
                       }
@@ -165,7 +165,7 @@ export function FileList({
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-medium">
-                        {file.display_name || file.file_name}
+                        {file.display_name || file.filename}
                       </p>
                       {file.fromSoundLibrary && (
                         <Badge variant="secondary">Sound Library</Badge>

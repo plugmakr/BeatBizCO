@@ -1,4 +1,3 @@
-
 import { 
   Globe, 
   Users, 
@@ -49,10 +48,7 @@ const MoreFeatures = () => {
         <h2 className="section-title">More Powerful Features</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <Card 
-              key={index} 
-              className="bg-card border-primary/20 backdrop-blur-sm transform transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg hover:shadow-primary/20 text-white cursor-pointer"
-            >
+            <Card key={index} className="feature-card">
               <CardContent className="p-6 text-center">
                 {feature.icon}
                 <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
