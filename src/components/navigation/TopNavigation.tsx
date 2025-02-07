@@ -87,13 +87,10 @@ function TopNavigation({ scrollToSection, getDashboardRoute }: TopNavigationProp
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-8 w-8 rounded-full select-none cursor-pointer"
+                    className="relative select-none"
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
-                    <span className="sr-only">Open user menu</span>
-                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                      {user.email?.[0].toUpperCase()}
-                    </div>
+                    Profile
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent 
