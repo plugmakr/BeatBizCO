@@ -37,21 +37,15 @@ const AuthForm = () => {
           description: "Please check your email to verify your account.",
         });
       } else {
-        const { data: { user } } = await signIn(email, password);
-        if (user) {
-          toast({
-            title: "Welcome back!",
-            description: "You've successfully signed in.",
-          });
-        }
+        await signIn(email, password);
       }
     } catch (error: any) {
       console.error('Auth error:', error);
-      if (error.message.includes("User already registered")) {
+      if (error.message?.includes("User already registered")) {
         setError("This email is already registered. Please sign in instead.");
         navigate("/auth");
       } else {
-        setError(error.message);
+        setError(error.message || "An error occurred during authentication");
       }
     } finally {
       setIsLoading(false);

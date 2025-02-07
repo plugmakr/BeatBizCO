@@ -35,7 +35,6 @@ export const useAuthRedirect = () => {
     const handleAuthStateChange = async (event: string, session: any) => {
       console.log("Auth state changed:", event, session);
 
-      // Prevent multiple simultaneous auth state processing
       if (isProcessingRef.current) {
         console.log("Already processing auth state change, skipping");
         return;
@@ -44,7 +43,7 @@ export const useAuthRedirect = () => {
       try {
         isProcessingRef.current = true;
 
-        if (event === 'SIGNED_IN' && session) {
+        if (event === 'SIGNED_IN' && session?.user?.id) {
           const { data: profile, error: profileError } = await supabase
             .from("profiles")
             .select("role")
@@ -56,13 +55,18 @@ export const useAuthRedirect = () => {
             throw profileError;
           }
 
-          console.log("User profile retrieved:", profile);
-          toast({
-            title: "Welcome to BeatBiz!",
-            description: "You've successfully signed in.",
-          });
-          
-          handleRoleBasedRedirect(profile.role);
+          if (profile?.role) {
+            console.log("User profile retrieved:", profile);
+            toast({
+              title: "Welcome to BeatBiz!",
+              description: "You've successfully signed in.",
+            });
+            
+            handleRoleBasedRedirect(profile.role);
+          } else {
+            console.error("No role found for user");
+            navigate("/", { replace: true });
+          }
         } else if (event === 'SIGNED_OUT') {
           navigate('/', { replace: true });
         }
@@ -73,6 +77,7 @@ export const useAuthRedirect = () => {
           description: "Failed to get user role. Please try again.",
           variant: "destructive"
         });
+        navigate("/", { replace: true });
       } finally {
         isProcessingRef.current = false;
       }
