@@ -132,9 +132,9 @@ export type Database = {
           client_id: string | null
           created_at: string
           display_name: string | null
-          file_name: string
           file_path: string | null
           file_type: string
+          filename: string
           id: string
           parent_id: string | null
           size: number
@@ -146,9 +146,9 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           display_name?: string | null
-          file_name: string
           file_path?: string | null
           file_type: string
+          filename: string
           id?: string
           parent_id?: string | null
           size: number
@@ -160,9 +160,9 @@ export type Database = {
           client_id?: string | null
           created_at?: string
           display_name?: string | null
-          file_name?: string
           file_path?: string | null
           file_type?: string
+          filename?: string
           id?: string
           parent_id?: string | null
           size?: number
@@ -441,7 +441,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
-          status: string | null
+          status: Database["public"]["Enums"]["funnel_status"] | null
           updated_at: string | null
         }
         Insert: {
@@ -450,7 +450,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
-          status?: string | null
+          status?: Database["public"]["Enums"]["funnel_status"] | null
           updated_at?: string | null
         }
         Update: {
@@ -459,7 +459,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
-          status?: string | null
+          status?: Database["public"]["Enums"]["funnel_status"] | null
           updated_at?: string | null
         }
         Relationships: [
@@ -601,7 +601,7 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           key?: string | null
-          license_type: Database["public"]["Enums"]["license_type"]
+          license_type?: Database["public"]["Enums"]["license_type"]
           preview_url?: string | null
           price: number
           producer_id: string
@@ -1029,10 +1029,10 @@ export type Database = {
       project_files: {
         Row: {
           created_at: string
-          file_name: string
           file_path: string | null
           file_type: string
           file_url: string
+          filename: string
           id: string
           project_id: string
           updated_at: string
@@ -1040,10 +1040,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          file_name: string
           file_path?: string | null
           file_type: string
           file_url: string
+          filename: string
           id?: string
           project_id: string
           updated_at?: string
@@ -1051,10 +1051,10 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          file_name?: string
           file_path?: string | null
           file_type?: string
           file_url?: string
+          filename?: string
           id?: string
           project_id?: string
           updated_at?: string
@@ -1649,6 +1649,7 @@ export type Database = {
       }
     }
     Enums: {
+      funnel_status: "draft" | "archived" | "active"
       license_type: "basic" | "premium" | "exclusive"
       project_status:
         | "draft"

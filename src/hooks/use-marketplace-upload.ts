@@ -1,6 +1,8 @@
+
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import type { LicenseType } from "@/types/database";
 
 export function useMarketplaceUpload() {
   const { toast } = useToast();
@@ -113,6 +115,7 @@ export function useMarketplaceUpload() {
         thumbnail_url: thumbnailPath,
         download_url: downloadPath,
         status: "published",
+        license_type: values.license_type as LicenseType || 'basic',
       });
 
       if (insertError) throw insertError;

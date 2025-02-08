@@ -1,4 +1,3 @@
-
 import type { Database } from '@/integrations/supabase/types';
 
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
@@ -28,7 +27,7 @@ export interface ClientFile {
   id: string;
   client_id?: string;
   uploaded_by?: string;
-  file_name: string;
+  filename: string; // Changed from file_name
   file_type: string;
   file_path?: string;
   display_name?: string;
@@ -189,7 +188,7 @@ export interface ProjectFile {
   id: string;
   project_id: string;
   uploaded_by: string;
-  file_name: string;
+  filename: string; // Changed from file_name
   file_type: string;
   file_url: string;
   file_path?: string;

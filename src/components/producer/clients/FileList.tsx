@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MediaThumbnail } from "@/components/shared/media/MediaThumbnail";
@@ -11,7 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 
 interface FileListProps {
-  files: (ClientFile & { fromSoundLibrary?: boolean, projectName?: string })[];
+  files: (ClientFile & { fromSoundLibrary?: boolean; projectName?: string; })[];
   onPreview: (filePath: string, filename: string, fileType: string) => void;
   onDelete: (fileId: string, filePath: string) => void;
   onFolderClick: (folderId: string) => void;
