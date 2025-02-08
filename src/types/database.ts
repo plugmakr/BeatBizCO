@@ -7,6 +7,7 @@ export type UserRole = 'guest' | 'artist' | 'producer' | 'admin';
 export type ProjectStatus = 'draft' | 'in_progress' | 'completed' | 'archived' | 'active';
 export type SoundType = 'beat' | 'sound_kit' | 'midi_kit' | 'loop_kit' | 'drum_kit' | 'one_shot' | 'sample';
 export type LicenseType = 'basic' | 'premium' | 'exclusive';
+export type FunnelStatus = 'draft' | 'archived' | 'active';
 
 export interface Client {
   id: string;
@@ -55,7 +56,8 @@ export interface Profile {
 export interface Sound {
   id: string;
   producer_id: string;
-  name: string;  // Changed from title to name to match DB
+  name: string;
+  title?: string;
   description: string;
   type: SoundType;
   bpm: number;
@@ -74,7 +76,6 @@ export interface Sound {
 export interface Project {
   id: string;
   title: string;
-  name?: string | null;
   description?: string | null;
   client_id?: string | null;
   deadline?: string | null;
@@ -85,11 +86,23 @@ export interface Project {
   updated_at: string;
 }
 
+export interface ProjectFile {
+  id: string;
+  project_id: string;
+  uploaded_by: string;
+  filename: string;
+  file_type: string;
+  file_url: string;
+  file_path?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Funnel {
   id: string;
   name: string;
   description?: string;
-  status: 'draft' | 'archived' | 'active';
+  status: FunnelStatus;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -182,18 +195,6 @@ export interface ProjectWithProfile extends Project {
   profiles?: {
     full_name: string | null;
   } | null;
-}
-
-export interface ProjectFile {
-  id: string;
-  project_id: string;
-  uploaded_by: string;
-  filename: string;  // Changed from file_name to filename
-  file_type: string;
-  file_url: string;
-  file_path?: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export { Database };

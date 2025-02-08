@@ -24,7 +24,7 @@ export function ProjectFileList({ files, onPreview, onEdit, onDelete }: ProjectF
 
   const getFileName = (file: CombinedProjectFile) => {
     if (file.type === 'regular') {
-      return file.file.file_name;
+      return file.file.filename; // Changed from file_name to filename
     }
     return file.file.title;
   };

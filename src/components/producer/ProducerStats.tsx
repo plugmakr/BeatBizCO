@@ -1,10 +1,14 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Music, Download, Star, Trophy, Activity, DollarSign } from "lucide-react";
-import { ProducerStats as ProducerStatsType } from "@/types/database";
 
-interface ProducerStatsProps {
-  stats: ProducerStatsType;
+export interface ProducerStatsProps {
+  stats: {
+    totalBeats: number;
+    totalRevenue: number;
+    activeProjects: number;
+    supportTickets?: number;
+  };
   isLoading: boolean;
 }
 

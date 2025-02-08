@@ -73,6 +73,7 @@ export function CreateProjectDialog() {
       }
 
       const { error } = await supabase.from("collaboration_projects").insert({
+        title: data.name, // Use name as title
         name: data.name,
         description: data.description,
         deadline: data.deadline?.toISOString(),
