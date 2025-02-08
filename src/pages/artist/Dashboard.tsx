@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,16 +47,21 @@ const ArtistDashboard = () => {
   const { data: recentReleases, isLoading: isReleasesLoading } = useQuery({
     queryKey: ["recent-releases", user?.id],
     queryFn: async () => {
+      // Fix: Use proper subquery syntax for Supabase
+      const { data: collaboratorProjects } = await supabase
+        .from("project_collaborators")
+        .select("project_id")
+        .eq("user_id", user?.id);
+
+      if (!collaboratorProjects) return [];
+
+      const projectIds = collaboratorProjects.map(cp => cp.project_id);
+
       const { data, error } = await supabase
         .from("collaboration_projects")
         .select("*")
         .eq("status", "completed")
-        .in("id", 
-          supabase
-            .from("project_collaborators")
-            .select("project_id")
-            .eq("user_id", user?.id)
-        )
+        .in("id", projectIds)
         .order("updated_at", { ascending: false })
         .limit(3);
 
