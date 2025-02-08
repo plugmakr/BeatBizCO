@@ -26,6 +26,7 @@ export const useAuthRedirect = () => {
         navigate("/artist/dashboard", { replace: true });
         break;
       default:
+        console.log("No valid role found, redirecting to home");
         navigate("/", { replace: true });
         break;
     }
@@ -44,6 +45,7 @@ export const useAuthRedirect = () => {
         isProcessingRef.current = true;
 
         if (event === 'SIGNED_IN' && session?.user?.id) {
+          console.log("User signed in, fetching profile");
           const { data: profile, error: profileError } = await supabase
             .from("profiles")
             .select("role")
@@ -57,6 +59,10 @@ export const useAuthRedirect = () => {
 
           if (profile?.role) {
             console.log("User profile retrieved:", profile);
+            // Store role in localStorage for persistence
+            localStorage.setItem('userRole', profile.role);
+            localStorage.setItem('userId', session.user.id);
+            
             toast({
               title: "Welcome to BeatBiz!",
               description: "You've successfully signed in.",
@@ -68,6 +74,9 @@ export const useAuthRedirect = () => {
             navigate("/", { replace: true });
           }
         } else if (event === 'SIGNED_OUT') {
+          console.log("User signed out, clearing storage and redirecting");
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('userId');
           navigate('/', { replace: true });
         }
       } catch (error) {
@@ -83,7 +92,17 @@ export const useAuthRedirect = () => {
       }
     };
 
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthStateChange);
+
+    // Check initial session
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.id) {
+        handleAuthStateChange('SIGNED_IN', session);
+      }
+    };
+    checkSession();
 
     return () => {
       subscription.unsubscribe();

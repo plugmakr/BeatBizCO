@@ -11,6 +11,11 @@ interface RoleGuardProps {
 
 const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   const { userRole, isLoading } = useAuth();
+  
+  useEffect(() => {
+    console.log("RoleGuard - Current userRole:", userRole);
+    console.log("RoleGuard - Allowed roles:", allowedRoles);
+  }, [userRole, allowedRoles]);
 
   if (isLoading) {
     return (
@@ -21,15 +26,17 @@ const RoleGuard = ({ children, allowedRoles }: RoleGuardProps) => {
   }
 
   if (!userRole) {
+    console.log("RoleGuard - No user role, redirecting to auth");
     return <Navigate to="/auth" replace />;
   }
 
   if (!allowedRoles.includes(userRole)) {
+    console.log(`RoleGuard - User role ${userRole} not allowed, redirecting to dashboard`);
     return <Navigate to={`/${userRole}/dashboard`} replace />;
   }
 
+  console.log("RoleGuard - Access granted");
   return <>{children}</>;
 };
 
 export default RoleGuard;
-
