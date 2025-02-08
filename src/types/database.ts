@@ -81,6 +81,7 @@ export interface Project {
   status: ProjectStatus;
   created_by: string;
   settings?: any;
+  name?: string | null;
   created_at: string;
   updated_at: string;
 }

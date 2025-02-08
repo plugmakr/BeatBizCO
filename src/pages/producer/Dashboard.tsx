@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { ProducerStats } from "@/components/producer/ProducerStats";
@@ -11,6 +10,7 @@ import { useProducerStats } from "@/hooks/queries/useProducerStats";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import type { ProducerStats as ProducerStatsType } from "@/types/database";
 
 const ProducerDashboard = () => {
   const { toast } = useToast();
@@ -63,6 +63,13 @@ const ProducerDashboard = () => {
     enabled: !!user?.id,
   });
 
+  const defaultStats: ProducerStatsType = {
+    totalBeats: 0,
+    totalRevenue: 0,
+    activeProjects: 0,
+    supportTickets: 0
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -70,10 +77,10 @@ const ProducerDashboard = () => {
           <h1 className="text-3xl font-bold">Dashboard</h1>
         </div>
 
-        <ProducerStats stats={stats || { totalBeats: 0, totalRevenue: 0, activeProjects: 0, supportTickets: 0 }} isLoading={isStatsLoading} />
+        <ProducerStats stats={stats || defaultStats} isLoading={isStatsLoading} />
 
         <div className="grid gap-4 grid-cols-1">
-          <FinancialOverview stats={stats || { totalBeats: 0, totalRevenue: 0, activeProjects: 0, supportTickets: 0 }} isLoading={isStatsLoading} />
+          <FinancialOverview stats={stats || defaultStats} isLoading={isStatsLoading} />
         </div>
 
         <Tabs defaultValue="overview" className="space-y-4">

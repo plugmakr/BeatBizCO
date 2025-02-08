@@ -30,23 +30,16 @@ export function SoundLibraryFilters({
   selectedType,
   onTypeChange,
 }: SoundLibraryFiltersProps) {
-  const { data: session } = useQuery({
-    queryKey: ['session'],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      return session;
-    },
-  });
+  const { data: { session } } = await supabase.auth.getSession();
 
   const { data: tags = [] } = useQuery<SoundLibraryTag[]>({
-    queryKey: ["sound-library-tags", session?.user?.id],
+    queryKey: ["sound-library-tags"],
     queryFn: async () => {
       if (!session?.user?.id) return [];
       
       const { data, error } = await supabase
         .from("sound_library_tags")
-        .select("*")
-        .eq("producer_id", session.user.id);
+        .select("*");
       
       if (error) throw error;
       return data;
