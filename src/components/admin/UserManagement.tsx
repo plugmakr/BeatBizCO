@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -29,6 +28,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
+import { Tables } from "@/types/database";
 
 interface User {
   id: string;
@@ -74,8 +74,7 @@ function UserManagement() {
       // Get profiles first
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*') as { data: Tables<'profiles'>[] | null, error: any };
 
       if (profilesError) throw profilesError;
 
