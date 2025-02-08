@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -74,7 +75,7 @@ function UserManagement() {
       // Get profiles first
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('*') as { data: Tables<'profiles'>[] | null, error: any };
+        .select('*');
 
       if (profilesError) throw profilesError;
 
@@ -83,7 +84,7 @@ function UserManagement() {
       if (authError) throw authError;
 
       // Merge profile and auth data
-      const mergedUsers = profiles?.map(profile => {
+      const mergedUsers = (profiles || []).map(profile => {
         const authUser = data.users.find(u => u.id === profile.id);
         return {
           ...profile,
@@ -92,7 +93,7 @@ function UserManagement() {
           full_name: profile.full_name || authUser?.user_metadata?.full_name || 'Not set',
           role: profile.role || authUser?.user_metadata?.role || 'artist'
         };
-      }) || [];
+      });
 
       setUsers(mergedUsers);
     } catch (error: any) {

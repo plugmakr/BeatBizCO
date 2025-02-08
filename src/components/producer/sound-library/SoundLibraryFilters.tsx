@@ -1,5 +1,5 @@
+
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -9,14 +9,13 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-type SoundType = "beat" | "sound_kit" | "midi_kit" | "loop_kit" | "drum_kit" | "one_shot" | "sample" | null;
+import type { SoundType } from "@/types/database";
 
 interface SoundLibraryFiltersProps {
   selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
-  selectedType: SoundType;
-  onTypeChange: (type: SoundType) => void;
+  selectedType: SoundType | null;
+  onTypeChange: (type: SoundType | null) => void;
 }
 
 export function SoundLibraryFilters({
@@ -35,7 +34,7 @@ export function SoundLibraryFilters({
   });
 
   const { data: tags } = useQuery({
-    queryKey: ["sound-library-tags", session?.user.id],
+    queryKey: ["sound-library-tags", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
       

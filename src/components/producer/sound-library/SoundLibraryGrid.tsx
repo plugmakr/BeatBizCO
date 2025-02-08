@@ -132,7 +132,7 @@ export function SoundLibraryGrid({
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-semibold truncate">{sound.title}</h3>
+                          <h3 className="font-semibold truncate">{sound.name}</h3>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             {sound.bpm && <span>{sound.bpm} BPM</span>}
                             {sound.key && <span>• {sound.key}</span>}
@@ -188,7 +188,7 @@ export function SoundLibraryGrid({
                       )}
                     </div>
                   </div>
-                  <AudioPlayer src={sound.file_path} title={sound.title} compact />
+                  <AudioPlayer src={sound.file_path} title={sound.name} compact />
                 </div>
               </Card>
             </ContextMenuTrigger>
