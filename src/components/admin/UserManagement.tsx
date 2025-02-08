@@ -29,7 +29,6 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { Tables } from "@/types/database";
 
 interface User {
   id: string;
@@ -72,30 +71,12 @@ function UserManagement() {
     try {
       setLoading(true);
       
-      // Get profiles first
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*');
+      const { data, error } = await supabase
+        .rpc('get_users_for_admin');
 
-      if (profilesError) throw profilesError;
+      if (error) throw error;
 
-      // Get auth users
-      const { data, error: authError } = await supabase.auth.admin.listUsers();
-      if (authError) throw authError;
-
-      // Merge profile and auth data
-      const mergedUsers = (profiles || []).map(profile => {
-        const authUser = data.users.find(u => u.id === profile.id);
-        return {
-          ...profile,
-          email: authUser?.email || 'No email',
-          username: profile.username || authUser?.user_metadata?.username || 'Not set',
-          full_name: profile.full_name || authUser?.user_metadata?.full_name || 'Not set',
-          role: profile.role || authUser?.user_metadata?.role || 'artist'
-        };
-      });
-
-      setUsers(mergedUsers);
+      setUsers(data || []);
     } catch (error: any) {
       console.error('Error fetching users:', error);
       toast({
@@ -121,28 +102,29 @@ function UserManagement() {
     setUpdating(true);
     try {
       // Create auth user
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: createForm.email,
         password: createForm.password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: createForm.full_name,
-          username: createForm.username,
-          role: createForm.role,
-        },
+        options: {
+          data: {
+            full_name: createForm.full_name,
+            username: createForm.username,
+          }
+        }
       });
 
-      if (authError) throw authError;
+      if (signUpError) throw signUpError;
+      if (!signUpData.user) throw new Error('No user returned from sign up');
 
-      // Create profile
+      // Update profile role
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({
-          id: authData.user.id,
+        .update({ 
           role: createForm.role,
           full_name: createForm.full_name,
-          username: createForm.username,
-        });
+          username: createForm.username
+        })
+        .eq('id', signUpData.user.id);
 
       if (profileError) throw profileError;
 
@@ -178,21 +160,12 @@ function UserManagement() {
     
     setUpdating(true);
     try {
-      // Update profile role
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ role: selectedRole })
         .eq('id', selectedUser.id);
 
       if (profileError) throw profileError;
-
-      // Update auth metadata
-      const { error: authError } = await supabase.auth.admin.updateUserById(
-        selectedUser.id,
-        { user_metadata: { role: selectedRole } }
-      );
-
-      if (authError) throw authError;
 
       toast({
         title: "Role updated",
@@ -217,17 +190,13 @@ function UserManagement() {
     if (!confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      // Delete from profiles first
+      // Delete profile first (this will cascade to auth.users due to foreign key)
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
         .eq('id', userId);
 
       if (profileError) throw profileError;
-
-      // Then delete from auth
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
-      if (authError) throw authError;
 
       toast({
         title: "User deleted",

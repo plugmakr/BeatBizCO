@@ -1641,6 +1641,16 @@ export type Database = {
       }
     }
     Functions: {
+      get_users_for_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          email: string
+          role: string
+          created_at: string
+          last_sign_in: string
+        }[]
+      }
       is_admin: {
         Args: {
           user_id: string
