@@ -31,7 +31,7 @@ export function useClientFileUpload(client: Client, onSuccess: () => void) {
       // Then, create a record in the client_files table
       const { error: dbError } = await supabase.from('client_files').insert({
         client_id: client.id,
-        file_name: file.name,
+        filename: file.name,
         display_name: file.name,
         file_path: filePath,
         file_type: file.type,

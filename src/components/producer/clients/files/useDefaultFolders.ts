@@ -36,7 +36,7 @@ export function useDefaultFolders(clientId: string, onFoldersCreated: () => void
         foldersToCreate.map((folder) => ({
           client_id: clientId,
           display_name: folder.name,
-          file_name: folder.name,
+          filename: folder.name,
           file_path: "",
           file_type: "folder",
           size: 0,

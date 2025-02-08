@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,21 +11,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import type { Client } from "@/types/database";
 
 interface ClientFormProps {
   onSubmit: (formData: FormData) => void;
   isLoading: boolean;
-  defaultValues?: {
-    name: string;
-    email: string | null;
-    phone: string | null;
-    website: string | null;
-    budget_range: string | null;
-    genre_focus: string | null;
-    project_type: string | null;
-    social_media: string | null;
-    notes: string | null;
-  };
+  defaultValues?: Client;
 }
 
 export default function ClientForm({ onSubmit, isLoading, defaultValues }: ClientFormProps) {
@@ -41,7 +33,7 @@ export default function ClientForm({ onSubmit, isLoading, defaultValues }: Clien
             id="name" 
             name="name" 
             required 
-            defaultValue={defaultValues?.name}
+            defaultValue={defaultValues?.name || ''}
           />
         </div>
         <div className="space-y-2">

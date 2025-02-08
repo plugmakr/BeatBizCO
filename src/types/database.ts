@@ -10,14 +10,14 @@ export type LicenseType = 'basic' | 'premium' | 'exclusive';
 export interface Client {
   id: string;
   name: string;
-  email: string;
-  phone?: string;
-  website?: string;
-  budget_range?: string;
-  genre_focus?: string;
-  project_type?: string;
-  social_media?: string;
-  notes?: string;
+  email: string | null;
+  phone?: string | null;
+  website?: string | null;
+  budget_range?: string | null;
+  genre_focus?: string | null;
+  project_type?: string | null;
+  social_media?: string | null;
+  notes?: string | null;
   producer_id?: string;
   created_at: string;
   updated_at: string;
@@ -27,7 +27,7 @@ export interface ClientFile {
   id: string;
   client_id?: string;
   uploaded_by?: string;
-  filename: string; // Changed from file_name
+  filename: string;
   file_type: string;
   file_path?: string;
   display_name?: string;
@@ -74,8 +74,8 @@ export interface Sound {
 export interface Project {
   id: string;
   title: string;
-  name?: string;
-  description?: string;
+  name?: string | null;
+  description?: string | null;
   client_id?: string | null;
   deadline?: string | null;
   status: ProjectStatus;
@@ -188,7 +188,7 @@ export interface ProjectFile {
   id: string;
   project_id: string;
   uploaded_by: string;
-  filename: string; // Changed from file_name
+  filename: string;
   file_type: string;
   file_url: string;
   file_path?: string;
