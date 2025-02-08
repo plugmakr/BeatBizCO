@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 import type { SoundType } from "@/types/database";
 
 interface SoundLibraryFiltersProps {
@@ -30,12 +31,20 @@ export function SoundLibraryFilters({
   selectedType,
   onTypeChange,
 }: SoundLibraryFiltersProps) {
-  const { data: { session } } = await supabase.auth.getSession();
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id || null);
+    };
+    getSession();
+  }, []);
 
   const { data: tags = [] } = useQuery<SoundLibraryTag[]>({
     queryKey: ["sound-library-tags"],
     queryFn: async () => {
-      if (!session?.user?.id) return [];
+      if (!userId) return [];
       
       const { data, error } = await supabase
         .from("sound_library_tags")
@@ -44,7 +53,7 @@ export function SoundLibraryFilters({
       if (error) throw error;
       return data;
     },
-    enabled: !!session?.user?.id,
+    enabled: !!userId,
   });
 
   const toggleTag = (tag: string) => {
