@@ -4,8 +4,8 @@ import { Music, Download, Star, Trophy, Activity, DollarSign } from "lucide-reac
 import { ProducerStats as ProducerStatsType } from "@/types/database";
 
 interface ProducerStatsProps {
-  stats?: ProducerStatsType;
-  isLoading?: boolean;
+  stats: ProducerStatsType;
+  isLoading: boolean;
 }
 
 export function ProducerStats({ stats, isLoading }: ProducerStatsProps) {

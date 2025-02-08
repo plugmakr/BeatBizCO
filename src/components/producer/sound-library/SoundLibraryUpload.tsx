@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Dialog,
@@ -62,7 +63,7 @@ export function SoundLibraryUpload({
 
       const { error: dbError } = await supabase.from("sound_library").insert({
         producer_id: userId,
-        title,
+        name: title,  // Changed from title to name
         description,
         type: type as SoundType,
         bpm: bpm ? parseInt(bpm) : null,
@@ -70,9 +71,10 @@ export function SoundLibraryUpload({
         genre,
         tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
         file_path: filePath,
-        folder_path: currentFolder,
+        folder_path: currentFolder || '',
         size: file.size,
         original_filename: file.name,
+        is_public: false
       });
 
       if (dbError) throw dbError;
