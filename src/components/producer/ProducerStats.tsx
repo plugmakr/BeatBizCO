@@ -58,3 +58,4 @@ const ProducerStats = ({ stats, isLoading }: ProducerStatsProps) => {
 };
 
 export default ProducerStats;
+
