@@ -1657,6 +1657,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_same_user: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       funnel_status: "draft" | "archived" | "active"
