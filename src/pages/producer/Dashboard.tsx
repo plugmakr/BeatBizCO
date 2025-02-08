@@ -1,6 +1,7 @@
+
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { ProducerStats } from "@/components/producer/ProducerStats";
+import ProducerStats from "@/components/producer/ProducerStats";
 import { ProducerNews } from "@/components/producer/ProducerNews";
 import FinancialOverview from "@/components/producer/finances/FinancialOverview";
 import RevenueChart from "@/components/producer/finances/RevenueChart";

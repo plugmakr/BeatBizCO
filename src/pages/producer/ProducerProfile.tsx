@@ -7,7 +7,7 @@ import TopNavigation from "@/components/navigation/TopNavigation";
 import { toast } from "react-hot-toast";
 import { ProducerHero } from "@/components/producer/ProducerHero";
 import { ProducerNews } from "@/components/producer/ProducerNews";
-import { ProducerStats } from "@/components/producer/ProducerStats";
+import ProducerStats from "@/components/producer/ProducerStats";
 
 const producerData = {
   name: "Metro Boomin",
