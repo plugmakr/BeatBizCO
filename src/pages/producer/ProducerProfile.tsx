@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import TopNavigation from "@/components/navigation/TopNavigation";
 import { toast } from "react-hot-toast";
 import { ProducerHero } from "@/components/producer/ProducerHero";
 import { ProducerNews } from "@/components/producer/ProducerNews";
-import ProducerStats from "@/components/producer/ProducerStats";
+import { MetricsDisplay } from "@/components/producer/dashboard/MetricsDisplay";
 
 const producerData = {
   name: "Metro Boomin",
@@ -157,14 +158,14 @@ export default function ProducerProfile() {
       />
 
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <ProducerStats 
-          stats={{
+        <MetricsDisplay 
+          data={{
             totalBeats: 0,
             totalRevenue: 0,
             activeProjects: 0,
             supportTickets: 0
           }}
-          isLoading={false}
+          loading={false}
         />
 
         <Tabs defaultValue="beats" className="space-y-12">
