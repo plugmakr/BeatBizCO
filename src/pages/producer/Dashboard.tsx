@@ -1,7 +1,6 @@
-
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { ProducerStats, type ProducerStatsProps } from "@/components/producer/ProducerStats";
+import { ProducerStats } from "@/components/producer/ProducerStats";
 import { ProducerNews } from "@/components/producer/ProducerNews";
 import FinancialOverview from "@/components/producer/finances/FinancialOverview";
 import RevenueChart from "@/components/producer/finances/RevenueChart";
@@ -26,6 +25,7 @@ const ProducerDashboard = () => {
   }, []);
 
   const { data: stats, isLoading: isStatsLoading } = useProducerStats(user?.id);
+
   const { data: recentCollabs, isLoading: isCollabsLoading } = useQuery({
     queryKey: ["recent-collabs", user?.id],
     queryFn: async () => {
@@ -78,7 +78,10 @@ const ProducerDashboard = () => {
           <h1 className="text-3xl font-bold">Dashboard</h1>
         </div>
 
-        <ProducerStats stats={stats || defaultStats} isLoading={isStatsLoading} />
+        <ProducerStats 
+          stats={stats || defaultStats} 
+          isLoading={isStatsLoading} 
+        />
 
         <div className="grid gap-4 grid-cols-1">
           <FinancialOverview stats={stats || defaultStats} isLoading={isStatsLoading} />

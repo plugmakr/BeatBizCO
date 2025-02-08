@@ -21,17 +21,17 @@ import { Edit2, Eye, Trash2, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import type { Project } from "@/types/database";
 
-interface ProjectWithProfile extends Project {
+type ExtendedProject = Project & {
   profiles?: {
     full_name: string | null;
   } | null;
-}
+};
 
 const ProducerProjects = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [activeProjects, setActiveProjects] = useState<ProjectWithProfile[]>([]);
-  const [completedProjects, setCompletedProjects] = useState<ProjectWithProfile[]>([]);
-  const [selectedProject, setSelectedProject] = useState<ProjectWithProfile | null>(null);
+  const [activeProjects, setActiveProjects] = useState<ExtendedProject[]>([]);
+  const [completedProjects, setCompletedProjects] = useState<ExtendedProject[]>([]);
+  const [selectedProject, setSelectedProject] = useState<ExtendedProject | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingClient, setIsAddingClient] = useState(false);
@@ -143,7 +143,7 @@ const ProducerProjects = () => {
     fetchProjects();
   }, []);
 
-  const ProjectTable = ({ projects }: { projects: ProjectWithProfile[] }) => (
+  const ProjectTable = ({ projects }: { projects: ExtendedProject[] }) => (
     <Table>
       <TableHeader>
         <TableRow>

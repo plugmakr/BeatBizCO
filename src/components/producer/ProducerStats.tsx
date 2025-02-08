@@ -3,14 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Music, Download, Star, Trophy, Activity, DollarSign } from "lucide-react";
 import type { ProducerStats as ProducerStatsType } from "@/types/database";
 
-export interface ProducerStatsProps {
+type ProducerStatProps = {
   stats: ProducerStatsType;
   isLoading: boolean;
-}
+};
 
-export function ProducerStats(props: ProducerStatsProps) {
-  const { stats, isLoading } = props;
-  
+export function ProducerStats({ stats, isLoading }: ProducerStatProps) {
   const statItems = [
     { 
       icon: Music,
