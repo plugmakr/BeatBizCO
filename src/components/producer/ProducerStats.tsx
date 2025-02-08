@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Music, Download, Star, Trophy, Activity, DollarSign } from "lucide-react";
 import type { ProducerStats as ProducerStatsType } from "@/types/database";
 
-interface ProducerStatsProps {
+export interface ProducerStatsProps {
   stats: ProducerStatsType;
   isLoading: boolean;
 }
