@@ -69,7 +69,7 @@ const ProducerDashboard = () => {
           <h1 className="text-3xl font-bold">Dashboard</h1>
         </div>
 
-        <ProducerStats stats={stats} isLoading={isStatsLoading} />
+        {stats && <ProducerStats stats={stats} isLoading={isStatsLoading} />}
 
         <div className="grid gap-4 grid-cols-1">
           <FinancialOverview stats={stats} isLoading={isStatsLoading} />
@@ -133,7 +133,7 @@ const ProducerDashboard = () => {
           </TabsContent>
 
           <TabsContent value="revenue">
-            <RevenueChart producerId={user?.id} />
+            {user?.id && <RevenueChart producerId={user.id} />}
           </TabsContent>
 
           <TabsContent value="news">

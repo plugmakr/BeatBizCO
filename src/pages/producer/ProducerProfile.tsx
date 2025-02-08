@@ -157,7 +157,15 @@ export default function ProducerProfile() {
       />
 
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <ProducerStats />
+        <ProducerStats 
+          stats={{
+            totalBeats: 0,
+            totalRevenue: 0,
+            activeProjects: 0,
+            supportTickets: 0
+          }}
+          isLoading={false}
+        />
 
         <Tabs defaultValue="beats" className="space-y-12">
           <TabsList className="bg-background/50 backdrop-blur-sm">

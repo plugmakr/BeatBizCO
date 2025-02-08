@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -27,13 +26,12 @@ export function SoundLibraryFilters({
   const { data: session } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
       return session;
     },
   });
 
-  const { data: tags } = useQuery({
+  const { data: tags = [] } = useQuery({
     queryKey: ["sound-library-tags", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];

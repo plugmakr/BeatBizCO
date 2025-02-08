@@ -1,4 +1,3 @@
-
 import type { Database } from '@/integrations/supabase/types';
 
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
@@ -57,7 +56,7 @@ export interface Sound {
   id: string;
   producer_id: string;
   name: string;
-  title?: string;
+  title: string;
   description: string;
   type: SoundType;
   bpm: number;
@@ -191,10 +190,11 @@ export type Message = {
   type?: string;
 };
 
-export interface ProjectWithProfile extends Project {
+export type ProjectWithProfile = Omit<Project, 'title'> & {
+  title: string;
   profiles?: {
     full_name: string | null;
   } | null;
-}
+};
 
 export { Database };
