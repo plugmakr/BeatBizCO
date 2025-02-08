@@ -8,7 +8,7 @@ export interface ProducerStatsProps {
   isLoading: boolean;
 }
 
-export const ProducerStats = ({ stats, isLoading }: ProducerStatsProps) => {
+export const ProducerStats: React.FC<ProducerStatsProps> = ({ stats, isLoading }) => {
   const statItems = [
     { 
       icon: Music,
