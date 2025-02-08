@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -21,11 +22,12 @@ import { Edit2, Eye, Trash2, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import type { Project } from "@/types/database";
 
-type ProjectWithProfile = Project & {
+interface ProjectWithProfile extends Omit<Project, 'name'> {
+  name?: string | null;
   profiles: {
     full_name: string | null;
   } | null;
-};
+}
 
 const ProducerProjects = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
