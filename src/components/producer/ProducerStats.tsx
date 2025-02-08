@@ -8,7 +8,9 @@ export interface ProducerStatsProps {
   isLoading: boolean;
 }
 
-export function ProducerStats({ stats, isLoading }: ProducerStatsProps) {
+export const ProducerStats = (props: ProducerStatsProps) => {
+  const { stats, isLoading } = props;
+  
   const statItems = [
     { 
       icon: Music,
@@ -55,4 +57,4 @@ export function ProducerStats({ stats, isLoading }: ProducerStatsProps) {
       ))}
     </div>
   );
-}
+};

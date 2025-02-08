@@ -172,11 +172,6 @@ export interface ProducerStats {
   supportTickets?: number;
 }
 
-export interface ProducerStatsProps {
-  stats: ProducerStats;
-  isLoading: boolean;
-}
-
 export interface AdminStats {
   totalUsers: number;
   totalRevenue: number;
