@@ -1,20 +1,52 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
 
-const data = [
-  { month: "Jan", revenue: 4000 },
-  { month: "Feb", revenue: 3000 },
-  { month: "Mar", revenue: 2000 },
-  { month: "Apr", revenue: 2780 },
-  { month: "May", revenue: 1890 },
-  { month: "Jun", revenue: 2390 },
-  { month: "Jul", revenue: 3490 },
-];
+interface RevenueChartProps {
+  producerId: string;
+}
 
-const RevenueChart = () => {
+const RevenueChart = ({ producerId }: RevenueChartProps) => {
+  const { data: monthlyRevenue, isLoading } = useQuery({
+    queryKey: ["monthly-revenue", producerId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("transactions_monthly_revenue")
+        .select("month, revenue")
+        .eq("producer_id", producerId)
+        .order("month", { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!producerId,
+  });
+
+  const chartData = monthlyRevenue?.map(item => ({
+    month: new Date(item.month).toLocaleDateString('en-US', { month: 'short' }),
+    revenue: Number(item.revenue)
+  })) || [];
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Revenue Over Time</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center">
+            Loading...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="col-span-4">
+    <Card>
       <CardHeader>
         <CardTitle>Revenue Over Time</CardTitle>
       </CardHeader>
@@ -31,7 +63,7 @@ const RevenueChart = () => {
               },
             }}
           >
-            <AreaChart data={data}>
+            <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>

@@ -1608,6 +1608,33 @@ export type Database = {
           },
         ]
       }
+      transactions_monthly_revenue: {
+        Row: {
+          created_at: string
+          id: string
+          month: string
+          producer_id: string | null
+          revenue: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: string
+          producer_id?: string | null
+          revenue?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: string
+          producer_id?: string | null
+          revenue?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       admin_stats: {

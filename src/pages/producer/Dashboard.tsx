@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { ProducerStats } from "@/components/producer/ProducerStats";
@@ -69,10 +70,10 @@ const ProducerDashboard = () => {
           <h1 className="text-3xl font-bold">Dashboard</h1>
         </div>
 
-        {stats && <ProducerStats stats={stats} isLoading={isStatsLoading} />}
+        <ProducerStats stats={stats || { totalBeats: 0, totalRevenue: 0, activeProjects: 0, supportTickets: 0 }} isLoading={isStatsLoading} />
 
         <div className="grid gap-4 grid-cols-1">
-          <FinancialOverview stats={stats} isLoading={isStatsLoading} />
+          <FinancialOverview stats={stats || { totalBeats: 0, totalRevenue: 0, activeProjects: 0, supportTickets: 0 }} isLoading={isStatsLoading} />
         </div>
 
         <Tabs defaultValue="overview" className="space-y-4">
