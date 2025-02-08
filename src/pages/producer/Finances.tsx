@@ -1,3 +1,5 @@
+
+import { useEffect, useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import FinancialOverview from "@/components/producer/finances/FinancialOverview";
 import RevenueChart from "@/components/producer/finances/RevenueChart";
@@ -6,8 +8,19 @@ import { TransactionHistory } from "@/components/producer/finances/TransactionHi
 import { CategoryAnalytics } from "@/components/producer/finances/CategoryAnalytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SubscriptionPlan } from "@/components/producer/finances/SubscriptionPlan";
+import { supabase } from "@/integrations/supabase/client";
 
 const ProducerFinances = () => {
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    };
+    getUser();
+  }, []);
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -30,7 +43,7 @@ const ProducerFinances = () => {
 
           <TabsContent value="overview" className="space-y-6">
             <FinancialOverview />
-            <RevenueChart />
+            {userId && <RevenueChart producerId={userId} />}
             <CategoryAnalytics />
           </TabsContent>
 

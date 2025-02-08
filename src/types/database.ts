@@ -195,8 +195,7 @@ export type Message = {
   type?: string;
 };
 
-export type ProjectWithProfile = Omit<Project, 'title'> & {
-  title: string;
+export type ProjectWithProfile = Project & {
   profiles?: {
     full_name: string | null;
   } | null;

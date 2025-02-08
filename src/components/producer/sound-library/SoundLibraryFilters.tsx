@@ -1,3 +1,4 @@
+
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -17,6 +18,12 @@ interface SoundLibraryFiltersProps {
   onTypeChange: (type: SoundType | null) => void;
 }
 
+interface SoundLibraryTag {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export function SoundLibraryFilters({
   selectedTags,
   onTagsChange,
@@ -31,7 +38,7 @@ export function SoundLibraryFilters({
     },
   });
 
-  const { data: tags = [] } = useQuery({
+  const { data: tags = [] } = useQuery<SoundLibraryTag[]>({
     queryKey: ["sound-library-tags", session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return [];
