@@ -29,9 +29,9 @@ type ExtendedProject = Project & {
 
 const ProducerProjects = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
-  const [activeProjects, setActiveProjects] = useState<ExtendedProject[]>([]);
-  const [completedProjects, setCompletedProjects] = useState<ExtendedProject[]>([]);
-  const [selectedProject, setSelectedProject] = useState<ExtendedProject | null>(null);
+  const [activeProjects, setActiveProjects] = useState<Project[]>([]);
+  const [completedProjects, setCompletedProjects] = useState<Project[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingClient, setIsAddingClient] = useState(false);
@@ -67,8 +67,13 @@ const ProducerProjects = () => {
       if (activeError) throw activeError;
       if (completedError) throw completedError;
 
-      setActiveProjects(active || []);
-      setCompletedProjects(completed || []);
+      const processProjects = (projects: any[]) => projects.map(p => ({
+        ...p,
+        name: p.title // Use title as name
+      }));
+
+      setActiveProjects(processProjects(active || []));
+      setCompletedProjects(processProjects(completed || []));
     } catch (error) {
       console.error("Error fetching projects:", error);
       toast({
@@ -143,7 +148,7 @@ const ProducerProjects = () => {
     fetchProjects();
   }, []);
 
-  const ProjectTable = ({ projects }: { projects: ExtendedProject[] }) => (
+  const ProjectTable = ({ projects }: { projects: Project[] }) => (
     <Table>
       <TableHeader>
         <TableRow>

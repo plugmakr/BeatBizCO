@@ -81,7 +81,7 @@ export interface Project {
   status: ProjectStatus;
   created_by: string;
   settings?: any;
-  name?: string | null;
+  name: string;
   created_at: string;
   updated_at: string;
 }
@@ -192,6 +192,13 @@ export type Message = {
 };
 
 export type ProjectWithProfile = Project & {
+  profiles?: {
+    full_name: string | null;
+  } | null;
+};
+
+export type ExtendedProject = Omit<Project, 'name'> & {
+  name?: string;
   profiles?: {
     full_name: string | null;
   } | null;
